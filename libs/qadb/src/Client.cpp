@@ -429,6 +429,64 @@ Reply* Client::connectDevice(const QString& host, quint16 port)
     return reply;
 }
 
+Reply* Client::pair(const QString& address, const QString& code)
+{
+    auto* reply = RA::create<Reply>(this);
+    const QString trimmedCode = code.trimmed();
+    if (trimmedCode.isEmpty() || trimmedCode.contains(QLatin1Char(':'))
+        || address.trimmed().isEmpty()) {
+        detail::runLater(reply, [reply] {
+            RA::fail(reply, Reply::Error::CommandFailed,
+                     QStringLiteral("Pairing needs an address and a pairing code"));
+        });
+        return reply;
+    }
+    const QByteArray request =
+        "host:pair:" + trimmedCode.toUtf8() + ':' + address.trimmed().toUtf8();
+    const auto report = [reply](const QByteArray& answer) {
+        RA::setOutput(reply, answer);
+        if (answer.startsWith("Successfully paired")) {
+            RA::finish(reply);
+        } else {
+            RA::fail(reply, Reply::Error::CommandFailed, QString::fromUtf8(answer).trimmed());
+        }
+    };
+    detail::runLater(reply, [this, reply, request, report] {
+        if (reply->isFinished())
+            return;
+        Channel* channel = ClientOps::newChannel(this, reply);
+        channel->open([=] {
+            channel->sendRequest(request);
+            // The server answers OKAY, then (as of server version 41) a second status before the
+            // message: "OKAY" plus FAIL and a hex-length message when pairing fails. Accept that,
+            // a second OKAY, or the documented hex-length message right away.
+            channel->readStatus([=] {
+                channel->readExact(4, [=](const QByteArray& next) {
+                    if (next == "FAIL" || next == "OKAY") {
+                        channel->readHexString([=](const QByteArray& message) {
+                            channel->close();
+                            report(message);
+                        });
+                        return;
+                    }
+                    const int length = protocol::parseHexLength(next);
+                    if (length < 0) {
+                        channel->fail(Reply::Error::ProtocolError,
+                                      QStringLiteral("Unexpected pairing answer: %1")
+                                          .arg(QString::fromLatin1(next.toHex())));
+                        return;
+                    }
+                    channel->readExact(length, [=](const QByteArray& message) {
+                        channel->close();
+                        report(message);
+                    });
+                });
+            });
+        });
+    });
+    return reply;
+}
+
 Reply* Client::disconnectDevice(const QString& address)
 {
     auto* reply = RA::create<Reply>(this);

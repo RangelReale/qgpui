@@ -296,6 +296,20 @@ bool FakeAdbServer::handleHostRequest(Connection* c, const QString& request)
         c->closeAfterWrite();
         return false;
     }
+    if (request.startsWith(QLatin1String("host:pair:"))) {
+        // host:pair:<code>:<address>. The fake accepts the code 123456.
+        const QString rest = request.mid(10);
+        const qsizetype colon = rest.indexOf(QLatin1Char(':'));
+        const QString code = rest.left(colon);
+        const QByteArray address = rest.mid(colon + 1).toUtf8();
+        // Server version 41 answers a failure with OKAY, then FAIL and the message.
+        if (code == QLatin1String("123456"))
+            s->write("OKAY" + hexString("Successfully paired to " + address + " [guid=adb-FAKE1234-abcdef]"));
+        else
+            s->write("OKAY" + failMessage("Failed: Wrong password or connection was dropped."));
+        c->closeAfterWrite();
+        return false;
+    }
     if (request.startsWith(QLatin1String("host:disconnect:"))) {
         s->write("OKAY" + hexString("disconnected everything"));
         c->closeAfterWrite();

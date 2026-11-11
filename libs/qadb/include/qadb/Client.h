@@ -36,6 +36,13 @@ public:
     // host:connect. Connects to a device over the network. Fails with CommandFailed when the
     // server could not connect; errorString() then holds the server's message.
     Reply* connectDevice(const QString& host, quint16 port = 5555);
+    // host:pair. Pairs with a device's wireless debugging (Android 11 and later). `address` is the
+    // host:port, or the mDNS service name, shown under "Pair device with pairing code"; `code`
+    // is the 6-digit code shown there. The server stores the pairing and then connects to the
+    // device by itself, so DeviceTracker reports it shortly after. output() holds the server's
+    // message, such as "Successfully paired to 192.168.1.20:41234 [guid=adb-XXXX-YYYY]".
+    // Fails with CommandFailed for a wrong code or an unreachable address.
+    Reply* pair(const QString& address, const QString& code);
     // host:disconnect. An empty address disconnects every network device.
     Reply* disconnectDevice(const QString& address = {});
     // host:mdns:services. Devices on the local network that advertise wireless debugging.

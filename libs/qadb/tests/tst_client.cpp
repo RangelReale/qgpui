@@ -125,6 +125,26 @@ private slots:
         QVERIFY(bad->errorString().contains(QLatin1String("failed to connect")));
     }
 
+    void pair()
+    {
+        std::unique_ptr<Reply> ok(client->pair(QStringLiteral("192.168.1.20:41234"), QStringLiteral(" 123456 ")));
+        QVERIFY(ok->waitForFinished(5000));
+        QVERIFY2(ok->isSuccess(), qPrintable(ok->errorString()));
+        QCOMPARE(server->requests.last(), QStringLiteral("host:pair:123456:192.168.1.20:41234"));
+        QVERIFY(ok->outputText().contains(QLatin1String("guid=adb-FAKE1234")));
+
+        std::unique_ptr<Reply> wrong(client->pair(QStringLiteral("192.168.1.20:41234"), QStringLiteral("000000")));
+        QVERIFY(wrong->waitForFinished(5000));
+        QCOMPARE(wrong->error(), Reply::Error::CommandFailed);
+        QVERIFY(wrong->errorString().startsWith(QLatin1String("Failed: Wrong password")));
+
+        const qsizetype requestCount = server->requests.size();
+        std::unique_ptr<Reply> empty(client->pair(QStringLiteral("192.168.1.20:41234"), QString()));
+        QVERIFY(empty->waitForFinished(5000));
+        QCOMPARE(empty->error(), Reply::Error::CommandFailed);
+        QCOMPARE(server->requests.size(), requestCount);
+    }
+
     void mdnsServices()
     {
         std::unique_ptr<MdnsReply> reply(client->mdnsServices());

@@ -237,13 +237,37 @@ QWidget* MainWindow::buildNetworkBox()
                              [this] {
                                  auto* reply = m_client->mdnsServices();
                                  watch(reply, tr("mDNS services"), [this, reply](Reply*) {
-                                     for (const MdnsService& s : reply->services())
+                                     for (const MdnsService& s : reply->services()) {
                                          log(QStringLiteral("  %1  %2  %3").arg(s.name, s.type, s.address));
+                                         // A phone showing "Pair device with pairing code"
+                                         // advertises this service: offer it for pairing.
+                                         if (s.type.startsWith(QLatin1String("_adb-tls-pairing")))
+                                             m_pairAddress->setText(s.address);
+                                     }
                                      if (reply->services().isEmpty())
                                          log(tr("  (none)"));
                                  });
                              }),
                       2, 1);
+
+    // Wireless debugging pairing (Android 11 and later).
+    m_pairAddress = new QLineEdit;
+    m_pairAddress->setPlaceholderText(tr("Pairing address (IP:port)"));
+    m_pairCode = new QLineEdit;
+    m_pairCode->setPlaceholderText(tr("Code"));
+    m_pairCode->setMaxLength(10);
+    layout->addWidget(new QLabel(tr("Pair:")), 3, 0, 1, 3);
+    layout->addWidget(m_pairAddress, 4, 0, 1, 2);
+    layout->addWidget(m_pairCode, 4, 2);
+    layout->addWidget(button(tr("Pair"), box,
+                             [this] {
+                                 const QString address = m_pairAddress->text().trimmed();
+                                 // The code is used once; log the address only.
+                                 watch(m_client->pair(address, m_pairCode->text()), tr("Pair with %1").arg(address),
+                                       [this](Reply* r) { log(QStringLiteral("  ") + r->outputText().trimmed()); });
+                                 m_pairCode->clear();
+                             }),
+                      5, 0);
     return box;
 }
 

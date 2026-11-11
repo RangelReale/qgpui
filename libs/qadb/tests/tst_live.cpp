@@ -74,6 +74,17 @@ private slots:
         qInfo("%d mDNS service(s)", int(reply->services().size()));
     }
 
+    // A wrong code against an address with nothing listening: checks that the real server's
+    // answer is reported as CommandFailed. Pairs with nothing.
+    void pairFailure()
+    {
+        REQUIRE_SERVER();
+        std::unique_ptr<Reply> reply(client.pair(QStringLiteral("127.0.0.1:1"), QStringLiteral("000000")));
+        QVERIFY(reply->waitForFinished(30000));
+        qInfo("pair answered: %s", qPrintable(reply->errorString()));
+        QCOMPARE(reply->error(), Reply::Error::CommandFailed);
+    }
+
     void unknownDevice()
     {
         REQUIRE_SERVER();

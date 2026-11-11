@@ -59,6 +59,8 @@ private:
     QTreeWidget* m_devices = nullptr;
     QLineEdit* m_host = nullptr;
     QSpinBox* m_port = nullptr;
+    QLineEdit* m_pairAddress = nullptr;
+    QLineEdit* m_pairCode = nullptr;
     QLineEdit* m_remotePath = nullptr;
     QLineEdit* m_package = nullptr;
     QCheckBox* m_grant = nullptr;

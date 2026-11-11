@@ -51,5 +51,8 @@ library and a debug tool.
   Code that emits a reply signal must not touch the channel afterwards, because the handler may
   have deleted the reply and its channel.
 - `detail::ReplyAccess` is the library's only write access to replies.
+- The real server (version 41) does not always follow the documented answer format. A failed
+  `host:pair` answers `OKAY` and then `FAIL` with a message. Check new requests against the
+  real server with `tst_qadb_live`, and copy what it does into `FakeAdbServer`.
 - Name free functions on library types so that they do not clash with Qt Test's `toString`
   lookup (hence `deviceStateName`, not `toString`).
