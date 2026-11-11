@@ -1,0 +1,152 @@
+// Checks against a real adb server, and optionally a real device. Skipped unless enabled:
+//
+//   QADB_LIVE=1            server requests (version, devices, tracker, mDNS)
+//   QADB_LIVE_SERIAL=<s>   also read-only device requests on that device
+//   QADB_LIVE_WRITE=1      also push, pull and remove a small file in /data/local/tmp
+//
+// The adb server must already be running (`adb start-server`).
+
+#include "qadb/Client.h"
+#include "qadb/DeviceTracker.h"
+
+#include <QSignalSpy>
+#include <QTemporaryDir>
+#include <QTest>
+
+#include <memory>
+
+using namespace qadb;
+
+// QSKIP only leaves the function it is in, so these are macros.
+#define REQUIRE_SERVER()                                                                              do {                                                                                                  if (qEnvironmentVariable("QADB_LIVE") != QLatin1String("1") && serial.isEmpty())                     QSKIP("Set QADB_LIVE=1 to run against the real adb server");                              } while (false)
+
+#define REQUIRE_DEVICE()                                                                              do {                                                                                                  REQUIRE_SERVER();                                                                                 if (serial.isEmpty())                                                                                 QSKIP("Set QADB_LIVE_SERIAL to run device requests");                                     } while (false)
+
+class TestLive : public QObject
+{
+    Q_OBJECT
+
+private:
+    Client client;
+    QString serial = qEnvironmentVariable("QADB_LIVE_SERIAL");
+
+private slots:
+    void version()
+    {
+        REQUIRE_SERVER();
+        std::unique_ptr<Reply> reply(client.serverVersion());
+        QVERIFY(reply->waitForFinished(5000));
+        QVERIFY2(reply->isSuccess(), qPrintable(reply->errorString()));
+        qInfo("server version %s", qPrintable(reply->outputText()));
+        QVERIFY(reply->outputText().toInt() > 30);
+    }
+
+    void devices()
+    {
+        REQUIRE_SERVER();
+        std::unique_ptr<DevicesReply> reply(client.devices());
+        QVERIFY(reply->waitForFinished(5000));
+        QVERIFY2(reply->isSuccess(), qPrintable(reply->errorString()));
+        for (const DeviceInfo& d : reply->devices())
+            qInfo("device %s %s %s", qPrintable(d.serial), qPrintable(d.stateText), qPrintable(d.model));
+    }
+
+    void tracker()
+    {
+        REQUIRE_SERVER();
+        DeviceTracker tracker;
+        QSignalSpy lists(&tracker, &DeviceTracker::connectedChanged);
+        tracker.start();
+        QTRY_VERIFY_WITH_TIMEOUT(tracker.isConnected(), 5000);
+        // Give the first list time to arrive; it may be empty.
+        QTest::qWait(500);
+        qInfo("tracker sees %d device(s)", int(tracker.devices().size()));
+    }
+
+    void mdns()
+    {
+        REQUIRE_SERVER();
+        std::unique_ptr<MdnsReply> reply(client.mdnsServices());
+        QVERIFY(reply->waitForFinished(5000));
+        // Servers built without mDNS answer FAIL; that is not a library error.
+        if (!reply->isSuccess())
+            QSKIP(qPrintable(QStringLiteral("mDNS unavailable: ") + reply->errorString()));
+        qInfo("%d mDNS service(s)", int(reply->services().size()));
+    }
+
+    void unknownDevice()
+    {
+        REQUIRE_SERVER();
+        std::unique_ptr<ShellReply> reply(client.shell(QStringLiteral("qadb-no-such-device"), QStringLiteral("true")));
+        QVERIFY(reply->waitForFinished(5000));
+        QCOMPARE(reply->error(), Reply::Error::ServerError);
+        qInfo("server says: %s", qPrintable(reply->errorString()));
+    }
+
+    void deviceShell()
+    {
+        REQUIRE_DEVICE();
+        std::unique_ptr<FeaturesReply> features(client.features(serial));
+        QVERIFY(features->waitForFinished(5000));
+        QVERIFY2(features->isSuccess(), qPrintable(features->errorString()));
+        qInfo("features: %s", qPrintable(features->features().join(QLatin1Char(','))));
+
+        std::unique_ptr<ShellReply> model(client.shell(serial, QStringLiteral("getprop ro.product.model")));
+        QVERIFY(model->waitForFinished(10000));
+        QVERIFY2(model->isSuccess(), qPrintable(model->errorString()));
+        qInfo("model: %s", model->output().trimmed().constData());
+        QVERIFY(!model->output().trimmed().isEmpty());
+
+        std::unique_ptr<ShellReply> failing(client.shell(serial, QStringLiteral("ls /qadb-does-not-exist")));
+        QVERIFY(failing->waitForFinished(10000));
+        QVERIFY(failing->isSuccess());
+        if (failing->hasExitCode())
+            QVERIFY(failing->exitCode() != 0);
+    }
+
+    void deviceFiles()
+    {
+        REQUIRE_DEVICE();
+        std::unique_ptr<StatReply> stat(client.stat(serial, QStringLiteral("/sdcard")));
+        QVERIFY(stat->waitForFinished(10000));
+        QVERIFY2(stat->isSuccess(), qPrintable(stat->errorString()));
+        QVERIFY(stat->info().exists());
+
+        std::unique_ptr<ListReply> list(client.list(serial, QStringLiteral("/sdcard")));
+        QVERIFY(list->waitForFinished(10000));
+        QVERIFY2(list->isSuccess(), qPrintable(list->errorString()));
+        qInfo("/sdcard has %d entries", int(list->entries().size()));
+    }
+
+    void deviceWrite()
+    {
+        REQUIRE_DEVICE();
+        if (qEnvironmentVariable("QADB_LIVE_WRITE") != QLatin1String("1"))
+            QSKIP("Set QADB_LIVE_WRITE=1 to push and pull a test file");
+
+        const QString remote = QStringLiteral("/data/local/tmp/qadb-live-test.bin");
+        QByteArray data(300 * 1024, Qt::Uninitialized);
+        for (qsizetype i = 0; i < data.size(); ++i)
+            data[i] = char(i * 13);
+
+        std::unique_ptr<Reply> push(client.pushData(serial, data, remote));
+        QVERIFY(push->waitForFinished(30000));
+        QVERIFY2(push->isSuccess(), qPrintable(push->errorString()));
+
+        QTemporaryDir dir;
+        const QString local = dir.filePath(QStringLiteral("back.bin"));
+        std::unique_ptr<Reply> pull(client.pull(serial, remote, local));
+        QVERIFY(pull->waitForFinished(30000));
+        QVERIFY2(pull->isSuccess(), qPrintable(pull->errorString()));
+        QFile file(local);
+        QVERIFY(file.open(QIODevice::ReadOnly));
+        QCOMPARE(file.readAll(), data);
+
+        std::unique_ptr<ShellReply> rm(client.shell(serial, QStringList{QStringLiteral("rm"), remote}));
+        QVERIFY(rm->waitForFinished(10000));
+        QCOMPARE(rm->exitCode(), 0);
+    }
+};
+
+QTEST_GUILESS_MAIN(TestLive)
+#include "tst_live.moc"

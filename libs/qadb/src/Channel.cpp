@@ -176,9 +176,10 @@ void Channel::onReadyRead()
 
 void Channel::onPeerClosed()
 {
-    if (m_peerClosed)
+    if (m_peerClosed || m_done)
         return;
-    m_buffer += m_socket->readAll();
+    if (m_socket->isOpen())
+        m_buffer += m_socket->readAll();
     m_peerClosed = true;
     process();
 }
