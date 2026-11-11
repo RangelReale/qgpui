@@ -118,6 +118,37 @@ private slots:
         qInfo("/sdcard has %d entries", int(list->entries().size()));
     }
 
+    // Streams a file that is not an APK. The package manager must reject it, so nothing changes
+    // on the device, but the whole streamed install path runs.
+    void deviceInstallRejectsInvalidApk()
+    {
+        REQUIRE_DEVICE();
+        QTemporaryDir dir;
+        const QString path = dir.filePath(QStringLiteral("not-an-apk.apk"));
+        QFile file(path);
+        QVERIFY(file.open(QIODevice::WriteOnly));
+        file.write(QByteArray(100 * 1024, 'x'));
+        file.close();
+
+        std::unique_ptr<Reply> reply(client.install(serial, path));
+        QSignalSpy progress(reply.get(), &Reply::progress);
+        QVERIFY(reply->waitForFinished(60000));
+        qInfo("install answered: %s", qPrintable(reply->errorString()));
+        QCOMPARE(reply->error(), Reply::Error::CommandFailed);
+        QVERIFY(reply->errorString().contains(QLatin1String("Failure")));
+        QVERIFY(!progress.isEmpty());
+        QCOMPARE(progress.last().at(0).toLongLong(), 100 * 1024);
+    }
+
+    void deviceUninstallUnknownPackage()
+    {
+        REQUIRE_DEVICE();
+        std::unique_ptr<Reply> reply(client.uninstall(serial, QStringLiteral("com.qadb.does.not.exist")));
+        QVERIFY(reply->waitForFinished(30000));
+        qInfo("uninstall answered: %s", qPrintable(reply->errorString()));
+        QCOMPARE(reply->error(), Reply::Error::CommandFailed);
+    }
+
     void deviceWrite()
     {
         REQUIRE_DEVICE();
