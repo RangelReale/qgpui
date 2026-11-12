@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "red-dead-redemption-vr",
-  "status": "draft",
   "support": "manual",
   "checkedAgainst": { "packageName": "com.rockstargames.rdr", "version": "v0.1.0-alpha" },
   "requirements": { "freeSpaceMB": 8000 },

@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "ratchet-and-clank-vr",
-  "status": "draft",
   "support": "automatic",
   "checkedAgainst": { "packageName": "dev.ratchetquest.vr", "version": "v0.1.18" },
   "requirements": { "freeSpaceMB": 6000 },

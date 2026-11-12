@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "questcraft",
-  "status": "draft",
   "support": "automatic",
   "checkedAgainst": { "packageName": "com.qcxr.qcxr", "version": "v6.0.0" },
   "apks": [{ "source": "github", "repo": "QuestCraftPlusPlus/QuestCraft", "asset": "^QCXR.*\\.apk$" }],

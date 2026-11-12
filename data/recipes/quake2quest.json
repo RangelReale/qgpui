@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "quake2quest",
-  "status": "draft",
   "support": "automatic",
   "checkedAgainst": {
     "packageName": "com.drbeef.quake2quest",

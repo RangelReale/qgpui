@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "primedgun",
-  "status": "draft",
   "support": "automatic",
   "checkedAgainst": { "packageName": "org.primedgun.primedgun.quest", "version": "v1.1.7" },
   "apks": [

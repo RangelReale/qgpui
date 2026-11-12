@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "astroquest",
-  "status": "draft",
   "support": "automatic",
   "checkedAgainst": {
     "packageName": "com.astrobotquest.vrhost",

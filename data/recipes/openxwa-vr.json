@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "openxwa-vr",
-  "status": "draft",
   "support": "guided",
   "checkedAgainst": {
     "packageName": "org.openxwa.quest",

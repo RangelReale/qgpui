@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "crazy-taxi-vr",
-  "status": "draft",
   "support": "manual",
   "checkedAgainst": {
     "packageName": "com.baywilly.crazytaxivr",

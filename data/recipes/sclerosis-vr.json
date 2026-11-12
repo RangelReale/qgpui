@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "sclerosis-vr",
-  "status": "draft",
   "support": "guided",
   "checkedAgainst": { "packageName": "com.CreaTeam.Sclerosis", "version": "v1.10.7" },
   "apks": [

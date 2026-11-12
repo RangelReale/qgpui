@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "citravr",
-  "status": "draft",
   "support": "automatic",
   "checkedAgainst": {
     "packageName": "org.citra.citra_emu",

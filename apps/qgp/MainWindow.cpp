@@ -372,7 +372,9 @@ void MainWindow::fillCatalogBoxes(const questports::Catalog& catalog)
     auto counted = [](const QString& text, int count) { return tr("%1 (%2)").arg(text).arg(count); };
 
     QList<Choice> choices;
+    m_sourceLabels.clear();
     for (const questports::OriginPlatform& platform : catalog.originPlatforms) {
+        m_sourceLabels.insert(platform.id, platform.label);
         if (const int count = platforms.value(platform.id))
             choices.append({platform.id, counted(platform.label, count)});
     }
@@ -685,7 +687,7 @@ void MainWindow::openGameAt(const QModelIndex& index)
     const questports::Game& game = m_model->game(m_sorted->mapToSource(index).row());
     QPointer<GameDialog>& dialog = m_gameDialogs[game.slug];
     if (!dialog) {
-        dialog = new GameDialog(game, m_headset, m_covers, m_releases, this);
+        dialog = new GameDialog(game, m_headset, m_covers, m_releases, m_sourceLabels.value(game.originPlatform), this);
         connect(dialog, &GameDialog::installFinished, this, &MainWindow::findHeadsetGames);
         dialog->show();
     }

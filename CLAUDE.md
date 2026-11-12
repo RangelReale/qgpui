@@ -72,8 +72,9 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   release (decision 0011); a game on the headset gets an Installed tag on its cover, and one with
   an update an Update band. Each
   box's choice is kept in `QSettings` (`main.cpp` sets the organization name, without which
-  QSettings stores nothing on Windows). The game dialog
-  links to the game's QuestPorts page, and each `pc-install` input to its Steam and GOG pages
+  QSettings stores nothing on Windows). The game dialog's header shows badges (on the headset,
+  update, source, type, port status), the port's `base_game_store` highlighted, and one line of
+  links: the game's QuestPorts page, and the Steam and GOG pages of each `pc-install` input
   (GOG through its product API). `CoverCache` downloads covers through a
   `QNetworkDiskCache` and fits them into one size. `HeadsetConnection` starts the adb server
   if needed, tracks devices and remembers the current headset (`QSettings`) by adb serial and by
@@ -88,7 +89,7 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   (`FilesFolder::inputGuide`), Open Files Folder (creates the game's folder and its
   `qgp - what goes here.txt`), and Install, which fetches the APK, runs `installer::Runner` with
   a progress bar, Continue for tell steps and a log, then records the install with
-  `HeadsetRecordSync` and shows the result in a coloured banner. Details shows `planInstall`'s commands. File > Files Folder changes the files folder (`QSettings`). File > Settings (`SettingsDialog`)
+  `HeadsetRecordSync` and shows the result in a coloured banner. Details shows the port's `troubleshooting_notes`, when it has any, and `planInstall`'s commands. File > Files Folder changes the files folder (`QSettings`). File > Settings (`SettingsDialog`)
   holds the other preferences, such as keeping the headset awake during installs. The icons in `apps/qgp/icons/` are temporary;
   `make-icon.ps1` draws them (Windows PowerShell). `qgp.rc` gives the .exe its icon. `SingleInstance`
   keeps one qgp per user: a second start passes its catalog argument to the first, which comes to

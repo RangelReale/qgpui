@@ -5,16 +5,12 @@
   "description": "How qgp installs one QuestPorts game. Holds only what the QuestPorts payload lacks. See docs/architecture/install-recipes.md. Uses the OpenAPI discriminator keyword, which Ajv supports with its discriminator option.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["format", "version", "slug", "status", "support", "checkedAgainst", "apks", "inputs", "steps"],
+  "required": ["format", "version", "slug", "support", "checkedAgainst", "apks", "inputs", "steps"],
   "properties": {
     "$schema": { "type": "string" },
     "format": { "const": "qgp-install-recipe" },
     "version": { "const": 1 },
     "slug": { "$ref": "#/$defs/slug" },
-    "status": {
-      "description": "draft: written from the guide. reviewed: checked by a person. tested: installed on a real headset.",
-      "enum": ["draft", "reviewed", "tested"]
-    },
     "support": {
       "description": "automatic: qgp does every step on the PC; the user may still act in the headset. guided: the user must also run a PC tool or do a step qgp cannot. manual: qgp can only install what it can and show the instructions.",
       "enum": ["automatic", "guided", "manual"]

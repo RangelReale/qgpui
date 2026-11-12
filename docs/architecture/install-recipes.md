@@ -27,16 +27,18 @@ The format is a first draft (`version: 1`). It was designed from five sample gam
 | `virtua-cop-vr` | Arcade ROM sets, kept zipped |
 | `supertuxkart-vr` | The APK only |
 
-Every game in the payload now has a recipe: 114 `automatic`, 22 `guided` and 9 `manual`. All are `draft`: written from the guides and the GitHub releases, checked against the schema, and resolved to a real APK where the source is GitHub, but not installed on a headset. Each recipe's `notes` list what its author was unsure of.
+Every game in the payload now has a recipe: 114 `automatic`, 22 `guided` and 9 `manual`. They were written from the guides and the GitHub releases, checked against the schema, and resolved to a real APK where the source is GitHub. Most have not been installed on a headset. Each recipe's `notes` list what its author was unsure of.
+
+Recipes used to carry a `status` (`draft`, `reviewed` or `tested`). It was removed on 2026-11-12: the game dialog no longer shows it, and the two tested recipes are recorded below.
 
 Writing them added `support`, `inZip`, `multiple` and the `shell` step. Known gaps:
 
 - Steps cannot be optional, so an optional marker file (wipeout-pure-vr) is left out.
 - Backup and restore for ports that changed their signing key is described in `tell` steps and notes.
 
-urbanterror-vr is the first recipe marked `tested`: the installer library's `Runner` installed it on a Quest 3 from its GitHub release, granted All files access with `appops`, and the game played.
+urbanterror-vr is the first recipe tested on a headset: the installer library's `Runner` installed it on a Quest 3 from its GitHub release, granted All files access with `appops`, and the game played.
 
-ultima-4-vr is the first `tested` recipe with an input. On 2026-11-12 the qgp app's game dialog found Ultima IV in GOG Galaxy by its product ID, at `Ultima 4 - Quest of the Avatar` (the recipe had guessed `Ultima 4`). It installed release 0.2.15 on a Quest 3, pushed the 181 files (13 MB) into `Android/data`, made the `.SAV` files writable with `find ... -exec chmod`, and the game played.
+ultima-4-vr is the first tested recipe with an input. On 2026-11-12 the qgp app's game dialog found Ultima IV in GOG Galaxy by its product ID, at `Ultima 4 - Quest of the Avatar` (the recipe had guessed `Ultima 4`). It installed release 0.2.15 on a Quest 3, pushed the 181 files (13 MB) into `Android/data`, made the `.SAV` files writable with `find ... -exec chmod`, and the game played.
 
 How the runner treats pushes into `Android/data`, and why, is in [decision 0003](../decisions/0003-pushes-into-android-data.md); the measurements behind it are in [How a Quest answers adb](../research/quest-adb-behaviour.md).
 
@@ -46,7 +48,6 @@ How the runner treats pushes into `Android/data`, and why, is in [decision 0003]
 |---|---|
 | `format`, `version` | Always `qgp-install-recipe` and `1`. |
 | `slug` | The game's slug. It must match the file name. |
-| `status` | `draft` means written from the guide. `reviewed` means checked by a person. `tested` means installed on a real headset. |
 | `support` | How much qgp can do. `automatic`: qgp does every step on the PC side; the user may still act in the headset. `guided`: the user must also run a PC tool or do a step qgp cannot, such as a manual download. `manual`: qgp installs what it can and shows the instructions, for example for ports the user builds from source. |
 | `checkedAgainst` | The payload's `packageName`, `latest_version` and `targetPath` at the time the recipe was written. `build-catalog` reports when they change. |
 | `packageName` | Optional. Overrides the payload's package name when the payload is wrong. |

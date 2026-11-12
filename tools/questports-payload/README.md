@@ -186,7 +186,6 @@ One JSON object, version 1. Each game is the payload's game entry, unchanged, pl
       "slug": "xelee",
       "port": {}, "install": {}, "campaigns": null, "resolved": {},  // as in the payload
       "recipe": {
-        "status": "draft",
         "apks": [ /* ... */ ], "inputs": [ /* ... */ ], "steps": [ /* ... */ ]
       },
       "drift": [

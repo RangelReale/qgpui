@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "homeworld-unbound",
-  "status": "draft",
   "support": "automatic",
   "checkedAgainst": {
     "packageName": "org.homeworldunbound.game",

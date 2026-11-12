@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "rtcwquest",
-  "status": "draft",
   "support": "automatic",
   "checkedAgainst": { "packageName": "com.drbeef.rtcwquest", "version": "v1.4.1", "targetPath": "/sdcard/RTCWQuest/" },
   "apks": [{ "source": "github", "repo": "Team-Beef-Studios/RTCWQuest", "asset": "^rtcwquest-.*\\.apk$" }],

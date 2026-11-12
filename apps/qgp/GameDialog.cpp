@@ -39,6 +39,7 @@
 #include <QPlainTextEdit>
 #include <QProgressBar>
 #include <QPushButton>
+#include <QRegularExpression>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QTime>
@@ -64,13 +65,75 @@ QString supportText(installer::Support support)
     return {};
 }
 
-QString statusText(const QString& status)
+// The site's names for its port types, for one game.
+QString categoryText(const QString& category)
 {
-    if (status == QLatin1StringView("tested"))
-        return GameDialog::tr("tested on a headset");
-    if (status == QLatin1StringView("reviewed"))
-        return GameDialog::tr("reviewed, not yet tested");
-    return GameDialog::tr("not yet tested");
+    if (category == QLatin1StringView("source_port"))
+        return GameDialog::tr("Source port");
+    if (category == QLatin1StringView("decompilation"))
+        return GameDialog::tr("Decomp");
+    if (category == QLatin1StringView("engine_recreation"))
+        return GameDialog::tr("Engine recreation");
+    if (category == QLatin1StringView("emulator"))
+        return GameDialog::tr("Emulator");
+    if (category == QLatin1StringView("wrapper"))
+        return GameDialog::tr("Wrapper");
+    if (category == QLatin1StringView("vr_injection"))
+        return GameDialog::tr("VR mod");
+    if (category == QLatin1StringView("game_mod"))
+        return GameDialog::tr("Game mod");
+    QString text = category;
+    return text.replace(QLatin1Char('_'), QLatin1Char(' '));
+}
+
+// Badge colours as "r, g, b". Translucent tints read on both light and dark palettes, as the
+// result banner's do.
+const QString kGreen = QStringLiteral("46, 160, 67");
+const QString kBlue = QStringLiteral("56, 132, 255");
+const QString kPurple = QStringLiteral("137, 87, 229");
+const QString kOrange = QStringLiteral("210, 153, 34");
+const QString kRed = QStringLiteral("218, 54, 51");
+const QString kGrey = QStringLiteral("128, 128, 128");
+
+// The port's status, and the colour of its badge.
+std::pair<QString, QString> portStatusBadge(const QString& status)
+{
+    if (status == QLatin1StringView("released"))
+        return {GameDialog::tr("Released"), kGreen};
+    if (status == QLatin1StringView("playable_beta"))
+        return {GameDialog::tr("Playable beta"), kOrange};
+    if (status == QLatin1StringView("in_development"))
+        return {GameDialog::tr("In development"), kRed};
+    QString text = status;
+    return {text.replace(QLatin1Char('_'), QLatin1Char(' ')), kGrey};
+}
+
+// Sets a badge's text, tooltip and colour.
+void setBadge(QLabel* badge, const QString& text, const QString& toolTip, const QString& colour)
+{
+    badge->setText(text);
+    badge->setToolTip(toolTip);
+    badge->setStyleSheet(QStringLiteral("QLabel { background: rgba(%1, 0.18); border: 1px solid rgba(%1, 0.7);"
+                                        " border-radius: 9px; padding: 1px 8px; }")
+                             .arg(colour));
+}
+
+// Plain text as HTML, with its web addresses as links. An address ends before closing punctuation,
+// so that "(https://x.test)." links only the address.
+QString linkified(const QString& text)
+{
+    static const QRegularExpression url(QStringLiteral(R"(https?:\/\/[^\s<>()]*[^\s<>().,;:!?'"])"));
+    QString html;
+    qsizetype last = 0;
+    for (auto it = url.globalMatch(text); it.hasNext();) {
+        const QRegularExpressionMatch match = it.next();
+        html += text.mid(last, match.capturedStart() - last).toHtmlEscaped();
+        const QString address = match.captured().toHtmlEscaped();
+        html += QStringLiteral("<a href=\"%1\">%1</a>").arg(address);
+        last = match.capturedEnd();
+    }
+    html += text.mid(last).toHtmlEscaped();
+    return html.replace(u'\n', QStringLiteral("<br>"));
 }
 
 QString native(const QString& path)
@@ -103,7 +166,7 @@ void GameDialog::setFilesRoot(const QString& folder)
 }
 
 GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset, CoverCache* covers,
-                       installer::ReleaseLookup* releases, QWidget* parent)
+                       installer::ReleaseLookup* releases, const QString& sourceLabel, QWidget* parent)
     : QDialog(parent)
     , m_game(game)
     , m_headset(headset)
@@ -111,8 +174,12 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     , m_releases(releases)
     , m_cover(new QLabel(this))
     , m_headsetState(new QLabel(this))
+    , m_installedBadge(new QLabel(this))
+    , m_updateBadge(new QLabel(this))
     , m_filesBox(new QGroupBox(tr("Files"), this))
     , m_filesGrid(new QGridLayout)
+    , m_checkFilesButton(new QPushButton(tr("Check Files &Again"), m_filesBox))
+    , m_openFolderButton(new QPushButton(tr("Open Files &Folder"), m_filesBox))
     , m_installButton(new QPushButton(tr("&Install"), this))
     , m_cancelButton(new QPushButton(tr("Stop"), this))
     , m_detailsButton(new QPushButton(tr("&Details..."), this))
@@ -146,28 +213,94 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     title->setFont(titleFont);
     title->setWordWrap(true);
 
+    // Badges: the game on the headset, then the catalog's source, type and status.
+    auto* badges = new QHBoxLayout;
+    badges->setSpacing(6);
+    badges->addWidget(m_installedBadge);
+    setBadge(m_updateBadge, tr("Update available"), tr("A newer release of the game's APK is out"), kOrange);
+    badges->addWidget(m_updateBadge);
+    m_installedBadge->hide();
+    m_updateBadge->hide();
+    const auto addBadge = [this, badges](const QString& text, const QString& toolTip, const QString& colour) {
+        auto* badge = new QLabel(this);
+        setBadge(badge, text, toolTip, colour);
+        badges->addWidget(badge);
+    };
+    if (!m_game.originPlatform.isEmpty()) {
+        const QString source = sourceLabel.isEmpty() ? m_game.originPlatform : sourceLabel;
+        addBadge(source, tr("Source: the platform the game was first made for"), kBlue);
+    }
+    if (!m_game.category.isEmpty())
+        addBadge(categoryText(m_game.category), tr("Type of port"), kPurple);
+    if (!m_game.status.isEmpty()) {
+        const auto [text, colour] = portStatusBadge(m_game.status);
+        addBadge(text, tr("Status of the port"), colour);
+    }
+    badges->addStretch();
+
+    // Where to get the original game (the port row's base_game_store), highlighted: most games
+    // need the user's own copy.
+    auto* baseGame = new QLabel(this);
+    const QString baseGameStore = m_game.port.value(QLatin1StringView("base_game_store")).toString().trimmed();
+    baseGame->setText(tr("<b>Original game:</b> %1").arg(baseGameStore.toHtmlEscaped()));
+    baseGame->setTextFormat(Qt::RichText);
+    baseGame->setWordWrap(true);
+    baseGame->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    baseGame->setStyleSheet(QStringLiteral("QLabel { background: rgba(%1, 0.15); border-left: 3px solid rgb(%1);"
+                                           " padding: 4px 8px; }")
+                                .arg(kOrange));
+    baseGame->setVisible(!baseGameStore.isEmpty());
+
     auto* about = new QLabel(this);
     about->setWordWrap(true);
     QStringList lines;
     if (!m_game.developer.isEmpty())
         lines.append(tr("By %1").arg(m_game.developer.toHtmlEscaped()));
     if (m_recipe) {
-        lines.append(tr("%1. The recipe is %2.").arg(supportText(m_recipe->support), statusText(m_recipe->status)));
+        lines.append(tr("%1.").arg(supportText(m_recipe->support)));
         lines.append(tr("Package: %1").arg(m_recipe->packageName.toHtmlEscaped()));
     } else if (m_game.hasRecipe()) {
         lines.append(tr("The recipe cannot be read: %1").arg(m_recipeError.toHtmlEscaped()));
     } else {
         lines.append(tr("qgp has no install recipe for this game yet."));
     }
-    lines.append(QStringLiteral("<a href=\"https://questports.com/ports/%1\">%2</a>")
-                     .arg(QString::fromUtf8(QUrl::toPercentEncoding(m_game.slug)), tr("QuestPorts page")));
+    // Every external link on one line: QuestPorts, then the Steam and GOG pages of each PC game the
+    // recipe needs. Store links are "store:<index>", because a GOG page needs a lookup first.
+    QStringList links{QStringLiteral("<a href=\"https://questports.com/ports/%1\">%2</a>")
+                          .arg(QString::fromUtf8(QUrl::toPercentEncoding(m_game.slug)), tr("QuestPorts page"))};
+    QList<StorePage> pages;
+    if (m_recipe) {
+        int pcInputs = 0;
+        for (const installer::Input& input : m_recipe->inputs)
+            pcInputs += storePages(input.json).isEmpty() ? 0 : 1;
+        for (const installer::Input& input : m_recipe->inputs) {
+            for (const StorePage& page : storePages(input.json)) {
+                const QString store = page.store == QLatin1StringView("steam") ? tr("Steam") : tr("GOG");
+                // Name the PC game when the recipe needs more than one.
+                const QString text = pcInputs > 1 ? tr("%1: %2").arg(store, input.label) : tr("%1 page").arg(store);
+                links.append(QStringLiteral("<a href=\"store:%1\">%2</a>").arg(pages.size()).arg(text.toHtmlEscaped()));
+                pages.append(page);
+            }
+        }
+    }
+    lines.append(links.join(QStringLiteral(" &middot; ")));
     about->setText(lines.join(QStringLiteral("<br>")));
     about->setTextFormat(Qt::RichText);
-    about->setOpenExternalLinks(true);
+    connect(about, &QLabel::linkActivated, this, [this, pages](const QString& link) {
+        if (link.startsWith(QLatin1StringView("store:"))) {
+            const int index = link.mid(6).toInt();
+            if (index >= 0 && index < pages.size())
+                openStorePage(pages[index]);
+            return;
+        }
+        QDesktopServices::openUrl(QUrl(link));
+    });
     m_headsetState->setWordWrap(true);
 
     auto* headerText = new QVBoxLayout;
     headerText->addWidget(title);
+    headerText->addLayout(badges);
+    headerText->addWidget(baseGame);
     headerText->addWidget(about);
     headerText->addWidget(m_headsetState);
     headerText->addStretch();
@@ -175,22 +308,16 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     header->addWidget(m_cover, 0, Qt::AlignTop);
     header->addLayout(headerText, 1);
 
-    // Files: one row per input, and the files folder.
+    // Files: one row per input, with a Choose button each, and below the last one Check Files Again
+    // and Open Files Folder. The buttons fill their column, so they all have the same width.
     auto* filesLayout = new QVBoxLayout(m_filesBox);
     m_filesGrid->setColumnStretch(0, 2);
     m_filesGrid->setColumnStretch(1, 3);
     filesLayout->addLayout(m_filesGrid);
-    auto* filesButtons = new QHBoxLayout;
-    auto* openFolder = new QPushButton(tr("Open Files &Folder"), this);
-    openFolder->setToolTip(tr("Create this game's folder in your files folder, with a guide to what goes there, and open it"));
-    connect(openFolder, &QPushButton::clicked, this, &GameDialog::openFilesFolder);
-    auto* lookAgain = new QPushButton(tr("&Look Again"), this);
-    lookAgain->setToolTip(tr("Look for the files again in Steam, GOG and your files folder"));
-    connect(lookAgain, &QPushButton::clicked, this, &GameDialog::findInputs);
-    filesButtons->addWidget(openFolder);
-    filesButtons->addWidget(lookAgain);
-    filesButtons->addStretch();
-    filesLayout->addLayout(filesButtons);
+    m_checkFilesButton->setToolTip(tr("Look for the files again in Steam, GOG and your files folder"));
+    connect(m_checkFilesButton, &QPushButton::clicked, this, &GameDialog::findInputs);
+    m_openFolderButton->setToolTip(tr("Create this game's folder in your files folder, with a guide to what goes there, and open it"));
+    connect(m_openFolderButton, &QPushButton::clicked, this, &GameDialog::openFilesFolder);
     m_filesBox->setVisible(m_recipe && !m_recipe->inputs.isEmpty());
 
     // Install: the button, then the progress, the user's turn and the log.
@@ -198,7 +325,7 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     connect(m_installButton, &QPushButton::clicked, this, &GameDialog::install);
     connect(m_cancelButton, &QPushButton::clicked, this, &GameDialog::cancel);
     m_cancelButton->hide();
-    m_detailsButton->setToolTip(tr("Show every command the install runs"));
+    m_detailsButton->setToolTip(tr("Show the port's troubleshooting notes and every command the install runs"));
     connect(m_detailsButton, &QPushButton::clicked, this, &GameDialog::showInstallDetails);
     auto* installRow = new QHBoxLayout;
     installRow->addWidget(m_installButton);
@@ -294,7 +421,9 @@ void GameDialog::findInputs()
 void GameDialog::showInputs()
 {
     while (QLayoutItem* item = m_filesGrid->takeAt(0)) {
-        delete item->widget();
+        QWidget* widget = item->widget();
+        if (widget != m_checkFilesButton && widget != m_openFolderButton)
+            delete widget;
         delete item;
     }
 
@@ -347,25 +476,10 @@ void GameDialog::showInputs()
                 state = input.required ? tr("Not found.") : tr("Not found; the install goes on without it.");
             break;
         }
-        // Links to the Steam and GOG pages of the PC game, when the recipe names the stores.
-        const QList<StorePage> pages = storePages(input.json);
-        QStringList links;
-        for (int i = 0; i < pages.size(); ++i) {
-            const QString name = pages[i].store == QLatin1StringView("steam") ? tr("Steam page") : tr("GOG page");
-            links.append(QStringLiteral("<a href=\"%1\">%2</a>").arg(i).arg(name));
-        }
-        QString html = state.toHtmlEscaped();
-        if (!links.isEmpty())
-            html += QStringLiteral("<br>") + links.join(QStringLiteral(" &middot; "));
-        auto* status = new QLabel(html, m_filesBox);
-        status->setTextFormat(Qt::RichText);
+        auto* status = new QLabel(state, m_filesBox);
+        status->setTextFormat(Qt::PlainText);
         status->setWordWrap(true);
-        status->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
-        connect(status, &QLabel::linkActivated, this, [this, pages](const QString& link) {
-            const int index = link.toInt();
-            if (index >= 0 && index < pages.size())
-                openStorePage(pages[index]);
-        });
+        status->setTextInteractionFlags(Qt::TextSelectableByMouse);
         if (resolved.state != ResolvedInput::State::Found && input.required)
             status->setStyleSheet(QStringLiteral("color: palette(link)"));
         if (!resolved.candidates.isEmpty())
@@ -377,15 +491,19 @@ void GameDialog::showInputs()
 
         m_filesGrid->addWidget(label, row, 0);
         m_filesGrid->addWidget(status, row, 1);
-        m_filesGrid->addWidget(choose, row, 2, Qt::AlignTop);
+        m_filesGrid->addWidget(choose, row, 2, Qt::AlignTop); // Vertical only: it fills the column.
         const QStringList guide = files.inputGuide(inputsJson, index, m_game.slug);
         if (!guide.isEmpty())
             m_filesGrid->addWidget(guideLabel(guide.join(u'\n')), row + 1, 0, 1, 2);
     }
 
+    // The last input's guide row has the third column free: the buttons start there.
+    const int end = qMax(1, int(m_inputs.size()) * 2);
+    m_filesGrid->addWidget(m_checkFilesButton, end - 1, 2, Qt::AlignTop);
+    m_filesGrid->addWidget(m_openFolderButton, end, 2, Qt::AlignTop);
     const QString shared = files.sharedFilesNote(inputsJson);
     if (!shared.isEmpty())
-        m_filesGrid->addWidget(guideLabel(shared), int(m_inputs.size()) * 2, 0, 1, 3);
+        m_filesGrid->addWidget(guideLabel(shared), end, 0, 1, 2);
 }
 
 void GameDialog::chooseInput(int index)
@@ -485,6 +603,8 @@ void GameDialog::openStorePage(const StorePage& page)
 void GameDialog::showHeadsetState()
 {
     m_updateAvailable = false;
+    m_updateBadge->hide();
+    showInstalledBadge(Installed::Unknown);
     updateButtons();
     if (!m_headset->isReady()) {
         m_headsetState->setText(tr("Headset: %1").arg(m_headset->statusText()));
@@ -509,6 +629,7 @@ void GameDialog::showHeadsetState()
         }
         if (!reply->isInstalled()) {
             m_headsetState->setText(tr("Not installed on %1.").arg(name));
+            showInstalledBadge(Installed::NotInstalled);
             return;
         }
         const qadb::PackageInfo installed = reply->info();
@@ -531,9 +652,30 @@ void GameDialog::showHeadsetState()
             const QString state = record ? tr("Installed on %1 by qgp: version %2.").arg(name, version)
                                          : tr("Installed on %1 outside qgp: version %2.").arg(name, version);
             m_headsetState->setText(state);
+            showInstalledBadge(record ? Installed::ByQgp : Installed::OutsideQgp);
             showUpdate(state, installed, record);
         });
     });
+}
+
+void GameDialog::showInstalledBadge(Installed installed)
+{
+    switch (installed) {
+    case Installed::Unknown:
+        m_installedBadge->hide();
+        return;
+    case Installed::NotInstalled:
+        setBadge(m_installedBadge, tr("Not installed"), tr("The game is not on the current headset"), kGrey);
+        break;
+    case Installed::ByQgp:
+        setBadge(m_installedBadge, tr("Installed"), tr("qgp installed the game on the current headset"), kGreen);
+        break;
+    case Installed::OutsideQgp:
+        setBadge(m_installedBadge, tr("Installed outside qgp"),
+                 tr("The game is on the current headset, but qgp did not install it"), kGreen);
+        break;
+    }
+    m_installedBadge->show();
 }
 
 void GameDialog::showUpdate(const QString& state, const qadb::PackageInfo& installed,
@@ -552,6 +694,7 @@ void GameDialog::showUpdate(const QString& state, const qadb::PackageInfo& insta
         switch (installer::updateStatus(installed, record, asset->tag)) {
         case installer::UpdateStatus::UpdateAvailable:
             m_updateAvailable = true;
+            m_updateBadge->show();
             m_headsetState->setText(tr("%1 An update is available: release %2.").arg(state, asset->tag));
             break;
         case installer::UpdateStatus::UpToDate:
@@ -584,38 +727,62 @@ void GameDialog::updateButtons()
     m_installButton->setEnabled(!m_running && hint.isEmpty());
     m_installButton->setVisible(!m_running);
     m_cancelButton->setVisible(m_running);
-    m_detailsButton->setEnabled(m_recipe.has_value());
+    m_detailsButton->setEnabled(m_recipe.has_value() || !troubleshootingNotes().isEmpty());
     m_installHint->setText(m_running ? QString() : hint);
+}
+
+QString GameDialog::troubleshootingNotes() const
+{
+    return m_game.port.value(QLatin1StringView("troubleshooting_notes")).toString().trimmed();
 }
 
 void GameDialog::showInstallDetails()
 {
-    if (!m_recipe)
+    const QString notes = troubleshootingNotes();
+    if (!m_recipe && notes.isEmpty())
         return;
-    installer::InstallPlan plan = installer::planInstall(*m_recipe, {}, InputResolver::sources(m_inputs));
-    plan.steps.append({tr("Record the install"),
-                       {tr("Write the release and version to /sdcard/qgp/installs.json on the headset.")}});
-    const QString text = plan.toText();
 
     auto* dialog = new QDialog(this);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->setWindowTitle(tr("How qgp installs %1").arg(m_game.title));
-    auto* intro = new QLabel(tr("The install runs these steps in order, with the files as they are found now. "
-                                "Lines that start with adb are the commands as the adb tool would take them; "
-                                "qgp sends them to the adb server itself."),
-                             dialog);
-    intro->setWordWrap(true);
-    auto* view = new QPlainTextEdit(text, dialog);
-    view->setReadOnly(true);
-    view->setLineWrapMode(QPlainTextEdit::NoWrap);
-    view->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
-    auto* buttons = new QDialogButtonBox(QDialogButtonBox::Close, dialog);
-    QPushButton* copy = buttons->addButton(tr("&Copy"), QDialogButtonBox::ActionRole);
-    connect(copy, &QPushButton::clicked, dialog, [text] { QApplication::clipboard()->setText(text); });
-    connect(buttons, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
     auto* layout = new QVBoxLayout(dialog);
-    layout->addWidget(intro);
-    layout->addWidget(view, 1);
+    auto* buttons = new QDialogButtonBox(QDialogButtonBox::Close, dialog);
+    connect(buttons, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
+
+    // QuestPorts' troubleshooting notes for the port, above the steps.
+    if (!notes.isEmpty()) {
+        auto* box = new QGroupBox(tr("Troubleshooting"), dialog);
+        auto* label = new QLabel(linkified(notes), box);
+        label->setTextFormat(Qt::RichText);
+        label->setWordWrap(true);
+        label->setOpenExternalLinks(true);
+        label->setTextInteractionFlags(Qt::TextBrowserInteraction);
+        auto* boxLayout = new QVBoxLayout(box);
+        boxLayout->addWidget(label);
+        layout->addWidget(box);
+    }
+
+    if (m_recipe) {
+        installer::InstallPlan plan = installer::planInstall(*m_recipe, {}, InputResolver::sources(m_inputs));
+        plan.steps.append({tr("Record the install"),
+                           {tr("Write the release and version to /sdcard/qgp/installs.json on the headset.")}});
+        const QString text = plan.toText();
+        auto* intro = new QLabel(tr("The install runs these steps in order, with the files as they are found now. "
+                                    "Lines that start with adb are the commands as the adb tool would take them; "
+                                    "qgp sends them to the adb server itself."),
+                                 dialog);
+        intro->setWordWrap(true);
+        auto* view = new QPlainTextEdit(text, dialog);
+        view->setReadOnly(true);
+        view->setLineWrapMode(QPlainTextEdit::NoWrap);
+        view->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
+        QPushButton* copy = buttons->addButton(tr("&Copy"), QDialogButtonBox::ActionRole);
+        connect(copy, &QPushButton::clicked, dialog, [text] { QApplication::clipboard()->setText(text); });
+        layout->addWidget(intro);
+        layout->addWidget(view, 1);
+    } else {
+        layout->addStretch();
+    }
     layout->addWidget(buttons);
     dialog->resize(900, 600);
     dialog->show();

@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "razexr",
-  "status": "draft",
   "support": "automatic",
   "checkedAgainst": { "packageName": "com.drbeef.razexr", "version": "v1.0.0", "targetPath": "/sdcard/RazeXR/" },
   "apks": [{ "source": "github", "repo": "Team-Beef-Studios/RazeXR", "asset": "^razexr-.*\\.apk$" }],

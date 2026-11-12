@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "ut99-vr-quest",
-  "status": "draft",
   "support": "automatic",
   "checkedAgainst": {
     "packageName": "com.ghwstvr.ut99quest",

@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "strikers-quest-mr",
-  "status": "draft",
   "support": "automatic",
   "checkedAgainst": {
     "packageName": "io.github.newcoke.strikers",

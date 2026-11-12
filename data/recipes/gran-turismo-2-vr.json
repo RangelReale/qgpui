@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "gran-turismo-2-vr",
-  "status": "draft",
   "support": "guided",
   "checkedAgainst": {
     "packageName": "io.github.gt2pc.quest",

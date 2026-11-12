@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "openmohaa-vr",
-  "status": "draft",
   "support": "guided",
   "checkedAgainst": {
     "packageName": "org.openmoh.openmohaa",

@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "bugdom-vr",
-  "status": "draft",
   "support": "automatic",
   "checkedAgainst": {
     "packageName": "io.jor.bugdom",

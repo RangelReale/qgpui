@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "opencmr2-vr",
-  "status": "draft",
   "support": "guided",
   "checkedAgainst": {
     "packageName": "org.opencmr2.vr",

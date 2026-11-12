@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "age-of-joy",
-  "status": "draft",
   "support": "guided",
   "checkedAgainst": {
     "packageName": "com.curif.AgeOfJoy",

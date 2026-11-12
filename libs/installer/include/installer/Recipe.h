@@ -75,7 +75,6 @@ struct Step
 
 struct Recipe
 {
-    QString status; // "draft", "reviewed" or "tested".
     Support support = Support::Automatic;
     QString packageName; // The game's main package.
     qint64 freeSpaceMB = 0;
