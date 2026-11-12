@@ -147,6 +147,10 @@ private slots:
         QCOMPARE(GameFinder::applyRoot(m_quake + QStringLiteral("/id1"), QStringLiteral("id1")),
                  m_quake + QStringLiteral("/id1"));
         QCOMPARE(GameFinder::applyRoot(m_quake, {}), m_quake);
+        // A root from the catalog that would leave the install is ignored, even when it exists.
+        QCOMPARE(GameFinder::applyRoot(m_quake + QStringLiteral("/id1"), QStringLiteral("..")),
+                 m_quake + QStringLiteral("/id1"));
+        QCOMPARE(GameFinder::applyRoot(m_quake, m_tmp.path()), m_quake);
     }
 
     void matchesDetectPaths()
@@ -156,6 +160,9 @@ private slots:
         QVERIFY(GameFinder::matchesDetect(m_quake, {QStringLiteral("id1")})); // A folder counts.
         QVERIFY(!GameFinder::matchesDetect(m_quake, {QStringLiteral("id1/pak0.pak"), QStringLiteral("id1/pak2.pak")}));
         QVERIFY(!GameFinder::matchesDetect(m_tmp.filePath(QStringLiteral("missing")), {QStringLiteral("x")}));
+        // Paths that would leave the install match nothing, even when they exist.
+        QVERIFY(!GameFinder::matchesDetect(m_quake + QStringLiteral("/id1"), {QStringLiteral("../id1/pak0.pak")}));
+        QVERIFY(!GameFinder::matchesDetect(m_quake, {m_quake + QStringLiteral("/id1/pak0.pak")}));
     }
 };
 

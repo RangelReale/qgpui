@@ -12,17 +12,23 @@
 #include <QRegularExpression>
 #include <QSaveFile>
 
+#include <algorithm>
 #include <utility>
 
 namespace installer {
 
 namespace {
 
-// A file system name for a repository or tag.
-QString safeName(QString s)
+// A file system name for a repository, tag or downloaded file. These come from the catalog and
+// from GitHub's answers, so nothing in them may name another folder: no separator survives, and
+// a name of only dots is replaced.
+QString safeName(QString s, const QString& fallback = QStringLiteral("_"))
 {
     static const QRegularExpression unsafe(QStringLiteral("[^A-Za-z0-9._-]"));
-    return s.replace(unsafe, QStringLiteral("_"));
+    s.replace(unsafe, QStringLiteral("_"));
+    if (s.isEmpty() || std::all_of(s.cbegin(), s.cend(), [](QChar c) { return c == u'.'; }))
+        return fallback;
+    return s;
 }
 
 } // namespace
@@ -116,7 +122,7 @@ void ApkFetcher::fetch(const ApkSource& source)
     }
     if (source.kind == ApkSource::Kind::Url) {
         const QUrl url(source.url);
-        download(url, QDir(m_cacheDir).filePath(QStringLiteral("url")), QFileInfo(url.path()).fileName(), 0);
+        download(url, QDir(m_cacheDir).filePath(QStringLiteral("url")), safeName(QFileInfo(url.path()).fileName(), QStringLiteral("download.apk")), 0);
         return;
     }
 
@@ -134,7 +140,7 @@ void ApkFetcher::fetch(const ApkSource& source)
         }
         emit resolved(asset->tag, asset->name);
         const QString folder = QDir(m_cacheDir).filePath(safeName(source.repo) + u'/' + safeName(asset->tag));
-        download(asset->url, folder, asset->name, asset->size);
+        download(asset->url, folder, safeName(asset->name, QStringLiteral("download.apk")), asset->size);
     });
 }
 

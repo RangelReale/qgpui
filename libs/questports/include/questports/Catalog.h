@@ -83,6 +83,11 @@ struct Catalog
 
 // Reads a catalog. Returns nothing, and sets *errorMessage when it is given, if the data is not a
 // catalog of kCatalogFormat and kCatalogVersion or a game has no slug or title.
+// True for a slug that is safe as a folder name: lower-case letters and digits in words joined by
+// single hyphens, as data/recipe.schema.json requires. The catalog comes from outside qgp, and
+// gamestores::FilesFolder makes a folder for each game from its slug.
+bool isValidSlug(const QString& slug);
+
 std::optional<Catalog> parseCatalog(const QByteArray& json, QString* errorMessage = nullptr);
 
 // Reads a catalog file. Fails as parseCatalog does, and when the file cannot be read.

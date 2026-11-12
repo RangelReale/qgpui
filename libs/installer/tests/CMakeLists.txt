@@ -1,6 +1,7 @@
 qgp_add_qt_test(tst_installer_recipe
     SOURCES tst_recipe.cpp
     LIBRARIES qgp::installer)
+target_compile_definitions(tst_installer_recipe PRIVATE QGP_RECIPES_DIR="${PROJECT_SOURCE_DIR}/data/recipes")
 
 qgp_add_qt_test(tst_installer_pushplan
     SOURCES tst_pushplan.cpp

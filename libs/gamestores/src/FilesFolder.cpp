@@ -2,6 +2,8 @@
 
 #include "gamestores/Finder.h"
 
+#include "SafePath.h"
+
 #include <QDir>
 #include <QDirIterator>
 #include <QFile>
@@ -174,7 +176,7 @@ FilesMatch FilesFolder::find(const QString& slug, const QJsonArray& inputs, cons
         else
             others.append(object);
     }
-    if (input.isEmpty() || m_root.isEmpty() || slug.isEmpty())
+    if (input.isEmpty() || m_root.isEmpty() || !detail::isPlainName(slug) || !detail::isPlainName(inputId))
         return {};
 
     // Steps 1 and 2: the input folder alone, or the game folder without the other inputs' folders.
@@ -183,8 +185,11 @@ FilesMatch FilesFolder::find(const QString& slug, const QJsonArray& inputs, cons
     const QString area = inOwnFolder ? ownFolder : gameFolder(slug);
     QStringList skip;
     if (!inOwnFolder) {
-        for (const QJsonObject& other : std::as_const(others))
-            skip.append(inputFolder(slug, other.value(QLatin1StringView("id")).toString()));
+        for (const QJsonObject& other : std::as_const(others)) {
+            const QString id = other.value(QLatin1StringView("id")).toString();
+            if (detail::isPlainName(id))
+                skip.append(inputFolder(slug, id));
+        }
     }
 
     if (input.value(QLatin1StringView("kind")).toString() == QLatin1StringView("pc-install")) {
@@ -347,9 +352,26 @@ QString FilesFolder::guideText(const QString& title, const QJsonArray& inputs) c
 bool FilesFolder::create(const QString& slug, const QString& title, const QJsonArray& inputs,
                          QString* errorMessage) const
 {
+    // The slug and the ids come from the catalog: refuse any that would name another folder.
+    if (m_root.isEmpty()) {
+        if (errorMessage)
+            *errorMessage = QStringLiteral("No files folder is set.");
+        return false;
+    }
+    if (!detail::isPlainName(slug)) {
+        if (errorMessage)
+            *errorMessage = QStringLiteral("\"%1\" cannot be a folder name.").arg(slug);
+        return false;
+    }
     QStringList folders{gameFolder(slug)};
-    for (const QString& id : inputsNeedingFolders(inputs))
+    for (const QString& id : inputsNeedingFolders(inputs)) {
+        if (!detail::isPlainName(id)) {
+            if (errorMessage)
+                *errorMessage = QStringLiteral("The input id \"%1\" cannot be a folder name.").arg(id);
+            return false;
+        }
         folders.append(inputFolder(slug, id));
+    }
     for (const QString& folder : std::as_const(folders)) {
         if (!QDir().mkpath(folder)) {
             if (errorMessage)

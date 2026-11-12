@@ -3,6 +3,7 @@
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonParseError>
+#include <QRegularExpression>
 
 namespace questports {
 
@@ -127,11 +128,19 @@ std::optional<Catalog> parseCatalog(const QByteArray& json, QString* errorMessag
 
         if (game.slug.isEmpty())
             return fail(errorMessage, QStringLiteral("Game %1 has no slug.").arg(i));
+        if (!isValidSlug(game.slug))
+            return fail(errorMessage, QStringLiteral("Game %1 has the unsafe slug \"%2\".").arg(i).arg(game.slug));
         if (game.title.isEmpty())
             return fail(errorMessage, QStringLiteral("Game \"%1\" has no title.").arg(game.slug));
         catalog.games.append(std::move(game));
     }
     return catalog;
+}
+
+bool isValidSlug(const QString& slug)
+{
+    static const QRegularExpression re(QStringLiteral("^[a-z0-9]+(-[a-z0-9]+)*$"));
+    return re.match(slug).hasMatch();
 }
 
 std::optional<Catalog> loadCatalog(const QString& path, QString* errorMessage)
