@@ -284,7 +284,7 @@ void MainWindow::createToolBar()
     m_store->setItemData(3, tr("Games whose PC game is installed through Steam on this PC"), Qt::ToolTipRole);
     m_store->setItemData(4, tr("Games whose PC game is installed through GOG, or owned in GOG Galaxy"), Qt::ToolTipRole);
 
-    addBox(toolBar, tr("&Headset:"), m_onHeadset);
+    addBox(toolBar, tr("&Installed:"), m_onHeadset);
     m_onHeadset->addItem(tr("Any"), int(GameFilter::Headset::Any));
     m_onHeadset->addItem(tr("On my headset"), int(GameFilter::Headset::OnHeadset));
     m_onHeadset->addItem(tr("Installed by qgp"), int(GameFilter::Headset::InstalledByQgp));
