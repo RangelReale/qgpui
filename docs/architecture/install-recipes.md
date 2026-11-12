@@ -115,3 +115,5 @@ A folder that is not a store install, such as an arcade dump, is a `pc-install` 
 - input IDs are unique, and every input is pushed;
 - every push names an existing input, and a `from` matches one of that input's `names`;
 - there is an `install-apk` step, and no `grant` or `launch` comes before it.
+
+qgp does not trust the catalog it reads ([decision 0016](../decisions/0016-checking-the-catalog-again.md)). `installer::parseRecipe` checks the ids, headset paths, relative paths, package names, repositories, appops and permissions again, with the schema's rules, and `planPush` checks each final headset path. Headset paths must stay below `/sdcard/`: no empty, `.` or `..` segment, no backslash and no control character. Relative paths (`root`, `detect`, `from`) must not be absolute, name a drive or contain `..`.
