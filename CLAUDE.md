@@ -60,7 +60,7 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   `questports::GameOrder`; `GameSortModel` applies it and `QSettings` remembers it. Four more boxes filter, and a
   game must match all of them (`GameFilter`): Source (the site's origin platform,
   `resolved.originPlatform`), Store (sold on Steam or GOG, from the recipe's `stores`, or in this
-  PC's Steam or GOG library, from `GameFinder` when the catalog loads), Headset (on the current
+  PC's Steam or GOG library, from `GameFinder` when the catalog loads), Installed (on the current
   headset, installed by qgp, installed outside qgp, i.e. with no entry in the headset's install
   records, not on it, or with an update) and Self-contained only (an automatic recipe, no manual
   APK, and every required input and each input group free). A second row holds the site's own
