@@ -10,6 +10,13 @@ class GameListModel;
 class GameSortModel;
 class HeadsetConnection;
 class HeadsetDialog;
+namespace installer {
+struct InstallRecord;
+class ReleaseLookup;
+} // namespace installer
+namespace qadb {
+struct PackageInfo;
+}
 namespace questports {
 struct Catalog;
 struct Game;
@@ -52,6 +59,10 @@ private:
     void findLibraries();
     // Reads the current headset's packages and install records, and marks the games on it.
     void findHeadsetGames();
+    // Marks the game when its APK has a newer release than the headset's package. Does nothing when
+    // the headset query has changed by the time the answers come.
+    void checkForUpdate(const questports::Game& game, const QString& serial, const qadb::PackageInfo& package,
+                        const QHash<QString, installer::InstallRecord>& recorded, int query);
     void showHeadsetDialog();
     void updateHeadsetStatus();
     void chooseFilesFolder();
@@ -83,6 +94,7 @@ private:
     QListView* m_view;
     QLabel* m_status;
     HeadsetConnection* m_headset;
+    installer::ReleaseLookup* m_releases; // Shared with the game dialogs.
     HeadsetDialog* m_headsetDialog = nullptr;
     QAction* m_headsetAction = nullptr;
     QAction* m_openGameAction = nullptr;

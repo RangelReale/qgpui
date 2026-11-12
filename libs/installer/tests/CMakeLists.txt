@@ -12,7 +12,7 @@ qgp_add_qt_test(tst_installer_updates
 
 qgp_add_qt_test(tst_installer_releases
     SOURCES tst_releases.cpp
-    LIBRARIES qgp::installer)
+    LIBRARIES qgp::installer Qt6::Network)
 
 # Runs recipes against qadb's FakeAdbServer.
 qgp_add_qt_test(tst_installer_runner

@@ -1,5 +1,7 @@
 #include "installer/ApkFetcher.h"
 
+#include "GitHub.h"
+
 #include <QDir>
 #include <QFileInfo>
 #include <QJsonDocument>
@@ -23,6 +25,10 @@ QString safeName(QString s)
     return s.replace(unsafe, QStringLiteral("_"));
 }
 
+} // namespace
+
+namespace detail {
+
 QNetworkRequest request(const QUrl& url)
 {
     QNetworkRequest req(url);
@@ -31,7 +37,22 @@ QNetworkRequest request(const QUrl& url)
     return req;
 }
 
-} // namespace
+QNetworkRequest releasesRequest(const QUrl& apiBase, const QString& repo)
+{
+    QUrl url = apiBase;
+    url.setPath(url.path() + QStringLiteral("/repos/%1/releases").arg(repo));
+    url.setQuery(QStringLiteral("per_page=100"));
+    QNetworkRequest req = request(url);
+    req.setRawHeader("Accept", "application/vnd.github+json");
+    const QByteArray token = qgetenv("GITHUB_TOKEN");
+    if (!token.isEmpty())
+        req.setRawHeader("Authorization", "Bearer " + token);
+    return req;
+}
+
+} // namespace detail
+
+using detail::request;
 
 std::optional<ReleaseAsset> pickRelease(const QJsonArray& releases, const ApkSource& source)
 {
@@ -99,15 +120,7 @@ void ApkFetcher::fetch(const ApkSource& source)
         return;
     }
 
-    QUrl url = m_apiBase;
-    url.setPath(url.path() + QStringLiteral("/repos/%1/releases").arg(source.repo));
-    url.setQuery(QStringLiteral("per_page=100"));
-    QNetworkRequest req = request(url);
-    req.setRawHeader("Accept", "application/vnd.github+json");
-    const QByteArray token = qgetenv("GITHUB_TOKEN");
-    if (!token.isEmpty())
-        req.setRawHeader("Authorization", "Bearer " + token);
-    m_reply = m_network->get(req);
+    m_reply = m_network->get(detail::releasesRequest(m_apiBase, source.repo));
     connect(m_reply, &QNetworkReply::finished, this, [this, reply = m_reply, source] {
         reply->deleteLater();
         if (reply->error() != QNetworkReply::NoError) {

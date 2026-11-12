@@ -41,6 +41,13 @@ GameFlags headsetFlags(const questports::Game& game, const QSet<QString>& instal
     return GameFlag::OnHeadset | (recorded.contains(package) ? GameFlag::InstalledByQgp : GameFlag::InstalledOutsideQgp);
 }
 
+std::optional<installer::ApkSource> updateSource(const installer::Recipe& recipe)
+{
+    if (recipe.apks.isEmpty() || recipe.apks.first().kind != installer::ApkSource::Kind::GitHub)
+        return std::nullopt;
+    return recipe.apks.first();
+}
+
 GameFlags selfContained(const questports::Game& game)
 {
     // Guided and manual recipes leave work to the user outside qgp, such as running the port's

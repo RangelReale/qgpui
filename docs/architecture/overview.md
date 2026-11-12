@@ -35,6 +35,10 @@ data/recipes/<slug>.json (qgp's own, hand-written) ─────────�
 4. `installer::Runner` runs the steps through `qadb`: installs, grants, launches, pushes ([decision 0003](../decisions/0003-pushes-into-android-data.md)), verifies, and pauses for steps the user does in the headset.
 5. The app records what it installed in `/sdcard/qgp/installs.json` on the headset, with a copy on the PC keyed by the headset's hardware serial for when no headset is connected ([decisions 0004](../decisions/0004-headset-identity.md), [0006](../decisions/0006-update-detection.md) and [0008](../decisions/0008-install-records-on-the-headset.md)).
 
+## Updates
+
+Each time the app reads the current headset, it checks the games on it for updates ([decision 0011](../decisions/0011-checking-for-updates.md)). `installer::ReleaseLookup` finds the newest release of each game's first APK, asking GitHub once per repository, and `installer::updateStatus` compares it with the package on the headset and its install record ([decision 0006](../decisions/0006-update-detection.md)). A game with an update is marked on its cover, and its game dialog offers Update instead of Install. An update is an ordinary install of the newer release.
+
 ## Without a headset
 
 The catalog, the recipes and the PC-side checks work with no Quest connected, and with no adb. Every device query fails as an ordinary reply. See [decision 0005](../decisions/0005-works-without-a-headset.md).

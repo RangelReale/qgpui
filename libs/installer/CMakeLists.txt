@@ -4,12 +4,15 @@ qt_add_library(installer STATIC
     include/installer/HeadsetRecords.h
     include/installer/PushPlan.h
     include/installer/Recipe.h
+    include/installer/ReleaseLookup.h
     include/installer/Runner.h
     include/installer/Updates.h
     src/ApkFetcher.cpp
     src/HeadsetRecords.cpp
     src/PushPlan.cpp
+    src/GitHub.h
     src/Recipe.cpp
+    src/ReleaseLookup.cpp
     src/Runner.cpp
     src/Updates.cpp
 )

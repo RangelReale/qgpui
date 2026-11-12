@@ -79,6 +79,8 @@ bool GameSortModel::accepts(const questports::Game& game, GameFlags flags) const
         return flags.testFlag(GameFlag::InstalledOutsideQgp);
     case GameFilter::Headset::NotOnHeadset:
         return !flags.testFlag(GameFlag::OnHeadset);
+    case GameFilter::Headset::UpdateAvailable:
+        return flags.testFlag(GameFlag::UpdateAvailable);
     }
     return true;
 }

@@ -32,6 +32,8 @@ public:
     void setLibraries(const QHash<QString, GameFlags>& holding);
     // Sets which games are on the current headset, by slug. Empty when there is no headset.
     void setHeadset(const QHash<QString, GameFlags>& onHeadset);
+    // Marks a game on the current headset as having an update. setHeadset() clears the marks.
+    void setUpdateAvailable(const QString& slug);
 
     int rowCount(const QModelIndex& parent = {}) const override;
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
