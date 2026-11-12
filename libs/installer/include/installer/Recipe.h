@@ -10,7 +10,7 @@
 namespace installer {
 
 // An install recipe as qgp runs it. The JSON format is data/recipe.schema.json, described in
-// docs/install-recipes.md; build-catalog has already checked it, so parsing only rejects what the
+// docs/architecture/install-recipes.md; build-catalog has already checked it, so parsing only rejects what the
 // runner cannot work with.
 
 enum class Support { Automatic, Guided, Manual };

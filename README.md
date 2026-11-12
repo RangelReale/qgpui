@@ -13,7 +13,7 @@ copying files.
 - [`tools/adbmanager`](tools/adbmanager): a debug window for trying qadb on a real headset.
 - [`tools/questports-payload`](tools/questports-payload/README.md): builds one JSON file with the
   QuestPorts game list and each game's install requirements (Node).
-- [`docs`](docs): research notes.
+- [`docs`](docs/README.md): research, architecture and decision records.
 
 ## Build
 

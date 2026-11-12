@@ -1,5 +1,5 @@
 // Reads the game list from the QuestPorts Supabase database.
-// See docs/questports-data-sources.md, "Option 1: Supabase REST API".
+// See docs/research/questports-data-sources.md, "Option 1: Supabase REST API".
 
 export const DEFAULT_SITE_URL = 'https://questports.com'
 export const DEFAULT_SUPABASE_URL = 'https://ccjteoxolasldhfgnoyx.supabase.co'

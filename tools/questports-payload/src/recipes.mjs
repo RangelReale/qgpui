@@ -1,4 +1,4 @@
-// Reads and checks qgp install recipes (data/recipes/<slug>.json). See docs/install-recipes.md.
+// Reads and checks qgp install recipes (data/recipes/<slug>.json). See docs/architecture/install-recipes.md.
 
 import { readFile, readdir } from 'node:fs/promises'
 import path from 'node:path'

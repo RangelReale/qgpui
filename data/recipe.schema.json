@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/RangelReale/qgp/data/recipe.schema.json",
   "title": "qgp install recipe",
-  "description": "How qgp installs one QuestPorts game. Holds only what the QuestPorts payload lacks. See docs/install-recipes.md. Uses the OpenAPI discriminator keyword, which Ajv supports with its discriminator option.",
+  "description": "How qgp installs one QuestPorts game. Holds only what the QuestPorts payload lacks. See docs/architecture/install-recipes.md. Uses the OpenAPI discriminator keyword, which Ajv supports with its discriminator option.",
   "type": "object",
   "additionalProperties": false,
   "required": ["format", "version", "slug", "status", "support", "checkedAgainst", "apks", "inputs", "steps"],

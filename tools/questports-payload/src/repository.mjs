@@ -1,5 +1,5 @@
 // Loads the per-game install data from the QuestPorts source code.
-// See docs/questports-data-sources.md, "Required game files".
+// See docs/research/questports-data-sources.md, "Required game files".
 //
 // The data is TypeScript, and part of it is computed (for example MGS_DISC_LANGUAGES.map(...)), so
 // it cannot be read as text. Instead, esbuild bundles the data files into one JavaScript module,

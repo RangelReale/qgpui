@@ -29,7 +29,7 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   build-catalog` (`task catalog`) joins the payload with them into `local/qgp-catalog.json`.
 - `data/recipes/<slug>.json`: hand-written install recipes, one per game, following
   `data/recipe.schema.json`. They hold what the payload lacks: the APK source, the user's files and
-  the steps. See `docs/install-recipes.md`.
+  the steps. See `docs/architecture/install-recipes.md`.
 - `local/`: ignored by git. Holds uncommitted working files, such as the generated payload and
   current keys or passwords. Never commit its contents.
 - `libs/questports/`: reads the catalog that `tools/questports-payload` writes (`Catalog`, `Game`,
@@ -44,7 +44,7 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   `ApkFetcher` resolves a github source (`pickRelease`) and downloads the APK into a cache;
   `planPush` turns a push step and the user's files into single-file copies; `Runner` runs the
   steps on a device through qadb. Below `Android/data` and `Android/obb` it creates folders with
-  `mkdir` and `chmod 2777` before pushing, as `docs/install-recipes.md` explains. It checks
+  `mkdir` and `chmod 2777` before pushing (decision 0003). It checks
   `freeSpaceMB` first, keeps a newer build on the headset, and explains a changed signing key.
   `Updates.h` compares versions, keeps `InstallRecords` (a JSON file keyed by the headset's
   `ro.serialno`, then the package) and decides an `UpdateStatus`. Its runner test uses qadb's
@@ -59,8 +59,20 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   headsets, searches over mDNS, pairs or connects over Wi-Fi, and switches a USB headset to Wi-Fi. The icons in `apps/qgp/icons/` are temporary;
   `make-icon.ps1` draws them (Windows PowerShell). `qgp.rc` gives the .exe its icon.
 - `cmake/`: shared CMake functions (`qgp_add_qt_test`).
-- `docs/`: research notes, such as where QuestPorts keeps its data and which install processes
-  the games need (`install-processes.md`).
+- `docs/`: documentation in three folders; `docs/README.md` lists every document.
+  - `docs/research/`: what was found out, with the evidence and the date: external systems
+    (QuestPorts), the games' install processes, measurements on a real headset.
+  - `docs/architecture/`: how qgp is built now (the overview, the recipe format). Keep these in
+    step with the code.
+  - `docs/decisions/`: one numbered record per decision (`NNNN-short-name.md`: status, date,
+    context, decision, consequences). Do not edit an accepted record; write a new one that
+    replaces it and says so.
+
+## Documentation
+
+Put new documents in the folder that fits and add them to `docs/README.md`. Record a design
+choice that someone could reasonably question as a new decision. Put measurements and findings
+about external systems in research, and update architecture when the code changes.
 
 ## Build and test
 

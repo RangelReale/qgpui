@@ -4,7 +4,7 @@ Builds one JSON file that lists every QuestPorts game together with its install 
 qgp app will read this file instead of contacting QuestPorts itself.
 
 The data comes from two places, as described in
-[`docs/questports-data-sources.md`](../../docs/questports-data-sources.md):
+[`docs/research/questports-data-sources.md`](../../docs/research/questports-data-sources.md):
 
 - **Game list:** the `ports` table in the QuestPorts Supabase database.
 - **Install requirements:** `PORT_PACKAGE_CONFIGS` in `app/data/portPackageMap.ts` and
@@ -57,7 +57,7 @@ described below and listed as warnings.
 ## The qgp catalog
 
 A second command joins the payload with qgp's hand-written install recipes in `data/recipes/`.
-The recipe format is described in [`docs/install-recipes.md`](../../docs/install-recipes.md).
+The recipe format is described in [`docs/architecture/install-recipes.md`](../../docs/architecture/install-recipes.md).
 
 ```bash
 npm run build-catalog
@@ -100,7 +100,7 @@ not contact QuestPorts.
 
 The tests also check every install recipe in `data/recipes/` against `data/recipe.schema.json`,
 with the extra checks in `src/recipes.mjs`. The recipe format is described in
-[`docs/install-recipes.md`](../../docs/install-recipes.md).
+[`docs/architecture/install-recipes.md`](../../docs/architecture/install-recipes.md).
 
 ## Payload format
 
