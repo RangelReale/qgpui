@@ -31,3 +31,4 @@ Why qgp is built this way. One numbered record per decision, with its context an
 | [0006](decisions/0006-update-detection.md) | Detect updates from install records, then from versions |
 | [0007](decisions/0007-finding-pc-installs.md) | Find PC installs by ID, folder name, then content |
 | [0008](decisions/0008-install-records-on-the-headset.md) | Keep install records on the headset (replaces the storage part of 0006) |
+| [0009](decisions/0009-files-folder.md) | Look for the user's files in one files folder, by game slug |

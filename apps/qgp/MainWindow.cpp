@@ -9,10 +9,15 @@
 #include "questports/Catalog.h"
 #include "questports/GameOrder.h"
 
+#include "gamestores/FilesFolder.h"
+
 #include <QApplication>
 #include <QComboBox>
+#include <QDesktopServices>
+#include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QJsonArray>
 #include <QKeySequence>
 #include <QLabel>
 #include <QListView>
@@ -24,12 +29,21 @@
 #include <QStatusBar>
 #include <QToolBar>
 #include <QToolButton>
+#include <QUrl>
 
 #include <algorithm>
 
 namespace {
 
 const QString kOrderSetting = QStringLiteral("order");
+const QString kFilesFolderSetting = QStringLiteral("filesFolder");
+
+// The user's files folder (decision 0009): the setting, or <Documents>/qgp/files.
+QString filesRoot()
+{
+    const QString saved = QSettings().value(kFilesFolderSetting).toString();
+    return saved.isEmpty() ? gamestores::FilesFolder::defaultRoot() : saved;
+}
 
 QString orderLabel(questports::GameOrder order)
 {
@@ -99,7 +113,18 @@ MainWindow::MainWindow(QWidget* parent)
     file->addAction(tr("&Open Catalog..."), QKeySequence::Open, this, &MainWindow::openCatalog);
     file->addAction(tr("&Reload"), QKeySequence::Refresh, this, &MainWindow::reloadCatalog);
     file->addSeparator();
+    file->addAction(tr("Files &Folder..."), this, &MainWindow::chooseFilesFolder);
+    file->addSeparator();
     file->addAction(tr("E&xit"), QKeySequence::Quit, this, &QWidget::close);
+
+    QMenu* game = menuBar()->addMenu(tr("&Game"));
+    m_filesFolderAction = game->addAction(tr("Create &Files Folder"), this, &MainWindow::createFilesFolder);
+    m_filesFolderAction->setStatusTip(tr("Create the selected game's folder in the files folder and open it"));
+    m_view->setContextMenuPolicy(Qt::ActionsContextMenu);
+    m_view->addAction(m_filesFolderAction);
+    connect(m_view->selectionModel(), &QItemSelectionModel::currentChanged, this, &MainWindow::updateGameActions);
+    connect(m_sorted, &QAbstractItemModel::modelReset, this, &MainWindow::updateGameActions);
+    updateGameActions();
 
     createToolBar();
     statusBar()->addWidget(m_status, 1);
@@ -212,4 +237,50 @@ void MainWindow::reloadCatalog()
 {
     if (!m_catalogPath.isEmpty())
         loadCatalog(m_catalogPath);
+}
+
+const questports::Game* MainWindow::selectedGame() const
+{
+    const QModelIndex index = m_view->selectionModel()->currentIndex();
+    if (!index.isValid() || !m_view->selectionModel()->isSelected(index))
+        return nullptr;
+    return &m_model->game(m_sorted->mapToSource(index).row());
+}
+
+void MainWindow::updateGameActions()
+{
+    const questports::Game* game = selectedGame();
+    const bool hasInputs = game && !game->recipe.value(QLatin1StringView("inputs")).toArray().isEmpty();
+    m_filesFolderAction->setEnabled(hasInputs);
+}
+
+void MainWindow::chooseFilesFolder()
+{
+    const QString folder = QFileDialog::getExistingDirectory(this, tr("Files Folder"), filesRoot());
+    if (folder.isEmpty())
+        return;
+    QSettings().setValue(kFilesFolderSetting, QDir::fromNativeSeparators(folder));
+    m_status->setText(tr("qgp looks for your game files in %1").arg(QDir::toNativeSeparators(folder)));
+}
+
+void MainWindow::createFilesFolder()
+{
+    const questports::Game* game = selectedGame();
+    if (!game)
+        return;
+    const QJsonArray inputs = game->recipe.value(QLatin1StringView("inputs")).toArray();
+    const gamestores::FilesFolder files(filesRoot());
+    QString error;
+    if (!files.create(game->slug, inputs, &error)) {
+        QMessageBox::warning(this, tr("Create Files Folder"), error);
+        return;
+    }
+
+    const QString folder = files.gameFolder(game->slug);
+    const QStringList own = gamestores::FilesFolder::inputsNeedingFolders(inputs);
+    m_status->setText(own.isEmpty()
+                          ? tr("Put the files for %1 in %2").arg(game->title, QDir::toNativeSeparators(folder))
+                          : tr("Put the files for %1 in %2, each in its own folder: %3")
+                                .arg(game->title, QDir::toNativeSeparators(folder), own.join(QStringLiteral(", "))));
+    QDesktopServices::openUrl(QUrl::fromLocalFile(folder));
 }

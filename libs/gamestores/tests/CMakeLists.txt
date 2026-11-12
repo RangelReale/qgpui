@@ -10,6 +10,10 @@ qgp_add_qt_test(tst_gamestores_gog
     SOURCES tst_gog.cpp
     LIBRARIES qgp::gamestores Qt6::Sql)
 
+qgp_add_qt_test(tst_gamestores_filesfolder
+    SOURCES tst_filesfolder.cpp
+    LIBRARIES qgp::gamestores)
+
 qgp_add_qt_test(tst_gamestores_finder
     SOURCES tst_finder.cpp
     LIBRARIES qgp::gamestores)

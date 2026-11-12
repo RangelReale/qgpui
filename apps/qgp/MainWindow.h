@@ -7,6 +7,10 @@ class GameListModel;
 class GameSortModel;
 class HeadsetConnection;
 class HeadsetDialog;
+namespace questports {
+struct Game;
+}
+
 class QAction;
 class QComboBox;
 class QLabel;
@@ -32,6 +36,11 @@ private:
     void orderChanged();
     void showHeadsetDialog();
     void updateHeadsetStatus();
+    void chooseFilesFolder();
+    void createFilesFolder();
+    void updateGameActions();
+    // The selected game, or nullptr.
+    const questports::Game* selectedGame() const;
 
     CoverCache* m_covers;
     GameListModel* m_model;
@@ -42,6 +51,7 @@ private:
     HeadsetConnection* m_headset;
     HeadsetDialog* m_headsetDialog = nullptr;
     QAction* m_headsetAction = nullptr;
+    QAction* m_filesFolderAction = nullptr;
     QToolButton* m_headsetStatus;
     QString m_catalogPath;
 };

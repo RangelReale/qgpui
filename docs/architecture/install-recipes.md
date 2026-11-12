@@ -68,7 +68,7 @@ For `github` and `url`, `inZip` says the download is a zip and matches the path 
 
 ### Inputs
 
-Every input has an `id`, a `label` and an optional `help` text for the user.
+Every input has an `id`, a `label` and an optional `help` text for the user. Users see some IDs as folder names in their files folder ([decision 0009](../decisions/0009-files-folder.md)), so do not rename an input once a recipe is published.
 
 An input may name a PC tool in `preparedWith`. qgp then links to the tool and tells the user how to use it. qgp does not run the tool itself.
 

@@ -38,8 +38,9 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   in `libraryfolders.vdf` (KeyValues, parsed by `parseVdf`) and its `appmanifest_*.acf` files.
   `GogLibrary` merges the registry and GOG Galaxy's SQLite database (installs and ownership; it
   opens a temporary copy). `GameFinder::find` takes a recipe's `pc-install` input and matches by
-  ID, then by folder name, then by the input's `detect` files in every installed game. Qt Core and
-  Qt Sql (SQLite driver).
+  ID, then by folder name, then by the input's `detect` files in every installed game. `FilesFolder` looks for any input's files in the
+  user's files folder: `<slug>/`, `<slug>/<input id>/` where inputs overlap, and shared files
+  anywhere (decision 0009). Qt Core and Qt Sql (SQLite driver).
 - `libs/installer/`: runs install recipes. `parseRecipe` reads a catalog recipe into `Recipe`;
   `ApkFetcher` resolves a github source (`pickRelease`) and downloads the APK into a cache;
   `planPush` turns a push step and the user's files into single-file copies; `Runner` runs the
@@ -57,7 +58,9 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   `QNetworkDiskCache` and fits them into one size. `HeadsetConnection` starts the adb server
   if needed, tracks devices and remembers the current headset (`QSettings`); the toolbar's
   Headset button and the status bar's red/green indicator open `HeadsetDialog`, which lists
-  headsets, searches over mDNS, pairs or connects over Wi-Fi, and switches a USB headset to Wi-Fi. The icons in `apps/qgp/icons/` are temporary;
+  headsets, searches over mDNS, pairs or connects over Wi-Fi, and switches a USB headset to Wi-Fi. Game > Create Files Folder (also the
+  covers' context menu) makes the selected game's folder in the files folder and opens it; File >
+  Files Folder changes where that is (`QSettings`). The icons in `apps/qgp/icons/` are temporary;
   `make-icon.ps1` draws them (Windows PowerShell). `qgp.rc` gives the .exe its icon.
 - `cmake/`: shared CMake functions (`qgp_add_qt_test`).
 - `docs/`: documentation in three folders; `docs/README.md` lists every document.

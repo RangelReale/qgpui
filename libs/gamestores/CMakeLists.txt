@@ -1,9 +1,11 @@
 # gamestores: finds games installed from Steam and GOG on this PC, and the GOG games the user owns.
 qt_add_library(gamestores STATIC
+    include/gamestores/FilesFolder.h
     include/gamestores/Finder.h
     include/gamestores/Gog.h
     include/gamestores/Steam.h
     include/gamestores/Vdf.h
+    src/FilesFolder.cpp
     src/Finder.cpp
     src/Gog.cpp
     src/Steam.cpp
