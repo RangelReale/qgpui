@@ -15,6 +15,13 @@ std::optional<Catalog> fail(QString* errorMessage, const QString& message)
     return std::nullopt;
 }
 
+// Supabase writes timestamps such as "2026-10-11T16:35:37.471366+00:00". Returns an invalid
+// QDateTime for null or text that is not a timestamp.
+QDateTime timestamp(const QJsonValue& value)
+{
+    return QDateTime::fromString(value.toString(), Qt::ISODateWithMs);
+}
+
 } // namespace
 
 std::optional<Catalog> parseCatalog(const QByteArray& json, QString* errorMessage)
@@ -60,6 +67,9 @@ std::optional<Catalog> parseCatalog(const QByteArray& json, QString* errorMessag
         const QString cover = game.port.value(QLatin1StringView("cover_image_url")).toString();
         if (!cover.isEmpty())
             game.coverUrl = QUrl(cover);
+        game.developer = game.port.value(QLatin1StringView("developer")).toString();
+        game.addedAt = timestamp(game.port.value(QLatin1StringView("created_at")));
+        game.releasedAt = timestamp(game.port.value(QLatin1StringView("last_github_update")));
 
         if (game.slug.isEmpty())
             return fail(errorMessage, QStringLiteral("Game %1 has no slug.").arg(i));

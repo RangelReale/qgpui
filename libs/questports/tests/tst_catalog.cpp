@@ -25,7 +25,9 @@ private slots:
         QString error;
         // The URL is written "https:\/\/" because moc reads "//" inside a raw string as a comment.
         const auto catalog = parseCatalog(payload(R"([
-            {"slug":"avp-vr","port":{"title":"AvP VR","cover_image_url":"https:\/\/x.test/avp.jpg"},
+            {"slug":"avp-vr","port":{"title":"AvP VR","cover_image_url":"https:\/\/x.test/avp.jpg",
+                                     "developer":"Bassquake","created_at":"2026-10-11T16:35:37.471366+00:00",
+                                     "last_github_update":"2026-10-18T16:07:19+00:00"},
              "install":{"packageName":"com.example.avp"},"campaigns":null,
              "resolved":{"installType":"apk_and_assets"}},
             {"slug":"bare","port":{"title":"Bare","cover_image_url":null},"install":null,"campaigns":[{"id":"a"}]}
@@ -38,6 +40,9 @@ private slots:
         QCOMPARE(avp.slug, QStringLiteral("avp-vr"));
         QCOMPARE(avp.title, QStringLiteral("AvP VR"));
         QCOMPARE(avp.coverUrl, QUrl(QStringLiteral("https://x.test/avp.jpg")));
+        QCOMPARE(avp.developer, QStringLiteral("Bassquake"));
+        QCOMPARE(avp.addedAt, QDateTime(QDate(2026, 10, 11), QTime(16, 35, 37, 471), QTimeZone::UTC));
+        QCOMPARE(avp.releasedAt, QDateTime(QDate(2026, 10, 18), QTime(16, 7, 19), QTimeZone::UTC));
         QVERIFY(avp.hasInstall());
         QCOMPARE(avp.install.value(QLatin1StringView("packageName")).toString(), QStringLiteral("com.example.avp"));
         QVERIFY(avp.campaigns.isEmpty());
@@ -45,6 +50,8 @@ private slots:
 
         const Game& bare = catalog->games[1];
         QVERIFY(bare.coverUrl.isEmpty());
+        QVERIFY(!bare.addedAt.isValid());
+        QVERIFY(!bare.releasedAt.isValid());
         QVERIFY(!bare.hasInstall());
         QCOMPARE(bare.campaigns.size(), 1);
     }

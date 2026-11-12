@@ -22,6 +22,9 @@ struct Game
     QString slug;
     QString title;
     QUrl coverUrl; // Empty when the row has no cover.
+    QString developer;
+    QDateTime addedAt;    // When the game was added to QuestPorts (created_at).
+    QDateTime releasedAt; // The port's latest GitHub release (last_github_update); invalid when unknown.
 
     QJsonObject port;     // The database row, unchanged.
     QJsonObject install;  // PORT_PACKAGE_CONFIGS[slug]; empty when the game has none.

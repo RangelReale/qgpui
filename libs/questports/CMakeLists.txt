@@ -1,7 +1,9 @@
 # questports: reads the QuestPorts payload that tools/questports-payload builds.
 qt_add_library(questports STATIC
     include/questports/Catalog.h
+    include/questports/GameOrder.h
     src/Catalog.cpp
+    src/GameOrder.cpp
 )
 add_library(qgp::questports ALIAS questports)
 
