@@ -47,7 +47,8 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   steps on a device through qadb. Below `Android/data` and `Android/obb` it creates folders with
   `mkdir` and `chmod 2777` before pushing (decision 0003). It checks
   `freeSpaceMB` first, keeps a newer build on the headset, and explains a changed signing key.
-  `Updates.h` compares versions and decides an `UpdateStatus`. Install records live on each
+  `Updates.h` compares versions and decides an `UpdateStatus`; `ReleaseLookup` finds a source's
+  newest release without downloading it, one GitHub request per repository, kept for an hour. Install records live on each
   headset in `/sdcard/qgp/installs.json`; `InstallRecords` is the PC's cache of them (keyed by the
   headset's `ro.serialno`, then the package), and `HeadsetRecordSync` keeps the two in step.
   Its runner and sync tests use qadb's `FakeAdbServer`.
@@ -59,12 +60,14 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   `resolved.originPlatform`), Store (sold on Steam or GOG, from the recipe's `stores`, or in this
   PC's Steam or GOG library, from `GameFinder` when the catalog loads), Headset (on the current
   headset, installed by qgp, installed outside qgp, i.e. with no entry in the headset's install
-  records, or not on it) and Self-contained only (an automatic recipe, no manual APK, and every
-  required input and each input group free). A second row holds the site's own filters: Runs
-  on (`resolved.headsets`), VR style (`resolved.vrStyle`), No PC needed (`resolved.noPcInstall`)
-  and, behind More filters as on the site, Type, Developer and Status (from the port row); a
-  hidden filter in use opens More filters, and Reset clears every filter. `GameFlags` computes the flags;
-  `MainWindow::findHeadsetGames` reads the headset when it changes and after an install. Each
+  records, not on it, or with an update) and Self-contained only (an automatic recipe, no manual
+  APK, and every required input and each input group free). A second row holds the site's own
+  filters: Runs on (`resolved.headsets`), VR style (`resolved.vrStyle`), No PC needed
+  (`resolved.noPcInstall`) and, behind More filters as on the site, Type, Developer and Status
+  (from the port row); a hidden filter in use opens More filters, and Reset clears every filter.
+  `GameFlags` computes the flags; `MainWindow::findHeadsetGames` reads the headset when it changes
+  and after an install, and `checkForUpdate` compares each game on it with its APK's newest
+  release (decision 0011); a game with an update gets an Update band on its cover. Each
   box's choice is kept in `QSettings` (`main.cpp` sets the organization name, without which
   QSettings stores nothing on Windows). The game dialog
   links to the game's QuestPorts page, and each `pc-install` input to its Steam and GOG pages
