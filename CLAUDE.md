@@ -40,7 +40,8 @@ checkout, or run `task payload` in the worktree.
   headsets, searches over mDNS, pairs or connects over Wi-Fi, and switches a USB headset to Wi-Fi. The icons in `apps/qgp/icons/` are temporary;
   `make-icon.ps1` draws them (Windows PowerShell). `qgp.rc` gives the .exe its icon.
 - `cmake/`: shared CMake functions (`qgp_add_qt_test`).
-- `docs/`: research notes, such as where QuestPorts keeps its data.
+- `docs/`: research notes, such as where QuestPorts keeps its data and which install processes
+  the games need (`install-processes.md`).
 
 ## Build and test
 
