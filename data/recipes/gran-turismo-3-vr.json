@@ -1,0 +1,51 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "gran-turismo-3-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "org.gt3revisited.gt3r",
+    "version": "v0.6.4",
+    "targetPath": "/sdcard/Download/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "matt-pulsipher/GT3-revisited",
+      "asset": "^gt3r-quest\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "disc",
+      "kind": "file",
+      "label": "Gran Turismo 3 A-Spec disc image (.iso)",
+      "help": "An .iso image of your own Gran Turismo 3 A-Spec disc. The NTSC-U releases (SCUS-97102 and PBPX-95503) are verified.",
+      "extensions": [
+        ".iso"
+      ],
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "push",
+      "input": "disc",
+      "map": [
+        {
+          "to": "/sdcard/Download/"
+        }
+      ]
+    },
+    {
+      "do": "tell",
+      "text": "Open GT3 Revisited from Library > Unknown Sources. Choose Open disc image and pick your .iso."
+    }
+  ],
+  "notes": "gt3r-android.apk in the same release is the phone build."
+}

@@ -1,0 +1,67 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "openmohaa-vr",
+  "status": "draft",
+  "support": "guided",
+  "checkedAgainst": {
+    "packageName": "org.openmoh.openmohaa",
+    "version": "vr-quest3-0.2.0",
+    "targetPath": "/sdcard/Android/data/org.openmoh.openmohaa/files/main/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "bearstonem/openmohaa-vr",
+      "prerelease": true,
+      "asset": "^openmohaa-vr-quest3-.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "mohaa",
+      "kind": "pc-install",
+      "label": "Medal of Honor: Allied Assault (PC)",
+      "help": "Your installed PC copy of Medal of Honor: Allied Assault. qgp copies every .pk3 from its main folder.",
+      "root": "main",
+      "detect": ["Pak0.pk3"]
+    },
+    {
+      "id": "config",
+      "kind": "file",
+      "label": "autoexec.cfg from the OpenMoHAA VR release",
+      "help": "Download autoexec.cfg from the same GitHub release as the APK (https://github.com/bearstonem/openmohaa-vr/releases). Use the one that matches the installed version.",
+      "names": ["autoexec.cfg"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "launch",
+      "why": "Android creates Android/data/org.openmoh.openmohaa/files on the first launch, and the app makes its own main/save and main/configs folders."
+    },
+    {
+      "do": "push",
+      "input": "mohaa",
+      "map": [{ "from": "*.pk3", "to": "/sdcard/Android/data/org.openmoh.openmohaa/files/main/" }]
+    },
+    {
+      "do": "push",
+      "input": "config",
+      "map": [
+        {
+          "from": "autoexec.cfg",
+          "to": "/sdcard/Android/data/org.openmoh.openmohaa/files/main/autoexec.cfg"
+        }
+      ]
+    },
+    {
+      "do": "shell",
+      "args": ["am", "force-stop", "org.openmoh.openmohaa"],
+      "why": "The guide stops the app after pushing autoexec.cfg so the next start reads it."
+    },
+    { "do": "tell", "text": "Open OpenMoHAA from Library > Unknown Sources in the headset." }
+  ],
+  "notes": "Guided because autoexec.cfg is a second release asset that qgp cannot download yet; qgp could fetch it from the same release later. The guide says not to start the app with adb shell am start; the launch step may do exactly that, so check it. detect uses Pak0.pk3, which is not named in the guide or payload (the payload only matches *.pk3); confirm the file name. No store install: MOHAA is not listed on Steam or GOG in the payload. All releases are pre-releases."
+}

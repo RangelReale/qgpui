@@ -1,0 +1,35 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "gran-turismo-2-vr",
+  "status": "draft",
+  "support": "guided",
+  "checkedAgainst": {
+    "packageName": "io.github.gt2pc.quest",
+    "version": "v0.8.1",
+    "targetPath": "/sdcard/Android/data/io.github.gt2pc.quest/files/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "dubrovskiy-yevhen-stakelogic/gt-2-pc",
+      "asset": "^GT2-VR-.*\\.apk$"
+    }
+  ],
+  "inputs": [],
+  "steps": [
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "tell",
+      "text": "Your disc images must be converted with the release's own installer. Download the GT2 zip from GitHub, extract it and run INSTALL-QUEST.bat. Select your Gran Turismo 2 BIN disc image when asked. It extracts the game data and copies it to the headset."
+    },
+    {
+      "do": "tell",
+      "text": "Open Gran Turismo 2 VR from Library > Unknown Sources."
+    }
+  ],
+  "notes": "INSTALL-QUEST.bat extracts the BIN/CUE discs into Android/data/io.github.gt2pc.quest/files; the extraction is not documented, so qgp cannot do it. Uncertain: the guide (v0.8.1) has the APK only inside the release zip under native/; v0.9.2 publishes GT2-VR-0.9.2.apk on its own, which this recipe uses. v0.9.0 and v0.9.1 had only the zip; if a later release drops the separate APK, switch to the zip with inZip. The release also has many non-Quest builds."
+}

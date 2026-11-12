@@ -1,0 +1,40 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "mario-party-4-partyboard",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.mariopartyrd.partyboard",
+    "version": "v0.21.1"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "zeranemesis/Marioparty4",
+      "tag": "^v\\d",
+      "prerelease": true,
+      "asset": "^PartyBoard-v.*-quest-arm64-v8a\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "disc",
+      "kind": "file",
+      "label": "Mario Party 4 disc image",
+      "help": "Your own Mario Party 4 disc image: USA GMPE01 (rev 0 or 1) or Europe GMPP01, as .iso, .rvz, .wia or .gcz. The Japanese disc is not supported yet.",
+      "extensions": [".iso", ".rvz", ".wia", ".gcz"],
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    { "do": "push", "input": "disc", "map": [{ "to": "/sdcard/Download/" }] },
+    {
+      "do": "tell",
+      "text": "Open Party Board from Library > Unknown Sources and choose the disc image in Download with the file picker. Before the first board, lay the right controller flat in the middle of your table, front toward you, and press X. A opens Space Setup to scan the room; B skips calibration for this session."
+    }
+  ],
+  "notes": "All releases are pre-releases, and dev-* pre-releases carry only a Windows build, so tag limits the search to v* tags. No disc check: two game IDs (GMPE01, GMPP01) are accepted and the schema takes one. The game checks the image by hash. Releases also have a phone APK, which the asset pattern avoids."
+}

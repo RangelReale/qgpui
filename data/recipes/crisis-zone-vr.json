@@ -1,0 +1,30 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "crisis-zone-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "org.crisiszone.vr",
+    "version": "v0.1.7"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "DR-89/crisis-zone-vr",
+      "asset": "^CrisisZoneVR-v.*-quest3\\.apk$"
+    }
+  ],
+  "inputs": [],
+  "steps": [
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "tell",
+      "text": "Open Crisis Zone VR (Test) from Library > Unknown Sources. The first launch unpacks the bundled game. Press A to insert credits and pull the trigger to start."
+    }
+  ],
+  "notes": "The game content is bundled in the APK. The release also has a Windows zip."
+}

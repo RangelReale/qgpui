@@ -1,0 +1,40 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "majoras-mask-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.fulldivegames.majorasmaskvr",
+    "version": "v0.36",
+    "targetPath": "/sdcard/Download/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "fulldivegames/Majoras-Mask-VR",
+      "prerelease": true,
+      "asset": "^MMVR-Quest-.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "rom",
+      "kind": "file",
+      "label": "Majora's Mask ROM (USA 1.0)",
+      "help": "Your own uncompressed dump of Majora's Mask (USA), N64 version 1.0, or the N64 ROM from the US Zelda: Collector's Edition disc, as .z64, .v64 or .n64.",
+      "extensions": [".z64", ".n64", ".v64"],
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    { "do": "push", "input": "rom", "map": [{ "to": "/sdcard/Download/" }] },
+    {
+      "do": "tell",
+      "text": "Open Majora's Mask VR from Library > Unknown Sources. In setup, select Choose Majora's Mask ROM, pick the file in Download and confirm. When the extraction ends the app may close; start it again and play. To update later, install over the top. Do not uninstall, or your saves may be deleted."
+    }
+  ],
+  "notes": "Releases are all pre-releases. Each release also has a Steam Frame APK (MMVR-Steam-Frame-*.apk) and a Windows zip, which the asset pattern avoids. Optional mods and texture packs go in /sdcard/MMVR/mods or /sdcard/MMVR/texturepacks; not modelled."
+}

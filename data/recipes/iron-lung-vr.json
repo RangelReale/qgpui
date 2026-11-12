@@ -1,0 +1,23 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "iron-lung-vr",
+  "status": "draft",
+  "support": "guided",
+  "checkedAgainst": {
+    "packageName": "com.JackRandolph.IronLungVR",
+    "version": "v1.2.0"
+  },
+  "apks": [
+    {
+      "source": "manual",
+      "page": "https://jackaapacka.itch.io/iron-lung-vr",
+      "asset": "^\\d+\\.\\d+\\.\\d+\\.apk$",
+      "help": "Download the APK (for example 1.2.0.apk) from JackaPacka's itch.io page and pick the file."
+    }
+  ],
+  "inputs": [],
+  "steps": [{ "do": "install-apk" }],
+  "notes": "Self-contained APK. The guide also names a SideQuest page (https://sidequestvr.com/app/10349/iron-lung-vr). The itch.io file is named after the version only."
+}

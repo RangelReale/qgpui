@@ -1,0 +1,43 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "unreal-gold-vr",
+  "status": "draft",
+  "support": "guided",
+  "checkedAgainst": {
+    "packageName": "com.ghwstvr.unrealquest",
+    "version": "v0.1.0"
+  },
+  "apks": [
+    {
+      "source": "manual",
+      "page": "https://www.patreon.com/GHWST/posts/unreal-gold-vr-167866749",
+      "asset": "^unrealquest-.*\\.apk$",
+      "help": "Open the free Patreon post (no pledge needed) and download unrealquest-0.1.0.apk. Then pick the file here."
+    }
+  ],
+  "inputs": [
+    {
+      "id": "unreal",
+      "kind": "pc-install",
+      "label": "Unreal Gold game folder",
+      "help": "Your own Unreal Gold folder, for example from GOG or the free OldUnreal installer.",
+      "stores": [{ "store": "gog", "installDir": "Unreal Gold" }],
+      "detect": ["System/Core.u"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "push",
+      "input": "unreal",
+      "map": [{ "to": "/sdcard/Download/Unreal Gold/" }]
+    },
+    {
+      "do": "tell",
+      "text": "Open Unreal Gold VR from Library > Unknown Sources. On the first start, use the welcome menu to find and select the Unreal Gold folder in Download."
+    }
+  ],
+  "notes": "The APK is only on a free Patreon post. The guide also accepts a zip of the folder; qgp pushes the folder. The GOG install folder name and the detect file (System/Core.u, present in every Unreal Engine 1 game) are assumptions; detect does not tell Unreal Gold from other Unreal Engine 1 games. A player reports it runs with the GOG release."
+}

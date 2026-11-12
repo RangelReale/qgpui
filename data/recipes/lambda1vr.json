@@ -1,0 +1,64 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "lambda1vr",
+  "status": "draft",
+  "support": "guided",
+  "checkedAgainst": {
+    "packageName": "com.drbeef.lambda1vr",
+    "version": "v1.7.4",
+    "targetPath": "/sdcard/xash/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "Team-Beef-Studios/Lambda1VR",
+      "asset": "^lambda1vr-.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "valve",
+      "kind": "pc-install",
+      "label": "Half-Life (steam_legacy build)",
+      "help": "In Steam, open Half-Life > Properties > Betas and select steam_legacy (Pre-25th Anniversary Build). Let it update, then continue. Half-Life: Source does not work.",
+      "stores": [{ "store": "steam", "appId": "70", "installDir": "Half-Life" }],
+      "root": "valve",
+      "detect": ["liblist.gam"]
+    },
+    {
+      "id": "gearbox",
+      "kind": "pc-install",
+      "label": "Opposing Force (optional)",
+      "required": false,
+      "help": "The gearbox folder of the same steam_legacy Half-Life install.",
+      "stores": [{ "store": "steam", "appId": "70", "installDir": "Half-Life" }],
+      "root": "gearbox",
+      "detect": ["opfor.pak"]
+    },
+    {
+      "id": "bshift",
+      "kind": "pc-install",
+      "label": "Blue Shift (optional)",
+      "required": false,
+      "help": "The bshift folder of the same steam_legacy Half-Life install.",
+      "stores": [{ "store": "steam", "appId": "70", "installDir": "Half-Life" }],
+      "root": "bshift",
+      "detect": ["bshift.pak"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    { "do": "launch", "why": "The first launch creates the /sdcard/xash/ folder tree." },
+    { "do": "push", "input": "valve", "map": [{ "to": "/sdcard/xash/valve/" }] },
+    { "do": "push", "input": "gearbox", "map": [{ "to": "/sdcard/xash/gearbox/" }] },
+    { "do": "push", "input": "bshift", "map": [{ "to": "/sdcard/xash/bshift/" }] },
+    { "do": "verify", "files": ["/sdcard/xash/valve/liblist.gam"] },
+    {
+      "do": "tell",
+      "text": "Restart the headset, then open Lambda1VR from Library > Unknown Sources."
+    }
+  ],
+  "notes": "Guided because the user must switch Steam to the steam_legacy beta first; the current public build is reported broken for Lambda1VR (hl-paker README, 2025-04-04; r/TeamBeef pinned post). The Steam install has no WON pak0.pak, so detect uses liblist.gam. Copying the whole valve folder takes a long time. Optional HD models (valve_hd) are not modelled; the guide gives no target for them. Opposing Force and Blue Shift have their own Steam app IDs (50, 130) but their folders live in the Half-Life install, so appId is 70."
+}

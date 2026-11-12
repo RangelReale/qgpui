@@ -1,0 +1,51 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "rtcwquest",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": { "packageName": "com.drbeef.rtcwquest", "version": "v1.4.1", "targetPath": "/sdcard/RTCWQuest/" },
+  "apks": [{ "source": "github", "repo": "Team-Beef-Studios/RTCWQuest", "asset": "^rtcwquest-.*\\.apk$" }],
+  "inputs": [
+    {
+      "id": "rtcw",
+      "kind": "pc-install",
+      "label": "Return to Castle Wolfenstein",
+      "help": "Your installed copy of Return to Castle Wolfenstein from Steam or GOG. qgp copies the full-game pk3 files from its Main folder.",
+      "stores": [{ "store": "steam", "installDir": "Return to Castle Wolfenstein" }, { "store": "gog" }],
+      "root": "Main",
+      "detect": ["pak0.pk3", "sp_pak1.pk3", "sp_pak2.pk3", "sp_pak3.pk3", "sp_pak4.pk3"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "launch",
+      "why": "The first launch creates /sdcard/RTCWQuest/Main/ and copies a demo pak0.pk3 plus the VR pk3 files, which the push then completes."
+    },
+    {
+      "do": "push",
+      "input": "rtcw",
+      "map": [
+        { "from": "pak0.pk3", "to": "/sdcard/RTCWQuest/Main/" },
+        { "from": "sp_pak1.pk3", "to": "/sdcard/RTCWQuest/Main/" },
+        { "from": "sp_pak2.pk3", "to": "/sdcard/RTCWQuest/Main/" },
+        { "from": "sp_pak3.pk3", "to": "/sdcard/RTCWQuest/Main/" },
+        { "from": "sp_pak4.pk3", "to": "/sdcard/RTCWQuest/Main/" }
+      ]
+    },
+    {
+      "do": "verify",
+      "files": [
+        "/sdcard/RTCWQuest/Main/pak0.pk3",
+        "/sdcard/RTCWQuest/Main/sp_pak1.pk3",
+        "/sdcard/RTCWQuest/Main/sp_pak2.pk3",
+        "/sdcard/RTCWQuest/Main/sp_pak3.pk3",
+        "/sdcard/RTCWQuest/Main/sp_pak4.pk3"
+      ],
+      "why": "pak0.pk3 alone is the demo; sp_pak1.pk3 to sp_pak4.pk3 show the full game is there."
+    }
+  ],
+  "notes": "A demo pak0.pk3 and the full one have the same name, so verify includes all five. The Steam app ID is not in the guide or payload. The GOG install folder name is unknown."
+}

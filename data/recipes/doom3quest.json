@@ -1,0 +1,100 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "doom3quest",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.drbeef.doom3quest",
+    "version": "v1.4.8",
+    "targetPath": "/sdcard/Doom3Quest/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "Team-Beef-Studios/Doom3Quest",
+      "asset": "^(?!.*Pico)[Dd]oom3[Qq]uest.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "base",
+      "kind": "pc-install",
+      "label": "Doom 3 (original 2004 edition)",
+      "help": "Your installed original Doom 3. DOOM 3: BFG Edition does not work.",
+      "stores": [
+        {
+          "store": "steam",
+          "appId": "9050",
+          "installDir": "Doom 3"
+        }
+      ],
+      "root": "base",
+      "detect": [
+        "game00.pk4",
+        "pak000.pk4",
+        "pak008.pk4"
+      ]
+    },
+    {
+      "id": "d3xp",
+      "kind": "pc-install",
+      "label": "Resurrection of Evil (optional)",
+      "help": "The d3xp folder of the Resurrection of Evil expansion, if you have it.",
+      "required": false,
+      "stores": [
+        {
+          "store": "steam",
+          "appId": "9050",
+          "installDir": "Doom 3"
+        }
+      ],
+      "root": "d3xp",
+      "detect": [
+        "pak000.pk4"
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "launch",
+      "why": "The first launch creates the Doom3Quest folders and copies pak399.pk4 into base."
+    },
+    {
+      "do": "push",
+      "input": "base",
+      "map": [
+        {
+          "from": "game0*.pk4",
+          "to": "/sdcard/Doom3Quest/base/"
+        },
+        {
+          "from": "pak00*.pk4",
+          "to": "/sdcard/Doom3Quest/base/"
+        }
+      ]
+    },
+    {
+      "do": "push",
+      "input": "d3xp",
+      "map": [
+        {
+          "to": "/sdcard/Doom3Quest/d3xp/"
+        }
+      ]
+    },
+    {
+      "do": "verify",
+      "files": [
+        "/sdcard/Doom3Quest/base/game00.pk4",
+        "/sdcard/Doom3Quest/base/pak000.pk4",
+        "/sdcard/Doom3Quest/base/pak008.pk4"
+      ]
+    }
+  ],
+  "notes": "Steam app ID 9050 is from the payload. Older releases had Pico APKs next to the Quest ones, hence the lookahead. The guide installs the APK from SideQuest."
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "magic-carpet-vr",
+  "status": "draft",
+  "support": "manual",
+  "checkedAgainst": {
+    "packageName": "technology.master.mc.vr",
+    "version": "v0.1.0"
+  },
+  "apks": [{ "source": "github", "repo": "NathanaelA/mgcarpet-vr", "asset": "^mgcarpet-vr\\.apk$" }],
+  "inputs": [],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "tell",
+      "text": "On your PC, copy your Magic Carpet installs into a gamedata folder (gamedata/Magic Carpet Plus/CARPET.CD/game.gog and, optionally, gamedata/Magic Carpet 2/game.gog with GAME/NETHERW). Download mgc-import from the same release and run: mgc-import bake gamedata/ baked/. Copy the baked folder to /sdcard/mgcarpet/baked/ on the headset. Then open Magic Carpet VR from Library > Unknown Sources and pick a game."
+    }
+  ],
+  "notes": "Needs the mgc-import converter (mgc-import-windows.zip or mgc-import-linux.zip in the release). The baked folder has no documented fixed file, so it cannot be a pc-install input with detect yet; once known, model it as a pc-install with preparedWith mgc-import and push to /sdcard/mgcarpet/baked/, and make this guided. The payload has no targetPath. A full install is about 1 GB."
+}

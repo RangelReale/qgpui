@@ -1,0 +1,74 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "gunblade-ny-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.vrlightgunhub.gunbladeny",
+    "version": "v0.1.9-beta",
+    "targetPath": "/sdcard/Download/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "vr4all-standalone/gunblade-ny-vr",
+      "prerelease": true,
+      "asset": "^gunblade-ny-vr-quest\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "roms",
+      "kind": "file",
+      "label": "Gunblade NY arcade set (Revision A)",
+      "help": "Your own Sega Model 2B set gunblade.zip, Revision A, with all 18 files. Leave it zipped.",
+      "names": [
+        "gunblade.zip"
+      ],
+      "keepArchived": true,
+      "checkedByApp": true
+    },
+    {
+      "id": "segabill",
+      "kind": "file",
+      "label": "segabill.zip (split sets only)",
+      "help": "Only if your gunblade set is split. Leave it zipped.",
+      "names": [
+        "segabill.zip"
+      ],
+      "required": false,
+      "keepArchived": true,
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "push",
+      "input": "roms",
+      "map": [
+        {
+          "to": "/sdcard/Download/"
+        }
+      ]
+    },
+    {
+      "do": "push",
+      "input": "segabill",
+      "map": [
+        {
+          "to": "/sdcard/Download/"
+        }
+      ]
+    },
+    {
+      "do": "tell",
+      "text": "Open Gunblade NY - VR4ALL from Library > Unknown Sources and finish the ROM check on the setup screen."
+    }
+  ],
+  "notes": "No CHD is needed. Releases are all pre-releases. The release also has a PCVR zip and a source zip."
+}

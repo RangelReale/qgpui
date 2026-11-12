@@ -1,0 +1,98 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "descent-3-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.descentdevelopers.descent3",
+    "version": "quest-v0.3-beta"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "SgtBilko76/Descent3-VR",
+      "prerelease": true,
+      "asset": "^Descent3-VR-.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "d3",
+      "kind": "pc-install",
+      "label": "Descent 3",
+      "help": "Your installed Descent 3 from Steam or GOG. Patched to v1.4 is recommended.",
+      "stores": [
+        {
+          "store": "steam"
+        },
+        {
+          "store": "gog"
+        }
+      ],
+      "detect": [
+        "d3.hog"
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "launch",
+      "why": "Android creates Android/data/com.descentdevelopers.descent3/files on the first launch."
+    },
+    {
+      "do": "push",
+      "input": "d3",
+      "map": [
+        {
+          "from": "*.hog",
+          "to": "/sdcard/Android/data/com.descentdevelopers.descent3/files/"
+        },
+        {
+          "from": "*.pld",
+          "to": "/sdcard/Android/data/com.descentdevelopers.descent3/files/"
+        },
+        {
+          "from": "missions/**",
+          "to": "/sdcard/Android/data/com.descentdevelopers.descent3/files/missions/"
+        },
+        {
+          "from": "movies/**",
+          "to": "/sdcard/Android/data/com.descentdevelopers.descent3/files/movies/"
+        }
+      ]
+    },
+    {
+      "do": "shell",
+      "args": [
+        "find",
+        "/sdcard/Android/data/com.descentdevelopers.descent3/files",
+        "-mindepth",
+        "1",
+        "-type",
+        "d",
+        "-exec",
+        "chmod",
+        "2777",
+        "{}",
+        "+"
+      ],
+      "why": "The guide makes the pushed folders readable for the app."
+    },
+    {
+      "do": "verify",
+      "files": [
+        "/sdcard/Android/data/com.descentdevelopers.descent3/files/d3.hog"
+      ]
+    },
+    {
+      "do": "tell",
+      "text": "Uninstalling Descent 3 deletes its game data folder. Keep a copy of your game files."
+    }
+  ],
+  "notes": "The .pld files are optional in the guide. Original CDs need quest/tools/stage_gamedata.sh from the repository, which is not modelled. The guide does not launch first (it runs mkdir -p); the launch is there because the target is in Android/data. Releases are all pre-releases."
+}

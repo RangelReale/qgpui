@@ -1,0 +1,41 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "wave-race-64-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.waverace64.questvr",
+    "version": "v0.1.5 (APK 0.1.8)"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "VistaLargaGames/WaveRace64-QuestVR",
+      "asset": "^WaveRace64VR-Quest-.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "rom",
+      "kind": "file",
+      "label": "Wave Race 64 ROM (USA, Rev A / v1.1)",
+      "help": "Your own Wave Race 64 (USA) (Rev A) ROM as .z64, .n64 or .v64. Other versions and regions do not work.",
+      "extensions": [".z64", ".n64", ".v64"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "push",
+      "input": "rom",
+      "map": [{ "to": "/sdcard/Download/" }]
+    },
+    {
+      "do": "tell",
+      "text": "Open Wave Race 64 VR from Library > Unknown Sources. On the first screen, pick your ROM. The app loads the game from it."
+    }
+  ],
+  "notes": "The release tag (v0.1.5) and the APK version (0.1.8) differ. The guide is in Portuguese."
+}

@@ -1,0 +1,38 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "nfl-blitz-2000-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.blitz2000.recompiled",
+    "version": "v0.1.56"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "VistaLargaGames/NFL-Blitz-2000-Quest-VR",
+      "asset": "^NFL-Blitz-VR-.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "rom",
+      "kind": "file",
+      "label": "NFL Blitz 2000 ROM (USA, Rev 1)",
+      "help": "A ROM made from your own NFL Blitz 2000 (USA, Rev 1) cartridge, as .z64, .n64 or .v64.",
+      "extensions": [".z64", ".n64", ".v64"],
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    { "do": "push", "input": "rom", "map": [{ "to": "/sdcard/Download/" }] },
+    {
+      "do": "tell",
+      "text": "Open NFL Blitz VR from Library > Unknown Sources. In the start window, choose your ROM in Download. The game checks it and remembers it; after that, press Play."
+    }
+  ],
+  "notes": "Quest 3 only. The guide does not name ROM extensions; .z64, .n64 and .v64 are assumed as for the other N64 recompilations."
+}

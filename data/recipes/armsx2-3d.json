@@ -1,0 +1,61 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "armsx2-3d",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.armsx2",
+    "version": "v0.3-beta",
+    "targetPath": "/sdcard/Download/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "SgtBilko76/ARMSX2-3D",
+      "prerelease": true,
+      "asset": "^ARMSX2-3D-.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "ps2",
+      "kind": "file",
+      "label": "PS2 BIOS dump and PS2 games",
+      "help": "A BIOS dump from your own PS2 console and your own PS2 games (.iso, .chd, .cso, .bin/.cue or .gz).",
+      "extensions": [
+        ".iso",
+        ".chd",
+        ".cso",
+        ".bin",
+        ".cue",
+        ".gz"
+      ],
+      "multiple": true
+    }
+  ],
+  "steps": [
+    {
+      "do": "tell",
+      "text": "If you have another ARMSX2 build installed, uninstall it first. Otherwise the install fails with a signature mismatch."
+    },
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "push",
+      "input": "ps2",
+      "map": [
+        {
+          "to": "/sdcard/Download/"
+        }
+      ]
+    },
+    {
+      "do": "tell",
+      "text": "Open ARMSX2 from Library > Unknown Sources and grant storage access. Choose your BIOS and point the app at the Download folder. Games open on a curved 3D screen."
+    }
+  ],
+  "notes": "The guide does not name the BIOS file type; .bin is assumed, which is why the BIOS shares one input with the games. A separate BIOS input would be clearer once its extension is confirmed."
+}

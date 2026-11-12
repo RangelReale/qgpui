@@ -1,0 +1,56 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "f-zero-x-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.fzerox.vr",
+    "version": "v1.0.1"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "heurazy/FzeroVR-Standalone",
+      "asset": "^FzeroVR-Standalone-v.*-Quest3\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "rom",
+      "kind": "file",
+      "label": "F-Zero X ROM (USA, Rev 0)",
+      "help": "Your own F-Zero X (USA) Rev 0 N64 ROM.",
+      "extensions": [
+        ".z64"
+      ],
+      "sha1": [
+        {
+          "hash": "5f658e88ffa9de23cba6986a8fd3d3a90d7b4340",
+          "label": "F-Zero X (USA) Rev 0"
+        }
+      ],
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "push",
+      "input": "rom",
+      "map": [
+        {
+          "to": "/sdcard/Download/"
+        }
+      ]
+    },
+    {
+      "do": "tell",
+      "text": "Open F-Zero X VR from Library > Unknown Sources. Select your ROM in the launcher, then press Launch F-Zero X VR."
+    }
+  ],
+  "notes": "The guide only shows a .z64 file. The SHA-1 is the one the launcher checks, according to the guide."
+}

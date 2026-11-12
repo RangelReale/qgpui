@@ -1,0 +1,36 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "ratchet-and-clank-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": { "packageName": "dev.ratchetquest.vr", "version": "v0.1.18" },
+  "requirements": { "freeSpaceMB": 6000 },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "moistman42069/RatchetAndClank-Quest-VR",
+      "asset": "^RatchetQuestVR-[\\d.]+\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "iso",
+      "kind": "file",
+      "label": "Ratchet & Clank PS2 disc image",
+      "help": "Your own .iso of PAL SCES-50916 v2.00 (best supported) or NTSC-U SCUS-97199 v1.00. Greatest Hits, Platinum and other regions are refused.",
+      "extensions": [".iso"],
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    { "do": "push", "input": "iso", "map": [{ "to": "/sdcard/Download/" }] },
+    {
+      "do": "tell",
+      "text": "Open Ratchet & Clank Quest VR from Library > Unknown Sources and choose the disc image in the launcher. The first set-up can take up to half an hour, so keep the headset on charge. Then press PLAY IN VR. Install updates over the old version and do not clear the app's data."
+    }
+  ],
+  "notes": "The guide asks for about 6 GB free. Releases also carry a -windows.zip and SHA256SUMS.txt. Clearing app data loses the set-up and saves."
+}

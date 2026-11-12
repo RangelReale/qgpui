@@ -1,0 +1,29 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "vpinball-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "org.vpinball.vpinball_bgfx",
+    "version": "v0.40-beta"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "SgtBilko76/VPinball-VR",
+      "prerelease": true,
+      "asset": "^VPinball-VR-.*\\.apk$"
+    }
+  ],
+  "inputs": [],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "tell",
+      "text": "Open VPinball from Library > Unknown Sources. Get tables with + > Download from Archive.org. Some tables are several hundred MB, so use fast Wi-Fi."
+    }
+  ],
+  "notes": "Releases are all pre-releases. Own tables go in VPinball/tables/<Table name>/ with their ROMs in pinmame/roms/; qgp does not offer that yet."
+}

@@ -1,0 +1,58 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "death-crimson-ox-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.vrlightgunhub.deathcrimsonox",
+    "version": "v1.0.7",
+    "targetPath": "/sdcard/Download/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "vr4all-standalone/death-crimson-ox-vr",
+      "asset": "^death-crimson-ox-vr-quest\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "roms",
+      "kind": "file",
+      "label": "Death Crimson OX NAOMI sets (Japan Rev A)",
+      "help": "Your own sets deathcoxj.zip and naomi.zip. Leave them zipped.",
+      "names": [
+        "deathcoxj.zip",
+        "naomi.zip"
+      ],
+      "keepArchived": true,
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The guide has the user grant storage access."
+    },
+    {
+      "do": "push",
+      "input": "roms",
+      "map": [
+        {
+          "to": "/sdcard/Download/"
+        }
+      ]
+    },
+    {
+      "do": "tell",
+      "text": "Open Death Crimson OX VR from Library > Unknown Sources. If it asks for storage access, allow it. Then select Play."
+    }
+  ],
+  "notes": "No CHD is needed. The guide says \"storage access\"; MANAGE_EXTERNAL_STORAGE is assumed. The release also has a PCVR zip and a source zip."
+}

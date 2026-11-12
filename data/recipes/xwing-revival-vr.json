@@ -1,0 +1,34 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "xwing-revival-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.bilko.xwingrevivalvr",
+    "version": "v1.0.3"
+  },
+  "requirements": { "freeSpaceMB": 600 },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "SgtBilko76/X-Wing-Revival-VR",
+      "asset": "^X-Wing-Revival-VR-.*-full\\.apk$"
+    }
+  ],
+  "inputs": [],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The first start unpacks the game data to /sdcard/XWingRevival. The guide has the user allow access to all files."
+    },
+    {
+      "do": "tell",
+      "text": "Open X-Wing Revival VR from Library > Unknown Sources. If it asks for access to all files, allow it. The first start unpacks the game data (about 310 MB), then the menu appears."
+    }
+  ],
+  "notes": "The full APK has the free X-Wing Revival 0.6.1 data built in. The -full pattern guards against a later data-less APK in the same release."
+}

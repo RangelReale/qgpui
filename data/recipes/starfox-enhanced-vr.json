@@ -1,0 +1,54 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "starfox-enhanced-vr",
+  "status": "draft",
+  "support": "guided",
+  "checkedAgainst": { "packageName": "com.starfox.enhanced.quest", "version": "v0.0.8.8.3" },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "kandowontu2/starfox-enhanced",
+      "asset": "^StarFoxEnhanced-.*-quest-arm64\\.zip$",
+      "inZip": "(^|/)StarFoxEnhanced-quest-arm64\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "assets",
+      "kind": "file",
+      "label": "Star Fox asset file (Starfox-Assets.BIN)",
+      "help": "Made on a Windows PC from your own unmodified Star Fox or Starwing cartridge dump (.sfc or .smc). Do not share your ROM or BIN.",
+      "names": ["Starfox-Assets.BIN"],
+      "preparedWith": {
+        "tool": "StarFoxAssetBuilder",
+        "url": "https://github.com/kandowontu2/starfox-enhanced/releases",
+        "help": "Download StarFoxAssetBuilder-<version>-windows-x64.zip from the same release, run it with your ROM, and it creates Starfox-Assets.BIN."
+      }
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "launch",
+      "why": "Android creates Android/data/com.starfox.enhanced.quest/files on the first launch."
+    },
+    {
+      "do": "push",
+      "input": "assets",
+      "map": [
+        {
+          "from": "Starfox-Assets.BIN",
+          "to": "/sdcard/Android/data/com.starfox.enhanced.quest/files/Starfox-Assets.BIN"
+        }
+      ]
+    },
+    {
+      "do": "verify",
+      "files": ["/sdcard/Android/data/com.starfox.enhanced.quest/files/Starfox-Assets.BIN"]
+    },
+    { "do": "tell", "text": "Open Star Fox Enhanced from Library > Unknown Sources." }
+  ],
+  "notes": "The guide imports the BIN through a first-launch picker and pushes it only as a fallback; qgp pushes it directly, which skips the picker. The APK path inside the zip (StarFoxEnhanced-quest-arm64.apk) comes from the guide for 0.0.8.8.1 and was not checked against the current zip. The release also has an android-arm64 APK and a steam-frame zip, which are not the Quest build. Supported ROMs: Star Fox JP 1.0/1.1, USA 1.0/1.1/1.2, Starwing EU 1.0/1.1, DE 1.0. Alpha VR build."
+}

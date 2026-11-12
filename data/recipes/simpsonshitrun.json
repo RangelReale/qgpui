@@ -1,0 +1,46 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "simpsonshitrun",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.simpsonsHitAndRun.vr",
+    "version": "v1.2",
+    "targetPath": "/sdcard/SimpsonsHitRun/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "kote2345/The-Simpsons-Hit-and-Run-VR",
+      "asset": "^SimpsonsHitRun_.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "game",
+      "kind": "pc-install",
+      "label": "The Simpsons: Hit & Run (original PC release)",
+      "help": "The folder of your original, unmodded PC install of The Simpsons: Hit & Run (2003).",
+      "detect": ["Simpsons.exe", "art/frontend/scenedata/frontend.p3d"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "push",
+      "input": "game",
+      "map": [{ "to": "/sdcard/SimpsonsHitRun/" }]
+    },
+    {
+      "do": "verify",
+      "files": ["/sdcard/SimpsonsHitRun/Simpsons.exe", "/sdcard/SimpsonsHitRun/art/frontend/scenedata/frontend.p3d"]
+    },
+    {
+      "do": "tell",
+      "text": "Open The Simpsons: Hit & Run VR from Library > Unknown Sources."
+    }
+  ],
+  "notes": "The guide copies the complete install, so the push takes every file. The game is not sold on Steam or GOG, so stores is empty. The payload lists /sdcard/SHAR/ as another accepted folder. The payload version is v1.2; the GitHub tag is 1.2."
+}

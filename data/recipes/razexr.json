@@ -1,0 +1,57 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "razexr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": { "packageName": "com.drbeef.razexr", "version": "v1.0.0", "targetPath": "/sdcard/RazeXR/" },
+  "apks": [{ "source": "github", "repo": "Team-Beef-Studios/RazeXR", "asset": "^razexr-.*\\.apk$" }],
+  "inputs": [
+    {
+      "id": "duke3d",
+      "kind": "pc-install",
+      "label": "Duke Nukem 3D",
+      "help": "Your installed copy of Duke Nukem 3D. qgp copies duke3d.grp.",
+      "stores": [{ "store": "steam", "appId": "434050" }],
+      "detect": ["duke3d.grp"]
+    },
+    {
+      "id": "blood",
+      "kind": "pc-install",
+      "label": "Blood (optional)",
+      "help": "Your installed copy of Blood. qgp copies blood.rff and the sound files.",
+      "required": false,
+      "stores": [{ "store": "steam", "appId": "1010750" }],
+      "detect": ["blood.rff"]
+    },
+    {
+      "id": "sw",
+      "kind": "pc-install",
+      "label": "Shadow Warrior (optional)",
+      "help": "Your installed copy of Shadow Warrior. qgp copies sw.grp.",
+      "required": false,
+      "stores": [{ "store": "steam", "appId": "225160" }],
+      "detect": ["sw.grp"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "launch",
+      "why": "The first launch creates a subfolder for each supported game in /sdcard/RazeXR/."
+    },
+    {
+      "do": "push",
+      "input": "duke3d",
+      "map": [{ "from": "duke3d.grp", "to": "/sdcard/RazeXR/duke3d/" }]
+    },
+    { "do": "push", "input": "blood", "map": [{ "from": "*.rff", "to": "/sdcard/RazeXR/blood/" }] },
+    { "do": "push", "input": "sw", "map": [{ "from": "sw.grp", "to": "/sdcard/RazeXR/sw/" }] },
+    {
+      "do": "tell",
+      "text": "Open RazeXR from Library > Unknown Sources and choose your game in the launcher menu."
+    }
+  ],
+  "notes": "Steam app IDs come from the payload's store links (Duke Nukem 3D 20th Anniversary World Tour, Blood: Fresh Supply, Shadow Warrior Classic Redux); where those editions keep duke3d.grp, blood.rff and sw.grp is not checked, and the names may be upper case. Blood also needs \"all sound files\"; the guide does not name them, so *.rff is a guess. The payload says files may also go directly in /sdcard/RazeXR/. The release also has razexrlauncher_oculus.apk, which the guide does not mention; it is not installed. Duke Nukem 3D is treated as required because the payload marks it as the base game."
+}

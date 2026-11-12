@@ -1,0 +1,52 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "star-wars-arcade-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.cyberheater.starwars",
+    "version": "v0.3.2",
+    "targetPath": "/sdcard/Android/data/com.cyberheater.starwars/files/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "cyberheater/Quest-SWVR",
+      "asset": "^StarWarsQuest\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "rom",
+      "kind": "file",
+      "label": "Star Wars arcade ROM set (MAME starwars)",
+      "help": "Your own MAME starwars.zip. Leave it zipped.",
+      "names": ["starwars.zip"],
+      "keepArchived": true,
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "launch",
+      "why": "The first start shows NO ROMS and creates Android/data/com.cyberheater.starwars/files."
+    },
+    {
+      "do": "push",
+      "input": "rom",
+      "map": [{ "from": "starwars.zip", "to": "/sdcard/Android/data/com.cyberheater.starwars/files/" }]
+    },
+    {
+      "do": "verify",
+      "files": ["/sdcard/Android/data/com.cyberheater.starwars/files/starwars.zip"]
+    },
+    {
+      "do": "tell",
+      "text": "Open Star Wars from Library > Unknown Sources. The game finds the ROM set and starts."
+    }
+  ],
+  "notes": "The app finds the chips in any zip in its folder by checksum. The first start with the zip writes six starwars_*.bin files beside it. Release v0.2 also carried QuestSWVR-rom-tools.zip, which the asset pattern does not match."
+}

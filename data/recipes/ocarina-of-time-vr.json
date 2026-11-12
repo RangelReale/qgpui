@@ -1,0 +1,32 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "ocarina-of-time-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "org.oot.vr",
+    "version": "v0.9.8-beta"
+  },
+  "apks": [{ "source": "github", "repo": "gibranfelix/oot-vr", "asset": "^oot-vr-v.*\\.apk$" }],
+  "inputs": [
+    {
+      "id": "rom",
+      "kind": "file",
+      "label": "Ocarina of Time dump",
+      "help": "A dump of your own Ocarina of Time cartridge or GameCube disc in a supported version (N64 PAL 1.0/1.1, NTSC-U and NTSC-J 1.0 to 1.2, or the GameCube OoT and Master Quest discs).",
+      "extensions": [".z64", ".n64", ".v64", ".iso"],
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    { "do": "push", "input": "rom", "map": [{ "to": "/sdcard/Download/" }] },
+    {
+      "do": "tell",
+      "text": "Open OoT VR from Library > Unknown Sources. Select Select ROM, then your dump in Download. Wait a few minutes for the extraction and keep the headset on. Afterwards you can delete the dump."
+    }
+  ],
+  "notes": "The guide shows a .z64 example only; .n64, .v64 and .iso for GameCube discs are assumptions. Accepted SHA-1s are in port/docs/supportedHashes.json in the repository; not copied into sha1 yet. The game builds oot.o2r from the dump. Releases sometimes carry .mp4 clips, which the asset pattern avoids."
+}

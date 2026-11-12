@@ -1,0 +1,46 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "wakerquest",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "io.github.wakerquest",
+    "version": "v1.4",
+    "targetPath": "/sdcard/Download/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "Trastorillo/wakerquest",
+      "asset": "^WakerQuest-.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "iso",
+      "kind": "file",
+      "label": "The Wind Waker GameCube disc image (GZLP01 or GZLE01)",
+      "help": "Your own uncompressed .iso of The Wind Waker: European (GZLP01, revision 0) or USA (GZLE01). Compressed formats such as .rvz or .ciso do not work.",
+      "extensions": [".iso"]
+    }
+  ],
+  "steps": [
+    {
+      "do": "tell",
+      "text": "If WakerQuest is already installed, do not uninstall it. Uninstalling erases your saves and memory card data. qgp installs over it."
+    },
+    { "do": "install-apk" },
+    {
+      "do": "push",
+      "input": "iso",
+      "map": [{ "to": "/sdcard/Download/" }]
+    },
+    {
+      "do": "tell",
+      "text": "Open WakerQuest from Library > Unknown Sources. On the first start, select your ISO in the file picker."
+    }
+  ],
+  "notes": "Never uninstall before an update: saves and memory card data are lost. install-apk uses -r, which keeps them. No disc header check: two game IDs (GZLP01 rev 0, GZLE01) are accepted and the schema takes one. The payload also lists /sdcard/Android/data/io.github.wakerquest/files/ as another folder."
+}

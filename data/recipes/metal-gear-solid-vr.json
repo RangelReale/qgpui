@@ -1,0 +1,95 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "metal-gear-solid-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "org.baywilly.mgsvr",
+    "version": "v0.1-beta",
+    "targetPath": "/sdcard/languages/English/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "Baywilly/Metal-Gear-Solid-VR-Standalone",
+      "prerelease": true,
+      "asset": "^MGSVR-Quest\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "english",
+      "kind": "file",
+      "label": "Metal Gear Solid discs, English (USA)",
+      "required": false,
+      "help": "The .bin and .cue files of Disc 1 and Disc 2 of your own Metal Gear Solid (USA). Unzip them first. Pick the set for one language.",
+      "extensions": [".bin", ".cue"],
+      "multiple": true
+    },
+    {
+      "id": "spanish",
+      "kind": "file",
+      "label": "Metal Gear Solid discs, Spanish (Spain)",
+      "required": false,
+      "help": "The .bin and .cue files of Disc 1 and Disc 2 of your own Metal Gear Solid (Spain). Unzip them first. Pick the set for one language.",
+      "extensions": [".bin", ".cue"],
+      "multiple": true
+    },
+    {
+      "id": "french",
+      "kind": "file",
+      "label": "Metal Gear Solid discs, French (France)",
+      "required": false,
+      "help": "The .bin and .cue files of Disc 1 and Disc 2 of your own Metal Gear Solid (France). Unzip them first. Pick the set for one language.",
+      "extensions": [".bin", ".cue"],
+      "multiple": true
+    },
+    {
+      "id": "german",
+      "kind": "file",
+      "label": "Metal Gear Solid discs, German (Germany)",
+      "required": false,
+      "help": "The .bin and .cue files of Disc 1 and Disc 2 of your own Metal Gear Solid (Germany). Unzip them first. Pick the set for one language.",
+      "extensions": [".bin", ".cue"],
+      "multiple": true
+    },
+    {
+      "id": "italian",
+      "kind": "file",
+      "label": "Metal Gear Solid discs, Italian (Italy)",
+      "required": false,
+      "help": "The .bin and .cue files of Disc 1 and Disc 2 of your own Metal Gear Solid (Italy). Unzip them first. Pick the set for one language.",
+      "extensions": [".bin", ".cue"],
+      "multiple": true
+    },
+    {
+      "id": "japanese",
+      "kind": "file",
+      "label": "Metal Gear Solid discs, Japanese (Japan Asia, Premium Package)",
+      "required": false,
+      "help": "The .bin and .cue files of Disc 1 and Disc 2 of your own Metal Gear Solid (Japan Asia, Premium Package). Unzip them first. Pick the set for one language.",
+      "extensions": [".bin", ".cue"],
+      "multiple": true
+    }
+  ],
+  "steps": [
+    { "do": "install-apk", "grantAll": true },
+    {
+      "do": "launch",
+      "why": "The first launch creates /sdcard/languages/ with one folder per language."
+    },
+    { "do": "push", "input": "english", "map": [{ "to": "/sdcard/languages/English/" }] },
+    { "do": "push", "input": "spanish", "map": [{ "to": "/sdcard/languages/Spanish/" }] },
+    { "do": "push", "input": "french", "map": [{ "to": "/sdcard/languages/French/" }] },
+    { "do": "push", "input": "german", "map": [{ "to": "/sdcard/languages/German/" }] },
+    { "do": "push", "input": "italian", "map": [{ "to": "/sdcard/languages/Italian/" }] },
+    { "do": "push", "input": "japanese", "map": [{ "to": "/sdcard/languages/Japanese/" }] },
+    {
+      "do": "tell",
+      "text": "Open MGSVR from Library > Unknown Sources. Accept the permissions it asks for, then pick your language. The first start prepares the discs, so keep some free space."
+    }
+  ],
+  "notes": "One set of two discs per language; the user supplies at least one, which the schema cannot express, so every language is optional (the payload marks English required). The guide has the user accept permissions on the first run; grantAll is a guess that -g covers them. Releases are all pre-releases; MGSVR-Pico.apk is avoided. The payload targetPath is only the English folder."
+}

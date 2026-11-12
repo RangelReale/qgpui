@@ -1,0 +1,39 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "re-code-veronica-x-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": { "packageName": "org.recvx.vr", "version": "v1.5.1", "targetPath": "/sdcard/Download/" },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "neto1495mn-sudo/recvx-enhanced-port-pcvr",
+      "asset": "^RE-Code-Veronica-X-.*VR-v.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "iso",
+      "kind": "file",
+      "label": "Resident Evil Code: Veronica X PS2 disc image (NTSC-U, SLUS-20184)",
+      "help": "Your own .iso of the PS2 version, NTSC-U, SLUS-20184.",
+      "extensions": [".iso"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The guide has the user allow access to all files on the first launch, to read the disc image."
+    },
+    { "do": "push", "input": "iso", "map": [{ "to": "/sdcard/Download/" }] },
+    {
+      "do": "tell",
+      "text": "Open the app from Library > Unknown Sources. If it asks for access to all files, allow it. In the launcher choose Disc, pick your .iso, then Play. In Settings, use 2x resolution on Quest 2 and 3x on Quest 3."
+    }
+  ],
+  "notes": "Asset names vary between releases (v1.5.0 used RE-Code-Veronica-X-Quest-VR-, v1.5.1 RE-Code-Veronica-X-VR-); the pattern takes both and skips the Windows zip. The optional HD texture pack is not modelled. Granting the appop over adb is not yet tested on a Quest."
+}

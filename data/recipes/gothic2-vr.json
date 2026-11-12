@@ -1,0 +1,36 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "gothic2-vr",
+  "status": "draft",
+  "support": "guided",
+  "checkedAgainst": {
+    "packageName": "com.gothic2vr.quest",
+    "version": "v0.2.0",
+    "targetPath": "/sdcard/Android/data/com.gothic2vr.quest/files/Gothic2/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "dubrovskiy-yevhen-stakelogic/gothic2-vr",
+      "inZip": "(^|/)Quest/[^/]*\\.apk$",
+      "asset": "^Gothic-II-VR-[0-9.]+(-PCVR-and-Quest)?\\.zip$"
+    }
+  ],
+  "inputs": [],
+  "steps": [
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "tell",
+      "text": "Your game files must be packaged with the release's own installer. Download the Gothic II VR zip from GitHub, extract it, open its Quest folder and run INSTALL.bat. Enter the path of your Gothic II: Night of the Raven folder (the one with Data, _work and System)."
+    },
+    {
+      "do": "tell",
+      "text": "In the headset, approve storage permissions when asked, select the imported data archive, and launch Gothic II VR from Unknown Sources."
+    }
+  ],
+  "notes": "INSTALL.bat packages the game files into a private zip in /sdcard/Download/Gothic2VR/ for the in-headset import; the format is not documented, so qgp cannot do it. Uncertain: v0.2.1 ships one zip (Gothic-II-VR-0.2.1.zip) whose layout was not checked; inZip assumes the APK is still in a Quest/ folder. v0.2.0 also had a Quest-Win7-x86 zip, which the asset pattern excludes."
+}

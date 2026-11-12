@@ -1,0 +1,30 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "jurassic-park-arcade-vr",
+  "status": "draft",
+  "support": "manual",
+  "checkedAgainst": {
+    "packageName": "com.jp2015.vr",
+    "version": "v1.0",
+    "targetPath": "/sdcard/Android/data/com.jp2015.vr/files/game/"
+  },
+  "apks": [
+    {
+      "source": "manual",
+      "page": "https://github.com/Lovecore/jurassic-park-arcade-quest",
+      "asset": "\\.apk$",
+      "help": "No APK is distributed. Build it yourself on a PC from your own arcade files with the repository's tools/quest/build_apk.sh, then pick the APK it makes."
+    }
+  ],
+  "inputs": [],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "tell",
+      "text": "On your PC, run tools/quest/push_data.sh from the repository with the headset connected. It copies the game data. Then open Jurassic Park Arcade from Library > Unknown Sources."
+    }
+  ],
+  "notes": "Built from source: needs the Raw Thrills arcade Linux dump, Android SDK and NDK. push_data.sh pushes runtime data to Android/data/com.jp2015.vr/files/game/, but which files it pushes is not in the guide, so there is no input yet. The guide's install.sh step is install-apk here."
+}

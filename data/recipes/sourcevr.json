@@ -1,0 +1,89 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "sourcevr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.sourcevrport.hl2vr",
+    "version": "v0.1.28",
+    "targetPath": "/sdcard/SourceVRPort/"
+  },
+  "apks": [{ "source": "github", "repo": "tinsarfal/SourceVR", "asset": "^SourceVR-\\d[\\d.]*\\.apk$" }],
+  "inputs": [
+    {
+      "id": "hl2",
+      "kind": "pc-install",
+      "label": "Half-Life 2",
+      "help": "Your installed copy of Half-Life 2 from Steam. qgp copies the hl2 and platform folders.",
+      "stores": [{ "store": "steam", "appId": "220", "installDir": "Half-Life 2" }],
+      "detect": ["hl2/gameinfo.txt"]
+    },
+    {
+      "id": "ep1",
+      "kind": "pc-install",
+      "label": "Half-Life 2: Episode One (optional)",
+      "help": "Your installed copy of Episode One. qgp copies the episodic folder.",
+      "required": false,
+      "stores": [{ "store": "steam", "appId": "380" }],
+      "detect": ["episodic/gameinfo.txt"]
+    },
+    {
+      "id": "ep2",
+      "kind": "pc-install",
+      "label": "Half-Life 2: Episode Two (optional)",
+      "help": "Your installed copy of Episode Two. qgp copies the ep2 folder.",
+      "required": false,
+      "stores": [{ "store": "steam", "appId": "420" }],
+      "detect": ["ep2/gameinfo.txt"]
+    },
+    {
+      "id": "portal",
+      "kind": "pc-install",
+      "label": "Portal (optional)",
+      "help": "Your installed copy of Portal from Steam. qgp copies the portal folder. Portal also needs Half-Life 2's files.",
+      "required": false,
+      "stores": [{ "store": "steam", "appId": "400", "installDir": "Portal" }],
+      "detect": ["portal/gameinfo.txt"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The guide has the user grant file permissions on the first launch."
+    },
+    { "do": "launch", "why": "The guide launches the app once before copying the game files." },
+    {
+      "do": "push",
+      "input": "hl2",
+      "map": [
+        { "from": "hl2/**", "to": "/sdcard/SourceVRPort/common/hl2/" },
+        { "from": "platform/**", "to": "/sdcard/SourceVRPort/common/platform/" }
+      ]
+    },
+    {
+      "do": "push",
+      "input": "ep1",
+      "map": [{ "from": "episodic/**", "to": "/sdcard/SourceVRPort/common/episodic/" }]
+    },
+    {
+      "do": "push",
+      "input": "ep2",
+      "map": [{ "from": "ep2/**", "to": "/sdcard/SourceVRPort/common/ep2/" }]
+    },
+    {
+      "do": "push",
+      "input": "portal",
+      "map": [{ "from": "portal/**", "to": "/sdcard/SourceVRPort/common/portal/" }]
+    },
+    { "do": "verify", "files": ["/sdcard/SourceVRPort/common/hl2/gameinfo.txt"] },
+    {
+      "do": "tell",
+      "text": "Open SourceVRPort from Library > Unknown Sources. If it asks for file access, allow it. Choose your game and press Play once the content check reports ready."
+    }
+  ],
+  "notes": "Steam app IDs come from the payload's store links. The payload gives the episodes' Steam paths as \"Half-Life 2 Episode One/episodic/\" and \"Half-Life 2 Episode Two/ep2/\", but current Steam installs may put episodic and ep2 inside the Half-Life 2 folder, so no installDir is set for them. The guide does not say whether the episodes also need hl2. Assumes a glob like hl2/** keeps paths below hl2/. Releases also carry SourceVRCore-*.apk and Pico builds; the guide installs only SourceVR-<version>.apk and the pattern excludes the others. Granting the appop over adb is not yet tested on a Quest."
+}

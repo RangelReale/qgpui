@@ -1,0 +1,41 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "halocequest",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.halo.decomp.vr",
+    "version": "v1.0.41",
+    "targetPath": "/sdcard/Documents/HaloCE/"
+  },
+  "requirements": {
+    "freeSpaceMB": 1800
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "moistman42069/HaloCE-Quest-VR",
+      "asset": "^HaloCE-Quest-.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "disc",
+      "kind": "file",
+      "label": "Halo: Combat Evolved Xbox disc image",
+      "help": "Your own disc image of the original Xbox Halo: Combat Evolved, as .iso or .xiso. The Steam MCC and Anniversary PC versions do not work.",
+      "extensions": [".iso", ".xiso"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    { "do": "push", "input": "disc", "map": [{ "to": "/sdcard/Download/" }] },
+    {
+      "do": "tell",
+      "text": "Open Halo CE VR from Library > Unknown Sources. Choose the disc image in Download with the file picker. The game extracts the maps into its own storage."
+    }
+  ],
+  "notes": "The guide also allows pushing an extracted maps folder (ui.map, bloodgulch.map) to /sdcard/Documents/HaloCE/maps/, which is the payload targetPath; this recipe uses the in-app ISO import instead, so the files end up in Android/data/com.halo.decomp.vr/files. freeSpaceMB is the guide's 1.8 GB for extracted maps, cache and sound, not counting the image itself. Releases also carry HaloCE-Android-*.apk, which the asset pattern avoids."
+}

@@ -1,0 +1,48 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "openmw-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "org.openmw.vr",
+    "version": "v0.51",
+    "targetPath": "/sdcard/Morrowind/"
+  },
+  "requirements": {
+    "freeSpaceMB": 2000
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "tomups/openmw-vr-quest",
+      "asset": "^com\\.openmw\\.vr-.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "morrowind",
+      "kind": "pc-install",
+      "label": "The Elder Scrolls III: Morrowind",
+      "help": "Your installed copy of Morrowind, for example from Steam or GOG: the folder that contains Data Files. Tribunal and Bloodmoon are found automatically.",
+      "stores": [{ "store": "steam", "appId": "22320", "installDir": "Morrowind" }, { "store": "gog" }],
+      "detect": ["Data Files/Morrowind.esm"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    { "do": "push", "input": "morrowind", "map": [{ "to": "/sdcard/Morrowind/" }] },
+    {
+      "do": "grant",
+      "permission": "android.permission.READ_EXTERNAL_STORAGE",
+      "why": "The guide grants it ahead of time so the app can read /sdcard/Morrowind/."
+    },
+    { "do": "verify", "files": ["/sdcard/Morrowind/Data Files/Morrowind.esm"] },
+    {
+      "do": "tell",
+      "text": "Open OpenMW VR from Library > Unknown Sources. If it asks for storage access, allow it."
+    }
+  ],
+  "notes": "The APK file name says com.openmw.vr but the package is org.openmw.vr; the payload already has org.openmw.vr, so no packageName override is needed. Follows the guide's Option A (whole folder to /sdcard/Morrowind/); Option B pushes the Data Files contents to Android/data/org.openmw.vr/files/data/. Morrowind.esm in detect is the base game master file; the guide only says the folder contains Data Files. GOG install folder name unknown."
+}

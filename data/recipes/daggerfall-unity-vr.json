@@ -1,0 +1,68 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "daggerfall-unity-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.dfworkshop.dfuquest3",
+    "version": "v0.1.0-beta3",
+    "targetPath": "/sdcard/Android/data/com.dfworkshop.dfuquest3/files/Daggerfall/arena2/"
+  },
+  "requirements": {
+    "freeSpaceMB": 500
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "rwcrosk-arch/dfu-quest3",
+      "prerelease": true,
+      "asset": "^DFU-Quest3VR-.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "arena2",
+      "kind": "pc-install",
+      "label": "Daggerfall arena2 folder",
+      "help": "The arena2 folder of the classic DOS Daggerfall, free on Steam and also on GOG. It holds .BSA and .SND files.",
+      "stores": [
+        {
+          "store": "steam"
+        },
+        {
+          "store": "gog"
+        }
+      ],
+      "root": "arena2",
+      "detect": [
+        "*.BSA",
+        "*.SND"
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "launch",
+      "why": "Android creates Android/data/com.dfworkshop.dfuquest3/files on the first launch."
+    },
+    {
+      "do": "push",
+      "input": "arena2",
+      "map": [
+        {
+          "to": "/sdcard/Android/data/com.dfworkshop.dfuquest3/files/Daggerfall/arena2/"
+        }
+      ]
+    },
+    {
+      "do": "tell",
+      "text": "Open Daggerfall Unity VR from Library > Unknown Sources and grant any storage permission it asks for. On the settings screen, leave the defaults and press Done."
+    }
+  ],
+  "notes": "Uncertain: detect uses globs because the guide names only the file types (.BSA, .SND), and the arena2 path inside the Steam and GOG installs is not known. The guide does not launch first; the launch is there because the target is in Android/data. AntialiasingMethod=0 in settings.ini must stay; it is the default. Releases are all pre-releases."
+}

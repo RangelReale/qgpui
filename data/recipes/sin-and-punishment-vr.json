@@ -1,0 +1,38 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "sin-and-punishment-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.sinandpunishment.recompiled",
+    "version": "v0.1.1",
+    "targetPath": "/sdcard/Download/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "VistaLargaGames/Sin-and-Punishment-Quest-VR",
+      "asset": "^Sin-and-Punishment-VR-[\\d.]+\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "rom",
+      "kind": "file",
+      "label": "Sin and Punishment ROM (N64)",
+      "help": "Your own Sin and Punishment ROM as .z64, .n64 or .v64. The Japanese ROM and the English fan translation both work.",
+      "extensions": [".z64", ".n64", ".v64"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    { "do": "push", "input": "rom", "map": [{ "to": "/sdcard/Download/" }] },
+    {
+      "do": "tell",
+      "text": "Open Sin and Punishment VR from Library > Unknown Sources. In the ROM window choose Choose ROM file and pick your ROM. The game copies it once; after that the window shows Play."
+    }
+  ],
+  "notes": "Releases also carry a PC zip; the pattern takes only the Quest APK. Optional HD texture packs (Android/data/com.sinandpunishment.recompiled/files/snprecomp/texture_packs/) are not modelled."
+}

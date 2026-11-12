@@ -1,0 +1,39 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "metroid-prime-2-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "org.primedgun.echoes",
+    "version": "v1.0.0-alpha.4",
+    "targetPath": "/sdcard/Download/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "iChris4/MetroidPrime2PortVR",
+      "prerelease": true,
+      "asset": "^PrimedGunEchoes-.*-Quest\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "echoes",
+      "kind": "file",
+      "label": "Metroid Prime 2: Echoes disc image (USA, G2ME01)",
+      "help": "Your own disc image of Metroid Prime 2: Echoes as .iso, .nkit.iso, .gcm, .rvz, .wia, .ciso or .wbfs. USA (G2ME01) is tested; PAL is experimental.",
+      "extensions": [".iso", ".gcm", ".rvz", ".wia", ".ciso", ".wbfs"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    { "do": "push", "input": "echoes", "map": [{ "to": "/sdcard/Download/" }] },
+    {
+      "do": "tell",
+      "text": "Open PrimedGun Echoes from Library > Unknown Sources. Tap Select Game, choose your disc image, then tap Play. In the game, click the right stick to set your height. To update, install the new version over the old one. Do not uninstall it, or you lose your saves."
+    }
+  ],
+  "notes": "The newest releases are pre-releases (v1.0.0-alpha.4 and later; alpha.3 was a normal release), so prerelease is true. No disc check: PAL (G2MP01) and Metroid Prime Trilogy are experimental but allowed, and several accepted formats are compressed. Never uninstall: saves are lost."
+}

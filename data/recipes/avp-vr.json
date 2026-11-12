@@ -1,0 +1,69 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "avp-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.bassquake.quest.avpvr",
+    "version": "v1.4",
+    "targetPath": "/sdcard/Android/data/com.bassquake.quest.avpvr/files/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "Bassquake/Aliens-Versus-Predator-VR",
+      "asset": "^avpvr-.*-quest-arm64-v8a-release\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "avp",
+      "kind": "pc-install",
+      "label": "Aliens versus Predator Classic 2000",
+      "help": "Your installed copy from Steam or GOG, or the original PC CD-ROM install.",
+      "stores": [
+        {
+          "store": "steam",
+          "appId": "3730"
+        },
+        {
+          "store": "gog"
+        }
+      ],
+      "detect": [
+        "avp_huds/alien.rif",
+        "avp_rifs/temple.rif",
+        "fastfile/ffinfo.txt"
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "launch",
+      "why": "Android creates Android/data/com.bassquake.quest.avpvr/files on the first launch. The guide says the app closes at once, which is normal."
+    },
+    {
+      "do": "push",
+      "input": "avp",
+      "map": [
+        {
+          "to": "/sdcard/Android/data/com.bassquake.quest.avpvr/files/"
+        }
+      ]
+    },
+    {
+      "do": "verify",
+      "files": [
+        "/sdcard/Android/data/com.bassquake.quest.avpvr/files/avp_huds/alien.rif",
+        "/sdcard/Android/data/com.bassquake.quest.avpvr/files/avp_rifs/temple.rif",
+        "/sdcard/Android/data/com.bassquake.quest.avpvr/files/fastfile/ffinfo.txt"
+      ]
+    }
+  ],
+  "notes": "The guide copies the whole install folder. Steam app ID 3730 is from the guide's store link; the install folder names are not known. The optional CD soundtrack (ModDB OGG files renamed to trackNN.ogg in cd_tracks/) is not modelled. The release also has plain Android, Linux and Windows builds."
+}

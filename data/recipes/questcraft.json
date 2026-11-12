@@ -1,0 +1,19 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "questcraft",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": { "packageName": "com.qcxr.qcxr", "version": "v6.0.0" },
+  "apks": [{ "source": "github", "repo": "QuestCraftPlusPlus/QuestCraft", "asset": "^QCXR.*\\.apk$" }],
+  "inputs": [],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "tell",
+      "text": "Open QuestCraft from Library > Unknown Sources. Sign in to your Microsoft account with the code shown on screen, choose a Minecraft version and tap Play. The game files download to the headset."
+    }
+  ],
+  "notes": "Needs a Minecraft Java Edition account; sign-in happens in the headset."
+}

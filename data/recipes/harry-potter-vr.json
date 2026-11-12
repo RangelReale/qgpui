@@ -1,0 +1,34 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "harry-potter-vr",
+  "status": "draft",
+  "support": "guided",
+  "checkedAgainst": {
+    "packageName": "io.github.hpvr.quest",
+    "version": "v0.1.4.1",
+    "targetPath": "/sdcard/Android/data/io.github.hpvr.quest/files/HP/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "dubrovskiy-yevhen-stakelogic/harry-potter-vr",
+      "asset": "^HPVR-Quest-.*\\.zip$",
+      "inZip": "^HPVR-Quest.*\\.apk$"
+    }
+  ],
+  "inputs": [],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "launch",
+      "why": "Android creates Android/data/io.github.hpvr.quest/files on the first launch."
+    },
+    {
+      "do": "tell",
+      "text": "Extract the release zip on your PC, keep the headset connected, and run INSTALL.bat. Choose your Harry Potter and the Sorcerer's Stone PC game folder when it asks. It prepares the audio and maps and copies them to the headset. Then open Harry Potter VR from Library > Unknown Sources."
+    }
+  ],
+  "notes": "INSTALL.bat converts the audio and maps (tools/hpvr_quest_prepare_assets.exe in the zip) and pushes them to files/HP/ (system/HPBase.u, system/HarryPotter.u, Maps/Lev_Tut1.unr). The converted layout is not documented in the guide, so qgp cannot push the files itself yet; the bat also sideloads the APK again. The APK in the zip is named HPVR-Quest-Demo.apk even in the full 0.1.4.1 release. Needs the US 2001 PC version."
+}

@@ -1,0 +1,39 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "sm64-coop-dx-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.fulldivegames.sm64coopdxvr",
+    "version": "v0.9.26",
+    "targetPath": "/sdcard/Download/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "fulldivegames/sm64coopdx-VR-Standalone-Physics-based",
+      "asset": "^SM64-Co-Op-DX-VR-Quest-v.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "rom",
+      "kind": "file",
+      "label": "Super Mario 64 ROM (USA, .z64)",
+      "help": "Your own unmodified Super Mario 64 US ROM as a .z64 file.",
+      "extensions": [".z64"],
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    { "do": "push", "input": "rom", "map": [{ "to": "/sdcard/Download/" }] },
+    {
+      "do": "tell",
+      "text": "Open SM64 Co-Op DX VR from Library > Unknown Sources and pick your ROM in the file picker. The app imports it and will likely close; open it again and play. To update, install over the old version. Do not uninstall it, or you lose the imported ROM, saves and settings."
+    }
+  ],
+  "notes": "Some releases also carry a Steam Frame APK; the pattern takes only the Quest one. Mods and DynOS packs (/sdcard/SM64VR/) need All files access and are not modelled. Never uninstall: the imported ROM and saves are in private storage."
+}

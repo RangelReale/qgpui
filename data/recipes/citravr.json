@@ -1,0 +1,62 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "citravr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "org.citra.citra_emu",
+    "version": "v0.6.0",
+    "targetPath": "/sdcard/CitraVR/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "amwatson/CitraVR",
+      "asset": "^CitraVR-v.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "games",
+      "kind": "file",
+      "label": "Nintendo 3DS games",
+      "help": "Your own dumped and decrypted 3DS games, for example .3ds or .cia files.",
+      "extensions": [
+        ".3ds",
+        ".3dsx",
+        ".cci",
+        ".cxi",
+        ".cia",
+        ".app",
+        ".axf",
+        ".elf",
+        ".z3dsx",
+        ".zcci",
+        ".zcxi",
+        ".zcia"
+      ],
+      "multiple": true
+    }
+  ],
+  "steps": [
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "push",
+      "input": "games",
+      "map": [
+        {
+          "to": "/sdcard/CitraVR/roms/"
+        }
+      ]
+    },
+    {
+      "do": "tell",
+      "text": "Open CitraVR from Library > Unknown Sources and choose /sdcard/CitraVR/roms as the games folder."
+    }
+  ],
+  "notes": "The extension list comes from the payload. .cia and .zcia files are installed in the app, not shown as loose games. The repository also publishes beta and test pre-releases, which prerelease false skips."
+}

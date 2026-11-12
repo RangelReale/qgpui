@@ -1,0 +1,71 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "questsam",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.github.maranone.questsam",
+    "version": "b004",
+    "targetPath": "/sdcard/Android/data/com.github.maranone.questsam/files/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "maranone/QuestSam",
+      "tag": "^b\\d+$",
+      "asset": "^questsam\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "tse",
+      "kind": "pc-install",
+      "label": "Serious Sam Classic: The Second Encounter",
+      "help": "Your installed copy of Serious Sam Classic: The Second Encounter from Steam or GOG. qgp copies its .gro files.",
+      "stores": [{ "store": "steam" }, { "store": "gog" }],
+      "detect": ["SE1_00.gro"]
+    },
+    {
+      "id": "tfe",
+      "kind": "pc-install",
+      "label": "Serious Sam Classic: The First Encounter (optional)",
+      "help": "Your installed copy of Serious Sam Classic: The First Encounter from Steam or GOG. qgp copies its .gro files.",
+      "required": false,
+      "stores": [
+        { "store": "steam", "installDir": "Serious Sam Classic The First Encounter" },
+        { "store": "gog" }
+      ],
+      "detect": ["1_00.gro"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The guide has the user grant All files access on the first launch."
+    },
+    { "do": "launch", "why": "The first launch creates the game folders and then closes." },
+    {
+      "do": "push",
+      "input": "tse",
+      "map": [{ "from": "*.gro", "to": "/sdcard/Android/data/com.github.maranone.questsam/files/" }]
+    },
+    {
+      "do": "push",
+      "input": "tfe",
+      "map": [{ "from": "*.gro", "to": "/sdcard/Android/data/com.github.maranone.questsam/files/" }]
+    },
+    {
+      "do": "verify",
+      "files": ["/sdcard/Android/data/com.github.maranone.questsam/files/SE1_00.gro"]
+    },
+    {
+      "do": "tell",
+      "text": "Open QuestSam from Library > Unknown Sources. If it asks for All files access, allow it. Choose your campaign and play."
+    }
+  ],
+  "notes": "Uncertain. The guide says TFE and/or TSE, but the payload counts the game as installed only with SE1_00.gro (a TSE file), so TSE is required here and TFE optional. Whether TFE and TSE .gro files can share one folder is not stated; the repository's push_quest_data scripts push both to Android/data/.../files. The guide copies to the legacy /sdcard/questsam/ instead; the payload prefers Android/data. 1_00.gro as the TFE detect file comes from the guide's example list. Steam app IDs are not given. tag ^b\\d+$ skips the pico-test release."
+}

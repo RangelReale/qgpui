@@ -1,0 +1,54 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "hotd4-special-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "org.lindbergh.hotd4sp.vr",
+    "version": "v0.4.0",
+    "targetPath": "/sdcard/HouseOfTheDead4Special/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "lialan/lindbergh-recomp-ports",
+      "asset": "^HouseOfTheDead4SpecialVR-.*-quest3\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "game",
+      "kind": "pc-install",
+      "label": "The House of the Dead 4 Special arcade files (elf, fs)",
+      "help": "Your own copy of the Lindbergh arcade game: the folder that holds elf and fs. This is not The House of the Dead 4. The app runs only the game version it was built from.",
+      "detect": ["elf/hod4M.elf"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The game reads /sdcard/HouseOfTheDead4Special. The guide has the user allow All files access on the first start."
+    },
+    {
+      "do": "push",
+      "input": "game",
+      "map": [
+        { "from": "elf/**", "to": "/sdcard/HouseOfTheDead4Special/elf/" },
+        { "from": "fs/**", "to": "/sdcard/HouseOfTheDead4Special/fs/" }
+      ]
+    },
+    {
+      "do": "verify",
+      "files": ["/sdcard/HouseOfTheDead4Special/elf/hod4M.elf"]
+    },
+    {
+      "do": "tell",
+      "text": "Open The House of the Dead 4 Special VR from Library > Unknown Sources. If it opens the All files access screen, allow it and start the app again."
+    }
+  ],
+  "notes": "lialan/lindbergh-recomp-ports puts several games in one release under shared tags, so no tag filter is possible. qgp skips releases without a matching asset, so a newer release that leaves out HOTD4 Special is fine. The executable has the same name (hod4M.elf) as in The House of the Dead 4, so detect cannot tell the two games apart."
+}

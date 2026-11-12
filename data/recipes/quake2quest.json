@@ -1,0 +1,57 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "quake2quest",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.drbeef.quake2quest",
+    "version": "v1.1.1",
+    "targetPath": "/sdcard/Quake2Quest/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "Team-Beef-Studios/Quake2Quest",
+      "asset": "^quake2quest-.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "quake2",
+      "kind": "pc-install",
+      "label": "Quake II (original, not the rerelease)",
+      "help": "Your installed copy of Quake II. qgp uses the original baseq2 folder, not the rerelease folder.",
+      "stores": [{ "store": "steam", "appId": "2320", "installDir": "Quake 2" }],
+      "root": "baseq2",
+      "detect": ["pak0.pak", "pak1.pak", "pak2.pak"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "launch",
+      "why": "The first launch creates /sdcard/Quake2Quest/ and copies a shareware pak0.pak plus pak6.pak and pak99.pak, which the push then completes."
+    },
+    {
+      "do": "push",
+      "input": "quake2",
+      "map": [
+        { "from": "pak0.pak", "to": "/sdcard/Quake2Quest/" },
+        { "from": "pak1.pak", "to": "/sdcard/Quake2Quest/" },
+        { "from": "pak2.pak", "to": "/sdcard/Quake2Quest/" }
+      ]
+    },
+    {
+      "do": "verify",
+      "files": [
+        "/sdcard/Quake2Quest/pak0.pak",
+        "/sdcard/Quake2Quest/pak1.pak",
+        "/sdcard/Quake2Quest/pak2.pak"
+      ],
+      "why": "pak0.pak alone is the shareware game; pak1.pak and pak2.pak show the full game is there."
+    }
+  ],
+  "notes": "The files go into Quake2Quest itself, not a baseq2 subfolder. The Steam app ID 2320 and the install folder Quake 2 come from the payload and the guide. GOG and other stores are not mentioned by the guide."
+}

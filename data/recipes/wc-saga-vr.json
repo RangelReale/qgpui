@@ -1,0 +1,35 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "wc-saga-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.bilko.wcsagavr",
+    "version": "v0.1.7-beta"
+  },
+  "requirements": { "freeSpaceMB": 9000 },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "SgtBilko76/WCSaga-VR",
+      "prerelease": true,
+      "asset": "^WCSaga-VR-.*\\.apk$"
+    }
+  ],
+  "inputs": [],
+  "steps": [
+    { "do": "install-apk", "grantAll": true },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The installer writes the game data to /sdcard/WCSaga. The guide has the user allow file access in the installer."
+    },
+    {
+      "do": "tell",
+      "text": "Open Wing Commander Saga VR from Library > Unknown Sources. If the installer asks for file access, switch it on and press Done. Press Download and install and keep the headset on (3.6 GB, 10 to 20 minutes). If the download stops, start the app again and it continues."
+    }
+  ],
+  "notes": "The guide installs with adb install -r -g, hence grantAll. The One-Tap Installer downloads Wing Commander Saga 0.9.65 from FSNebula to /sdcard/WCSaga/Wing_Commander_Saga; about 9 GB is needed while it installs and 6.7 GB afterwards. Existing data at /sdcard/WCSaga/Wing_Commander_Saga/data skips the installer; qgp does not offer that. Releases are all pre-releases."
+}

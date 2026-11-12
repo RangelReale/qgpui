@@ -1,0 +1,54 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "astroquest",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.astrobotquest.vrhost",
+    "version": "v0.23",
+    "targetPath": "/sdcard/Android/data/com.astrobotquest.vrhost/files/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "bigmak94/AstroQuest",
+      "asset": "^AstroQuest-.*-Quest3\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "game",
+      "kind": "file",
+      "label": "ASTRO BOT Rescue Mission dump (PS4, CUSA12392)",
+      "help": "A dump of the European PS4 release CUSA12392, version 1.00, from your own console, as a .pkg file.",
+      "extensions": [
+        ".pkg"
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "launch",
+      "why": "Android creates Android/data/com.astrobotquest.vrhost/files on the first launch."
+    },
+    {
+      "do": "push",
+      "input": "game",
+      "map": [
+        {
+          "to": "/sdcard/Android/data/com.astrobotquest.vrhost/files/games/"
+        }
+      ]
+    },
+    {
+      "do": "tell",
+      "text": "Pair a PS5 DualSense controller in Settings > Bluetooth. Then open Astro VR Host from Library > Unknown Sources and allow the microphone when asked. Hold the DualSense inside the floating outline to calibrate."
+    }
+  ],
+  "notes": "The guide also accepts the dump as an unpacked folder; only the .pkg form is modelled. The guide does not say to launch first; the launch is there because the target is in Android/data. Needs Quest 3 or 3S. The release also has a PC VR Windows zip."
+}

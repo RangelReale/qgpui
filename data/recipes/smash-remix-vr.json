@@ -1,0 +1,50 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "smash-remix-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": { "packageName": "com.ssb64.recompiled", "version": "v0.8.5" },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "VistaLargaGames/Smash-Remix-VR",
+      "asset": "^SmashRemixVR-Quest-.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "ssb",
+      "kind": "file",
+      "label": "Super Smash Bros. ROM (USA)",
+      "help": "A ROM made from your own Super Smash Bros. (USA) cartridge.",
+      "extensions": [".z64"],
+      "checkedByApp": true
+    },
+    {
+      "id": "remix",
+      "kind": "file",
+      "label": "Smash Remix 2.0.1 ROM (optional)",
+      "help": "Your USA ROM patched with the official Smash Remix 2.0.1 patch.",
+      "extensions": [".z64"],
+      "required": false,
+      "checkedByApp": true,
+      "preparedWith": {
+        "tool": "Smash Remix 2.0.1 patch",
+        "url": "https://github.com/JSsixtyfour/smashremix",
+        "help": "Patch your Super Smash Bros. (USA) ROM with the official Smash Remix 2.0.1 patch."
+      }
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    { "do": "push", "input": "ssb", "map": [{ "to": "/sdcard/Download/" }] },
+    { "do": "push", "input": "remix", "map": [{ "to": "/sdcard/Download/" }] },
+    {
+      "do": "tell",
+      "text": "Open Smash Remix VR from Library > Unknown Sources. In the start window choose your Super Smash Bros. ROM and, if you have it, your Smash Remix ROM. After that, press Play Smash Bros. or Play Smash Remix."
+    }
+  ],
+  "notes": "Only .z64 is named in the guide (as an example); other N64 ROM formats may also work. The guide says either ROM or both; this recipe requires the plain USA ROM and makes Remix optional. The Remix patch is optional, so support stays automatic. Releases v0.8.3 and v0.8.5 both carry SmashRemixVR-Quest-0.8.5.apk."
+}

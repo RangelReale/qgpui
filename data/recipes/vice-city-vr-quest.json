@@ -1,0 +1,36 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "vice-city-vr-quest",
+  "status": "draft",
+  "support": "manual",
+  "checkedAgainst": {
+    "packageName": "com.miamivr.quest",
+    "version": null,
+    "targetPath": "/sdcard/Android/data/com.miamivr.quest/files/gamedata/"
+  },
+  "apks": [
+    {
+      "source": "manual",
+      "page": "https://github.com/dubrovskiy-yevhen-stakelogic/vice-city-vr-quest",
+      "asset": "\\.apk$",
+      "help": "No APK is published. You build it on a PC with the repository's build kit, from your own PC copy of GTA: Vice City."
+    }
+  ],
+  "inputs": [],
+  "steps": [
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "tell",
+      "text": "Download the repository and run BUILD_AND_INSTALL.bat (or BUILD_AND_INSTALL.sh). Select your PC GTA Vice City folder (with data, models and anim) when asked. The wizard builds the APK, installs it and copies the game files."
+    },
+    {
+      "do": "tell",
+      "text": "Open Vice City VR from Library > Unknown Sources. To update later, run UPDATE.bat."
+    }
+  ],
+  "notes": "The payload's latest_version is null, but the schema needs a string, so checkedAgainst.version is empty and build-catalog will report drift. The wizard downloads JDK 21, the Android SDK tools and the reVC source. The payload says to launch once before copying and to check models/gta3.img and TEXT/american.gxt in files/gamedata/; the wizard does the copy. The repository has no releases."
+}

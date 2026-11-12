@@ -1,0 +1,46 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "scud-race-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "io.port0r.scudrace",
+    "version": "scud-v0.2.3",
+    "targetPath": "/sdcard/Download/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "jacquesdupontd/port0r",
+      "tag": "^scud-v",
+      "asset": "^Port0r-ScudRaceVR-.*-quest3\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "roms",
+      "kind": "file",
+      "label": "Scud Race arcade ROM set (MAME 0.289)",
+      "help": "Your own MAME 0.289 set scud.zip. Leave it zipped.",
+      "names": ["scud.zip"],
+      "keepArchived": true,
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The app searches all storage for the ROM sets. The guide has the user allow this in the headset."
+    },
+    { "do": "push", "input": "roms", "map": [{ "to": "/sdcard/Download/" }] },
+    {
+      "do": "tell",
+      "text": "Open Port0r: Scud Race VR from Library > Unknown Sources. If it asks for All files access, allow it. The game copies the ROM set in and starts; until then, a setup screen lists any missing files."
+    }
+  ],
+  "notes": "port0r holds every Port0r game in one repository; tag selects Scud Race VR. ^scud-v does not match the scud-pc-v and scud-android-v tags. The guide says the APK is about 237 MB. Granting the appop over adb is not yet tested on a Quest."
+}

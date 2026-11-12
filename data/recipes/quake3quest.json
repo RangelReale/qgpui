@@ -1,0 +1,45 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "quake3quest",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": { "packageName": "com.drbeef.ioq3quest", "version": "v1.2.0" },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "Team-Beef-Studios/ioq3quest",
+      "asset": "^ioq3quest-release-[\\d.]+\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "quake3",
+      "kind": "pc-install",
+      "label": "Quake III Arena (optional, for the full game)",
+      "help": "Your installed copy of Quake III Arena. Without it you can play the 4 included maps. Owners of the original CD release must apply the ioquake3 patch data first.",
+      "required": false,
+      "stores": [{ "store": "steam" }],
+      "root": "baseq3",
+      "detect": ["pak0.pk3"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "launch",
+      "why": "The first launch does not start the game; it creates the files it needs, including /sdcard/ioquake3quest/baseq3/."
+    },
+    {
+      "do": "push",
+      "input": "quake3",
+      "map": [{ "from": "*.pk3", "to": "/sdcard/ioquake3quest/baseq3/" }]
+    },
+    {
+      "do": "tell",
+      "text": "Open Quake3Quest from Library > Unknown Sources. Four maps are included; with your own Quake III Arena files you have all maps and the campaign."
+    }
+  ],
+  "notes": "The full game is optional. The push overwrites the bundled pak0.pk3, as the guide says to allow. The Steam app ID and install folder are not in the guide or payload. 1.1.x releases also had -quest1 builds; the asset pattern takes only the plain one."
+}

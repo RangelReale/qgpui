@@ -1,0 +1,28 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "time-crisis-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "org.timecrisis.quest",
+    "version": "v0.9.4"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "DR-89/time-crisis-vr",
+      "asset": "^TimeCrisisVR-.*-quest3?\\.apk$"
+    }
+  ],
+  "inputs": [],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "tell",
+      "text": "Open Time Crisis VR (Experimental) from Library > Unknown Sources. It unpacks its game files on the first start. On the boot screen, press A to insert credits, then the right trigger to start."
+    }
+  ],
+  "notes": "The release APK bundles the game files and prepares them on the first start. The Quest asset was named -quest.apk up to v0.9.0 and -quest3.apk since v0.9.3, hence quest3?. Releases also carry a Windows build, a diagnostics zip in some versions, TC1-Quest-Upgrade.md and SHA256SUMS."
+}

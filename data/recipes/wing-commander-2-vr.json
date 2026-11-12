@@ -1,0 +1,55 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "wing-commander-2-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.bilko.wc2vr",
+    "version": "quest-vr-1.0.1",
+    "targetPath": "/sdcard/WingCommander2/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "SgtBilko76/wc2-re-vr",
+      "asset": "^WingCommanderIIVR-.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "wc2",
+      "kind": "pc-install",
+      "label": "Wing Commander II (DOS)",
+      "help": "Your installed Wing Commander II, or the WING2 folder of the DOS CD-ROM: the folder that holds WC2.EXE and GAMEDAT. Kilrathi Saga data should also work.",
+      "stores": [{ "store": "gog" }],
+      "detect": ["WC2.EXE"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The game reads /sdcard/WingCommander2. The guide has the user allow access to all files on the first start."
+    },
+    {
+      "do": "push",
+      "input": "wc2",
+      "map": [
+        { "from": "WC2.EXE", "to": "/sdcard/WingCommander2/" },
+        { "from": "GAMEDAT/**", "to": "/sdcard/WingCommander2/GAMEDAT/" }
+      ]
+    },
+    {
+      "do": "verify",
+      "files": ["/sdcard/WingCommander2/WC2.EXE"]
+    },
+    {
+      "do": "tell",
+      "text": "Open Wing Commander II VR from Library > Unknown Sources. If it asks for access to all files, allow it."
+    }
+  ],
+  "notes": "The GOG install folder name and the GOG layout are not stated in the guide; the DOS CD-ROM edition with Special Operations 1 and 2 is the tested one. The release also carries WingCommanderIIVR-1.0.1.zip and a .sha256 file, which the asset pattern does not match. The tag prefix is quest-vr-."
+}

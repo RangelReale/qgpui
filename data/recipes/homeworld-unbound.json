@@ -1,0 +1,45 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "homeworld-unbound",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "org.homeworldunbound.game",
+    "version": "v0.14",
+    "targetPath": "/sdcard/Android/data/org.homeworldunbound.game/files/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "bearstonem/Homeworld",
+      "tag": "^unbound-",
+      "asset": "^homeworld-unbound-vr\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "data",
+      "kind": "file",
+      "label": "Homeworld data files (optional, for the full campaign)",
+      "help": "Homeworld.big, HW_Music.wxd and HW_Comp.vce from your own Homeworld. The Remastered Collection's Homeworld1Classic/Data folder has them. Without them you can play the demo.",
+      "names": ["Homeworld.big", "HW_Music.wxd", "HW_Comp.vce"],
+      "required": false
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The game reads the full-campaign data files from Download. The guide has the user allow All files access in the headset."
+    },
+    { "do": "push", "input": "data", "map": [{ "to": "/sdcard/Download/" }] },
+    {
+      "do": "tell",
+      "text": "Open Homeworld Unbound from Library > Unknown Sources. If it asks for All files access, allow it and start the game again. With the data files in Download it starts the full campaign; without them it plays the demo. To update later, install over the top. Do not uninstall first, or your saves are deleted."
+    }
+  ],
+  "notes": "The payload targetPath (Android/data/org.homeworldunbound.game/files/) disagrees with the guide, which pushes the three files to /sdcard/Download/ after granting All files access. This recipe follows the guide. The 1.05 demo ships in the APK. The repository also has a python install.py that does the same."
+}

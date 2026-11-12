@@ -1,0 +1,55 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "rave-racer-vr",
+  "status": "draft",
+  "support": "guided",
+  "checkedAgainst": {
+    "packageName": "com.virtuavrport.raveracervr",
+    "version": "v0.1.2-beta",
+    "targetPath": "/sdcard/Android/data/com.virtuavrport.raveracervr/files/"
+  },
+  "apks": [
+    {
+      "source": "manual",
+      "page": "https://virtuavrport.itch.io/rave-racer-vr-quest",
+      "asset": "^Rave-Racer-VR-Quest-.*\\.apk$",
+      "help": "Download the Quest APK (Rave-Racer-VR-Quest-...apk) from itch.io. It is free: choose \"No thanks, just take me to the downloads\". The Galaxy XR APK on the same page is a different build."
+    }
+  ],
+  "inputs": [
+    {
+      "id": "rom",
+      "kind": "file",
+      "label": "Rave Racer ROM set (raverace.zip or raveracw.zip)",
+      "help": "Your own raverace.zip, or a compatible raveracw.zip. Either one is enough. Leave it zipped.",
+      "extensions": [".zip"],
+      "keepArchived": true
+    },
+    {
+      "id": "bios",
+      "kind": "file",
+      "label": "namcoc74.zip and c71.bin",
+      "help": "Your own namcoc74.zip (zipped) and the loose c71.bin.",
+      "names": ["namcoc74.zip", "c71.bin"],
+      "keepArchived": true
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    { "do": "launch", "why": "The first launch creates the app's files folder under Android/data." },
+    {
+      "do": "push",
+      "input": "rom",
+      "map": [{ "to": "/sdcard/Android/data/com.virtuavrport.raveracervr/files/" }]
+    },
+    {
+      "do": "push",
+      "input": "bios",
+      "map": [{ "to": "/sdcard/Android/data/com.virtuavrport.raveracervr/files/" }]
+    },
+    { "do": "tell", "text": "Open Rave Racer VR from Library > Unknown Sources and play." }
+  ],
+  "notes": "The APK is on itch.io only. The schema cannot say \"raverace.zip or raveracw.zip\", so the ROM input takes any .zip; qgp should check the name is one of the two. File names must match exactly. The payload version v0.1.2-beta matches the guide's v0.1.2 lifecycle-fix APK."
+}

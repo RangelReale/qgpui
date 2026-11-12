@@ -1,0 +1,52 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "rail-chase-2-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.vrlightgunhub.rchase2",
+    "version": "v0.1.1-beta",
+    "targetPath": "/sdcard/Download/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "vr4all-standalone/rail-chase-2-vr",
+      "prerelease": true,
+      "asset": "^rail-chase-2-vr-quest\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "rom",
+      "kind": "file",
+      "label": "Rail Chase 2 arcade set (Revision A)",
+      "help": "Your own Revision A rchase2.zip with all 23 files. Older 21-file sets are incomplete. Leave it zipped.",
+      "names": ["rchase2.zip"],
+      "keepArchived": true,
+      "checkedByApp": true
+    },
+    {
+      "id": "segabill",
+      "kind": "file",
+      "label": "segabill.zip, only for a split set",
+      "help": "Add segabill.zip only if your set is split. Leave it zipped.",
+      "names": ["segabill.zip"],
+      "keepArchived": true,
+      "required": false,
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    { "do": "push", "input": "rom", "map": [{ "to": "/sdcard/Download/" }] },
+    { "do": "push", "input": "segabill", "map": [{ "to": "/sdcard/Download/" }] },
+    {
+      "do": "tell",
+      "text": "Open Rail Chase 2 - VR4ALL from Library > Unknown Sources and finish the ROM check on the setup screen."
+    }
+  ],
+  "notes": "All releases are pre-releases. The releases also carry a PCVR zip and a source zip; the asset pattern takes only the Quest APK. No CHD is needed."
+}

@@ -1,0 +1,36 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "openarena-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.bilko.openarenavr",
+    "version": "v1.1.0"
+  },
+  "requirements": {
+    "freeSpaceMB": 400
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "SgtBilko76/OpenArena-VR",
+      "asset": "^OpenArena-VR-.*\\.apk$"
+    }
+  ],
+  "inputs": [],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The game unpacks its data to /sdcard/OpenArenaVR on the first start. The guide has the user allow file access."
+    },
+    {
+      "do": "tell",
+      "text": "Open OpenArena-VR from Library > Unknown Sources. If it asks for file access, allow it. The first start unpacks the game data, which takes about a minute."
+    }
+  ],
+  "notes": "Game data is inside the APK (about 400 MB). freeSpaceMB is the guide's figure; the unpacked copy may need as much again. The .sha256 asset is avoided."
+}

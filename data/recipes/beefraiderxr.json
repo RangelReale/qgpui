@@ -1,0 +1,67 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "beefraiderxr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.drbeef.beefraiderxr",
+    "version": "v1.0.0",
+    "targetPath": "/sdcard/BeefRaiderXR/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "Team-Beef-Studios/BeefRaiderXR",
+      "asset": "^beefraiderxr-[0-9.]+\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "tr1",
+      "kind": "pc-install",
+      "label": "Tomb Raider I (1996)",
+      "help": "Your installed copy of the original Tomb Raider I from Steam or GOG.",
+      "stores": [
+        {
+          "store": "steam",
+          "appId": "224960",
+          "installDir": "Tomb Raider (I)"
+        },
+        {
+          "store": "gog"
+        }
+      ],
+      "detect": [
+        "data/LEVEL1.PHD"
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "launch",
+      "why": "The first launch creates the BeefRaiderXR folders."
+    },
+    {
+      "do": "push",
+      "input": "tr1",
+      "map": [
+        {
+          "from": "data/*",
+          "to": "/sdcard/BeefRaiderXR/data/"
+        }
+      ]
+    },
+    {
+      "do": "verify",
+      "files": [
+        "/sdcard/BeefRaiderXR/data/LEVEL1.PHD"
+      ]
+    }
+  ],
+  "notes": "Uncertain: the guide only says to copy the game data files into /sdcard/BeefRaiderXR/. The GOG copy is identified by GAME.GOG or TOMB.DAT, which suggests a disc image whose files may need extracting first; if so this is guided. The data/LEVEL1.PHD layout comes from the payload. Steam app ID 224960 is from memory. The guide installs from SideQuest; the GitHub release also has a Pico APK and a .7z."
+}

@@ -1,0 +1,58 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "galaxyquest",
+  "status": "draft",
+  "support": "guided",
+  "checkedAgainst": {
+    "packageName": "com.galaxy.quest",
+    "version": "v0.1.9",
+    "targetPath": "/sdcard/Android/data/com.galaxy.quest/files/game/"
+  },
+  "requirements": {
+    "freeSpaceMB": 7000
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "bigmak94/GalaxyQuest",
+      "asset": "^GalaxyQuest\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "cooked",
+      "kind": "pc-install",
+      "label": "Cooked Super Mario Galaxy data",
+      "help": "The cooked folder made on a PC from your own Super Mario Galaxy disc (European RMGP01 or US RMGE01).",
+      "detect": [
+        "sys/fst.bin"
+      ],
+      "preparedWith": {
+        "tool": "GalaxyQuest converter",
+        "url": "https://github.com/bigmak94/GalaxyQuest/releases/latest",
+        "help": "Extract your Super Mario Galaxy disc with Dolphin or DolphinTool into sys and files folders. Then, from the unzipped GalaxyQuest-converter folder, run: python tools/cook/cook.py extracted cooked --with-movies"
+      }
+    }
+  ],
+  "steps": [
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "push",
+      "input": "cooked",
+      "map": [
+        {
+          "to": "/sdcard/Download/cooked/"
+        }
+      ]
+    },
+    {
+      "do": "tell",
+      "text": "Open GalaxyQuest from Library > Unknown Sources. On the setup screen, pick the cooked folder in Download."
+    }
+  ],
+  "notes": "This follows the guide's \"without adb\" route: copy the cooked folder to Download and pick it in the app. tools/push_data.py instead unpacks it into Android/data/com.galaxy.quest/files/game/, which the payload checks for sys/fst.bin. Uncertain: whether the cooked folder itself contains sys/fst.bin. The Windows installer in the release does every step itself. The guide installs with adb install --no-incremental -r."
+}

@@ -1,0 +1,42 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "pikmin-2-vr",
+  "status": "draft",
+  "support": "guided",
+  "checkedAgainst": {
+    "packageName": "org.projecthoneydew.honeydew2",
+    "version": "v0.1.0",
+    "targetPath": "/sdcard/Download/"
+  },
+  "requirements": {
+    "freeSpaceMB": 1200
+  },
+  "apks": [
+    {
+      "source": "manual",
+      "page": "https://projecthoneydew.com/#honeydew2-install-quest",
+      "asset": "^ProjectHoneydew2-.*-quest\\.apk$",
+      "help": "Download ProjectHoneydew2-*-quest.apk from the Project Honeydew site and pick the file."
+    }
+  ],
+  "inputs": [
+    {
+      "id": "disc",
+      "kind": "file",
+      "label": "Pikmin 2 disc image (USA or Europe)",
+      "help": "Your own Pikmin 2 GameCube disc image, USA (GPVE01) or Europe (GPVP01), as a plain .iso or .gcm. Unpack .7z or .zip first, and convert RVZ, WIA, GCZ, CISO or NKit images to ISO with Dolphin.",
+      "extensions": [".iso", ".gcm"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    { "do": "push", "input": "disc", "map": [{ "to": "/sdcard/Download/" }] },
+    {
+      "do": "tell",
+      "text": "Open Project Honeydew 2 from Library > Unknown Sources, choose your disc image and wait a minute or two while it imports. Afterwards you can delete the image. Uninstalling the app deletes its saves."
+    }
+  ],
+  "notes": "APK only on projecthoneydew.com. No disc check: two game IDs (GPVE01, GPVP01) are accepted and the schema takes one. Installs beside Project Honeydew (pikmin-vr) as its own app."
+}

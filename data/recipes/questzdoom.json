@@ -1,0 +1,41 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "questzdoom",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.drbeef.questzdoom",
+    "version": "v1.6.2",
+    "targetPath": "/sdcard/QuestZDoom/"
+  },
+  "apks": [
+    { "source": "github", "repo": "Team-Beef-Studios/QuestZDoom", "asset": "^questzdoom-.*\\.apk$" },
+    {
+      "source": "github",
+      "repo": "Team-Beef-Studios/QuestZDoom",
+      "asset": "^questzdoom_launcher.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "wads",
+      "kind": "file",
+      "label": "Doom WAD files (optional)",
+      "help": "Your own commercial WAD files, such as DOOM.WAD or DOOM2.WAD. Without them the launcher downloads the free shareware WADs.",
+      "extensions": [".wad"],
+      "multiple": true,
+      "required": false
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    { "do": "push", "input": "wads", "map": [{ "to": "/sdcard/QuestZDoom/wads/" }] },
+    {
+      "do": "tell",
+      "text": "Open the QuestZDoom Launcher from Library > Unknown Sources. Pick a game, and turn mods and texture packs on or off there."
+    }
+  ],
+  "notes": "The guide installs both the engine and the launcher. Only v1.6.2 ships the launcher APK in the same release; older releases have the engine only, so the launcher pattern would fail on them. Mods (/sdcard/QuestZDoom/mods/) are not modelled."
+}

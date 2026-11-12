@@ -1,0 +1,35 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "xonotic-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.sgtbilko.xonoticquest",
+    "version": "Beta-0.5"
+  },
+  "requirements": { "freeSpaceMB": 3000 },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "SgtBilko76/Xonotic-VR",
+      "prerelease": true,
+      "asset": "^Xonotic-VR-full-.*\\.apk$"
+    }
+  ],
+  "inputs": [],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The first start unpacks the game data to /sdcard/XonoticVR. The guide has the user allow storage access."
+    },
+    {
+      "do": "tell",
+      "text": "Open Xonotic VR from Library > Unknown Sources. If it asks for storage access, allow it. The first start unpacks the game data, which takes a few minutes. Then the game starts by itself."
+    }
+  ],
+  "notes": "The APK (about 1.1 GB) holds the Xonotic 0.8.6 data, which unpacks to /sdcard/XonoticVR (about 1.8 GB). The guide says \"allow storage access\" without naming the permission; All files access is assumed. Releases are all pre-releases."
+}

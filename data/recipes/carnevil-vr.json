@@ -1,0 +1,78 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "carnevil-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.vrlightgunhub.carnevil",
+    "version": "v0.1.5",
+    "targetPath": "/sdcard/Download/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "vr4all-standalone/carnevil-vr",
+      "asset": "^carnevil-vr-quest\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "roms",
+      "kind": "file",
+      "label": "CarnEvil v1.0.3 arcade set (carnevil.zip)",
+      "help": "Your own carnevil.zip, with carnevil1_9.u32, sound102.u95 and 486_carnevil.u96 inside. Leave it zipped.",
+      "names": [
+        "carnevil.zip"
+      ],
+      "keepArchived": true,
+      "checkedByApp": true
+    },
+    {
+      "id": "chd",
+      "kind": "file",
+      "label": "CarnEvil disc image (carnevil.chd)",
+      "help": "The CHD that matches your CarnEvil v1.0.3 set.",
+      "names": [
+        "carnevil.chd"
+      ],
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The guide has the user grant file access on the setup screen."
+    },
+    {
+      "do": "push",
+      "input": "roms",
+      "map": [
+        {
+          "from": "carnevil.zip",
+          "to": "/sdcard/Download/"
+        }
+      ]
+    },
+    {
+      "do": "push",
+      "input": "chd",
+      "map": [
+        {
+          "from": "carnevil.chd",
+          "to": "/sdcard/Download/carnevil/"
+        }
+      ]
+    },
+    {
+      "do": "tell",
+      "text": "Open CarnEvil VR from Library > Unknown Sources. If it asks for file access, allow it. Keep the Touch controllers awake while it starts."
+    }
+  ],
+  "notes": "No BIOS is needed. The release also has a PCVR zip and a source zip."
+}

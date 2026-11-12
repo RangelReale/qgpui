@@ -1,0 +1,33 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "sclerosis-vr",
+  "status": "draft",
+  "support": "guided",
+  "checkedAgainst": { "packageName": "com.CreaTeam.Sclerosis", "version": "v1.10.7" },
+  "apks": [
+    {
+      "source": "manual",
+      "page": "https://createam.itch.io/sclerosis-an-amnesia-vr-remake",
+      "asset": "^Sclerosis_v.*\\.apk$",
+      "help": "Download the Quest APK (Sclerosis_v...apk, about 964 MB) from CreaTeam's itch.io page. The .zip on the same page is the Windows build."
+    }
+  ],
+  "inputs": [
+    {
+      "id": "amnesia",
+      "kind": "pc-install",
+      "label": "Amnesia: The Dark Descent",
+      "help": "Your installed copy of Amnesia: The Dark Descent from Steam or another store. qgp copies its files to the headset.",
+      "stores": [{ "store": "steam", "appId": "57300" }],
+      "detect": ["Amnesia.exe"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    { "do": "push", "input": "amnesia", "map": [{ "to": "/sdcard/" }] },
+    { "do": "tell", "text": "Open Sclerosis from Library > Unknown Sources." }
+  ],
+  "notes": "Uncertain. The guide only says to copy \"the files of the original game\" to the root of /sdcard/; it does not say whether that means the folder contents or the folder, nor which files. This recipe pushes every file of the install to /sdcard/. Check against the game before marking reviewed. detect uses Amnesia.exe, which the guide names only for the PC build (Amnesia.exe or AmnesiaGW.exe); other stores may have only one. Steam app ID 57300 comes from the guide's store link. Free space: the APK alone is about 964 MB plus the game files; no total is given."
+}

@@ -1,0 +1,37 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "south-park-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.southpark.recompiled",
+    "version": "v0.1.0",
+    "targetPath": "/sdcard/Download/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "VistaLargaGames/South-Park-Quest-VR",
+      "asset": "^SouthParkVR-Quest-.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "rom",
+      "kind": "file",
+      "label": "South Park ROM (N64, USA)",
+      "help": "Your own South Park (USA) ROM as .z64, .n64 or .v64. Any file name works.",
+      "extensions": [".z64", ".n64", ".v64"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    { "do": "push", "input": "rom", "map": [{ "to": "/sdcard/Download/" }] },
+    {
+      "do": "tell",
+      "text": "Open South Park VR from Library > Unknown Sources. In the start window choose your ROM. The game checks it and remembers it; after that just press Play."
+    }
+  ]
+}

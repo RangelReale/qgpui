@@ -1,0 +1,43 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "strikers-quest-mr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "io.github.newcoke.strikers",
+    "version": "v0.1.18-alpha1",
+    "targetPath": "/sdcard/Download/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "LanceSweatpants/Strikers-Quest-MR",
+      "asset": "^QuestStrikers-.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "strikers",
+      "kind": "file",
+      "label": "Super Mario Strikers disc image (GameCube)",
+      "help": "Your own disc image of Super Mario Strikers as .iso, .gcm, .ciso, .gcz, .rvz or .wia.",
+      "extensions": [".iso", ".gcm", ".ciso", ".gcz", ".rvz", ".wia"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The guide has the user allow access to manage all files on the first launch."
+    },
+    { "do": "push", "input": "strikers", "map": [{ "to": "/sdcard/Download/" }] },
+    {
+      "do": "tell",
+      "text": "Open Quest 3 Strikers from Library > Unknown Sources and choose Play offline. If it asks to manage all files, allow it, go back and choose Play offline again. If you have several game files, use Choose game file on the first screen."
+    }
+  ],
+  "notes": "The payload's pattern accepts only .iso, .rvz and .wia; the guide's overview also lists .gcm, .ciso and .gcz, so those are accepted too. Releases carry a .apk.sha256 next to the APK; the pattern ends in .apk$ so it is skipped. Granting the appop over adb is not yet tested on a Quest."
+}

@@ -1,0 +1,56 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "ultima-4-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.SwivelChairGames.ANKHVR",
+    "version": "v0.2.15",
+    "targetPath": "/sdcard/Android/data/com.SwivelChairGames.ANKHVR/files/u4/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "plaidpants/ANKH-VR",
+      "asset": "^ANHK-VR\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "u4",
+      "kind": "pc-install",
+      "label": "Ultima IV: Quest of the Avatar (free on GOG)",
+      "help": "Your Ultima IV install folder from GOG, where it is free. qgp copies the whole folder.",
+      "stores": [{ "store": "gog", "installDir": "Ultima 4" }],
+      "detect": ["AVATAR.EXE"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "launch",
+      "why": "Android creates Android/data/com.SwivelChairGames.ANKHVR/files on the first launch."
+    },
+    {
+      "do": "push",
+      "input": "u4",
+      "map": [{ "to": "/sdcard/Android/data/com.SwivelChairGames.ANKHVR/files/u4/" }]
+    },
+    {
+      "do": "shell",
+      "args": ["chmod", "666", "/sdcard/Android/data/com.SwivelChairGames.ANKHVR/files/u4/*.SAV"],
+      "why": "Save files copied from a PC must be writable. The guide gives this command for copied .SAV files."
+    },
+    {
+      "do": "verify",
+      "files": ["/sdcard/Android/data/com.SwivelChairGames.ANKHVR/files/u4/AVATAR.EXE"]
+    },
+    {
+      "do": "tell",
+      "text": "Open ANKH-VR from Library > Unknown Sources."
+    }
+  ],
+  "notes": "The GOG install folder name is a guess. File names are case sensitive on the Quest, so the push must keep their case. The chmod fails when there are no .SAV files (a new game creates them writable); qgp should treat that failure as harmless, or the step should be skipped when no .SAV was pushed. The asset is really named ANHK-VR.apk. Releases before 0.2.15 are pre-releases."
+}

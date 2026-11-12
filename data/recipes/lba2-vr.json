@@ -1,0 +1,45 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "lba2-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "org.lbalab.lba2cc",
+    "version": "v0.0.4",
+    "targetPath": "/sdcard/lba2cc/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "simsas-experiments/lba2-classic-quest",
+      "asset": "^lba2cc-.*-quest-arm64-v8a\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "lba2",
+      "kind": "pc-install",
+      "label": "Little Big Adventure 2 data folder",
+      "help": "The folder of your own LBA2 (GOG, Steam or retail CD) that holds lba2.hqr, with music, video and vox next to it. If qgp does not find it, pick that folder.",
+      "stores": [{ "store": "steam", "appId": "398000" }, { "store": "gog" }],
+      "detect": ["lba2.hqr"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The author's installer grants it with appops so the game can read /sdcard/lba2cc/."
+    },
+    { "do": "push", "input": "lba2", "map": [{ "to": "/sdcard/lba2cc/" }] },
+    { "do": "verify", "files": ["/sdcard/lba2cc/lba2.hqr"] },
+    {
+      "do": "tell",
+      "text": "Open Little Big Adventure 2 from Library > Unknown Sources. If the game cannot read its data, allow All files access for it in the Quest settings."
+    }
+  ],
+  "notes": "The store installs may keep lba2.hqr in a Common or CommonClassic subfolder (the game also finds it there); the install folder names are unknown, so detect may fail and the user picks the folder. If the user picks the whole install, verify would fail; consider a root once the store layouts are known. Releases also carry android-*, Linux, macOS and Windows builds and a \"latest\" dev pre-release. If an older build used another signing key, the author's installer has --clean (app-local saves may be lost, /sdcard/lba2cc is kept)."
+}

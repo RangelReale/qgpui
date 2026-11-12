@@ -1,0 +1,29 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "winlatorxr",
+  "status": "draft",
+  "support": "manual",
+  "checkedAgainst": {
+    "packageName": "com.winlator.cmod",
+    "version": "dawn42",
+    "targetPath": "/sdcard/Download/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "WinlatorXR/WinlatorXR",
+      "asset": "^WinlatorXR-.*\\.apk$"
+    }
+  ],
+  "inputs": [],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "tell",
+      "text": "Copy your Windows game folders or .exe installers into the Download folder of the headset. Then open WinlatorXR, create a Wine container with the Turnip driver and DXVK turned on, and run your setup or game .exe from it. Check the WinlatorXR compatibility page before you copy a large game."
+    }
+  ],
+  "notes": "WinlatorXR is a Wine wrapper for any Windows game, so there is no fixed input. Each VR mod (Call of Duty 4, Far Cry, Crysis, Battlefield 1942, Red Faction, TrackMania, Halo CE, BRUTALISTICK) has its own container settings and tested build (dawn line or cats-27); they could become recipes of their own. Tags are winlatorxr_<line><number> (dawn42, cats27, ...); the payload version is dawn42, the asset WinlatorXR-dawn-42.apk. If the cats line gets a newer release than dawn, this recipe picks it."
+}

@@ -1,0 +1,29 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "outlaws-vr",
+  "status": "draft",
+  "support": "guided",
+  "checkedAgainst": {
+    "packageName": "com.outlawsvr.OutlawsUE",
+    "version": "v0.95"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "outlawshub-arch/OutlawsVR",
+      "asset": "^OutlawsVR-v.*\\.zip$",
+      "inZip": "^OutlawsVR/Tools/OutlawsVR\\.apk$"
+    }
+  ],
+  "inputs": [],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "tell",
+      "text": "On a Windows PC, unzip the Outlaws VR release and drag its OutlawsVR folder into your Outlaws Remastered folder (the one with olgeo.lab). Keep the headset connected and run Install on Quest.bat. The first run converts the cutscenes and music. Then start Outlaws VR from Library > Unknown Sources. Never uninstall the game to update it, or your saves are deleted."
+    }
+  ],
+  "notes": "Install on Quest.bat converts cutscenes and music with FFmpeg (it downloads about 190 MB) and installs the game data; the converted layout is not in the guide, so qgp cannot push it yet and the bat installs the APK again. The release zip is about 281 to 319 MB, only for the APK. The newest release is v0.96 (OutlawsVR-v0.96-*.zip) while the payload says v0.95; v0.95 had two zips, which this asset pattern would not tell apart. Needs Outlaws + A Handful of Missions: Remaster (Steam or GOG)."
+}

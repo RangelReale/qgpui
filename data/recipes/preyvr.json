@@ -1,0 +1,32 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "preyvr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": { "packageName": "com.lvonasek.preyvr", "version": "v1.2.4", "targetPath": "/sdcard/preyvr/" },
+  "apks": [{ "source": "github", "repo": "Team-Beef-Studios/PreyVR", "asset": "^preyvr-.*\\.apk$" }],
+  "inputs": [
+    {
+      "id": "prey",
+      "kind": "pc-install",
+      "label": "Prey (2006)",
+      "help": "Your installed copy of the original Prey (2006). qgp copies the .pk4 files from its base folder.",
+      "stores": [{ "store": "steam" }],
+      "root": "base",
+      "detect": ["pak000.pk4"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    { "do": "launch", "why": "The first launch creates /sdcard/preyvr/preybase." },
+    {
+      "do": "push",
+      "input": "prey",
+      "map": [{ "from": "*.pk4", "to": "/sdcard/preyvr/preybase/" }]
+    },
+    { "do": "verify", "files": ["/sdcard/preyvr/preybase/pak000.pk4"] }
+  ],
+  "notes": "The guide names the PC folder prey/base; the store install folder name and Steam app ID are not given, so the user may have to pick the folder. Older releases are pre-releases with -openxr asset names; the latest is a normal release."
+}

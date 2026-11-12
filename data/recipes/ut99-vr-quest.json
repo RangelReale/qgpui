@@ -1,0 +1,63 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "ut99-vr-quest",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.ghwstvr.ut99quest",
+    "version": "v1.1.0",
+    "targetPath": "/sdcard/Android/data/com.ghwstvr.ut99quest/files/UT99/"
+  },
+  "apks": [
+    {
+      "source": "url",
+      "url": "https://ut99vr.pages.dev/ut99quest.apk"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "ut99",
+      "kind": "pc-install",
+      "label": "Unreal Tournament (1999, GOTY or standard)",
+      "help": "Your own PC copy of Unreal Tournament from GOG, Steam, CD-ROM or an archive. qgp copies System, Maps, Textures, Sounds and Music.",
+      "stores": [
+        { "store": "steam", "appId": "13240", "installDir": "Unreal Tournament" },
+        { "store": "gog", "installDir": "Unreal Tournament GOTY" }
+      ],
+      "detect": ["System/Core.u", "System/Engine.u", "System/Botpack.u"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "launch",
+      "why": "Android creates Android/data/com.ghwstvr.ut99quest/files on the first launch."
+    },
+    {
+      "do": "push",
+      "input": "ut99",
+      "map": [
+        { "from": "System/**", "to": "/sdcard/Android/data/com.ghwstvr.ut99quest/files/UT99/System/" },
+        { "from": "Maps/**", "to": "/sdcard/Android/data/com.ghwstvr.ut99quest/files/UT99/Maps/" },
+        { "from": "Textures/**", "to": "/sdcard/Android/data/com.ghwstvr.ut99quest/files/UT99/Textures/" },
+        { "from": "Sounds/**", "to": "/sdcard/Android/data/com.ghwstvr.ut99quest/files/UT99/Sounds/" },
+        { "from": "Music/**", "to": "/sdcard/Android/data/com.ghwstvr.ut99quest/files/UT99/Music/" }
+      ]
+    },
+    {
+      "do": "verify",
+      "files": [
+        "/sdcard/Android/data/com.ghwstvr.ut99quest/files/UT99/System/Core.u",
+        "/sdcard/Android/data/com.ghwstvr.ut99quest/files/UT99/System/Engine.u",
+        "/sdcard/Android/data/com.ghwstvr.ut99quest/files/UT99/System/Botpack.u"
+      ]
+    },
+    {
+      "do": "tell",
+      "text": "Open UT99 Quest from Library > Unknown Sources. On the first start it downloads and applies the OldUnreal 469 patch, with a progress bar. Keep Wi-Fi on."
+    }
+  ],
+  "notes": "The APK is a fixed URL on the author's site, so qgp cannot tell its version before downloading. Music is optional in the payload; the Music glob may match nothing. The GOG install folder name is a guess. The guide also allows a UT99 folder or zip in /sdcard/UT99Quest/ with the in-headset importer. The launch is assumed to be needed for the Android/data folder; the guide does not say so."
+}

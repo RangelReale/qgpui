@@ -1,0 +1,51 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "openxvt-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.bilko.openxvtvr",
+    "version": "v0.1.1-beta",
+    "targetPath": "/sdcard/OpenXvT/"
+  },
+  "requirements": {
+    "freeSpaceMB": 400
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "SgtBilko76/OpenXvT-VR",
+      "prerelease": true,
+      "asset": "^OpenXvT-VR-.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "game",
+      "kind": "pc-install",
+      "label": "Star Wars: X-Wing vs TIE Fighter - Balance of Power Campaigns",
+      "help": "Your installed copy of the game with Balance of Power. qgp copies the whole folder (about 400 MB).",
+      "stores": [
+        { "store": "steam", "appId": "361690", "installDir": "STAR WARS X-Wing vs TIE Fighter" },
+        { "store": "gog" }
+      ],
+      "detect": ["BalanceOfPower"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The guide has the user allow access to all files when the app asks."
+    },
+    { "do": "push", "input": "game", "map": [{ "to": "/sdcard/OpenXvT/" }] },
+    {
+      "do": "tell",
+      "text": "Open OpenXvT VR from Library > Unknown Sources. If it asks for access to all files, allow it."
+    }
+  ],
+  "notes": "Releases are all pre-releases. The Steam app ID and the BalanceOfPower folder come from the upstream OpenXvT README in the repository; the guide names only Steam, the README also GOG (folder name unknown). detect lists a folder, not a file. Granting the appop over adb is not yet tested on a Quest."
+}

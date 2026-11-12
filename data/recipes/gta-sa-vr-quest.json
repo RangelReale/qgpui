@@ -1,0 +1,36 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "gta-sa-vr-quest",
+  "status": "draft",
+  "support": "manual",
+  "checkedAgainst": {
+    "packageName": "com.rockstargames.gtasa",
+    "version": null,
+    "targetPath": "/sdcard/savr/data_main/"
+  },
+  "apks": [
+    {
+      "source": "manual",
+      "page": "https://github.com/dubrovskiy-yevhen-stakelogic/gta-sa-vr-quest",
+      "asset": "\\.apk$",
+      "help": "No APK is published. You build it on a PC from your own Google Play copy of GTA: San Andreas (ARM64, version 2.11.311) with the repository's scripts."
+    }
+  ],
+  "inputs": [],
+  "steps": [
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "tell",
+      "text": "Download the repository. Export your installed Google Play game with EXPORT_PLAY_APKS.bat, then run BUILD_AND_INSTALL.bat (or BUILD_AND_INSTALL.sh). Select the exported APK folder and the audio package when asked. The script patches the game, installs it and copies the data to the headset."
+    },
+    {
+      "do": "tell",
+      "text": "Open GTA San Andreas VR from Library > Unknown Sources."
+    }
+  ],
+  "notes": "The payload's latest_version is null, but the schema needs a string, so checkedAgainst.version is empty and build-catalog will report drift. The build script also needs the audio mod pack gta-sa-ps2-style-mod-pack_1786856007_737162.7z, as the repository specifies. BUILD_AND_INSTALL installs the APK itself, so the install-apk step is only for a user who built it separately. The repository has no releases."
+}

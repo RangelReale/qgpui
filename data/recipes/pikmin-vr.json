@@ -1,0 +1,42 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "pikmin-vr",
+  "status": "draft",
+  "support": "guided",
+  "checkedAgainst": {
+    "packageName": "org.projecthoneydew.quest",
+    "version": "v0.3.1",
+    "targetPath": "/sdcard/Download/"
+  },
+  "requirements": {
+    "freeSpaceMB": 2500
+  },
+  "apks": [
+    {
+      "source": "manual",
+      "page": "https://projecthoneydew.com/honeydew1#install-quest",
+      "asset": "^ProjectHoneydew-.*-quest\\.apk$",
+      "help": "Download ProjectHoneydew-*-quest.apk from the Project Honeydew site and pick the file."
+    }
+  ],
+  "inputs": [
+    {
+      "id": "disc",
+      "kind": "file",
+      "label": "Pikmin disc image (USA, Rev 1)",
+      "help": "Your own Pikmin GameCube disc image, USA Rev 1, as a plain .iso or .gcm. Convert RVZ, WIA or GCZ images to ISO first, for example with Dolphin.",
+      "extensions": [".iso", ".gcm"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    { "do": "push", "input": "disc", "map": [{ "to": "/sdcard/Download/" }] },
+    {
+      "do": "tell",
+      "text": "Open Project Honeydew from Library > Unknown Sources, pick your disc image when asked and wait for the one-time import. Afterwards you can delete the image from Download. Uninstalling the app deletes its saves."
+    }
+  ],
+  "notes": "APK only on projecthoneydew.com. A disc check (gamecube, revision 1) would help, but the guide does not give the game ID. The asset pattern ^ProjectHoneydew- does not match ProjectHoneydew2- files."
+}

@@ -1,0 +1,49 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "hotd2-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.flycast.emulator.vr",
+    "version": "v0.4-test1"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "mikermak/hotd2-vr",
+      "prerelease": true,
+      "asset": "^hotd2-vr-quest\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "disc",
+      "kind": "file",
+      "label": "The House of the Dead 2 Dreamcast disc dump",
+      "help": "Your own dump of the Dreamcast game as .chd, .gdi with its track files, .cue with its .bin files, or .cdi. Unpack a .zip or .7z first. Tested with the European release (MK-5100250). The US release (MK-51002) is also supported.",
+      "extensions": [".chd", ".gdi", ".cue", ".bin", ".cdi"],
+      "multiple": true,
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The setup panel searches Download for the game. The guide has the user allow All files access."
+    },
+    {
+      "do": "push",
+      "input": "disc",
+      "map": [{ "to": "/sdcard/Download/" }]
+    },
+    {
+      "do": "tell",
+      "text": "Open HOTD2 VR from Library > Unknown Sources. If it asks for All files access, allow it. The first start plays the game by itself for a minute or two to make the hands and pistol. Press B to skip this."
+    }
+  ],
+  "notes": "Releases are all pre-releases (test builds). They also carry hotd2-vr-pcvr.zip. GDI dumps can have .raw tracks; the guide names only .bin, so .raw is not accepted yet. The same APK also plays The Maze of the Kings (mok.zip, naomi.zip and mok/gds-0022.chd in Download); that game has its own entry, mok-vr, so it is left out here."
+}

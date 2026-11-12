@@ -1,0 +1,42 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "wiicompiled-vr-plus",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "org.wiicompiled.quest",
+    "version": "v1.3.1"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "heurazy/Wiicompiled_VR-PLUS",
+      "asset": "^WiiCompiled-VR-Quest3-.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "disc",
+      "kind": "file",
+      "label": "Mario Kart Wii disc image (PAL RMCP01)",
+      "help": "Your own clean, unmodified PAL Mario Kart Wii disc image (RMCP01) as ISO, GCM, GCZ, CISO, WBFS, WIA or RVZ.",
+      "extensions": [".iso", ".gcm", ".gcz", ".ciso", ".wbfs", ".wia", ".rvz"],
+      "disc": { "platform": "wii", "gameId": "RMCP01" }
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "push",
+      "input": "disc",
+      "map": [{ "to": "/sdcard/Download/" }]
+    },
+    {
+      "do": "tell",
+      "text": "Open WiiCompiled from Library > Unknown Sources. Import your disc image from Download in the launcher, then choose Build on this Quest. When it is done, select Mario Kart Wii or Retro Rewind."
+    }
+  ],
+  "notes": "The guide does not say where the launcher looks for the disc image; Download is assumed. qgp can only read the header of uncompressed formats, so the disc check may not apply to GCZ, CISO, WBFS, WIA or RVZ. The guide's alternative (an extracted DATA folder pushed to Android/data/org.wiicompiled.quest/files/WiiCompiledOpenXRVR/DATA, or a .wcgame built with the PC tools) is not modelled. After each APK update the user must rebuild the game in the launcher. Releases also carry WiiCompiled-Setup.exe and a portable Windows zip."
+}

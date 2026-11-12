@@ -1,0 +1,42 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "wwf-no-mercy-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.nomercyrecomp.questvr",
+    "version": "v0.1.20",
+    "targetPath": "/sdcard/Download/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "VistaLargaGames/WWF-No-Mercy-Quest-3-Standalone-",
+      "asset": "^WWFNoMercyVR-Quest\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "rom",
+      "kind": "file",
+      "label": "WWF No Mercy ROM (North America, Rev 1 / Rev A)",
+      "help": "Your own North American (USA) Rev 1 / Rev A ROM of WWF No Mercy as .z64, .n64 or .v64.",
+      "extensions": [".z64", ".n64", ".v64"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "push",
+      "input": "rom",
+      "map": [{ "to": "/sdcard/Download/" }]
+    },
+    {
+      "do": "tell",
+      "text": "Open WWF No Mercy VR from Library > Unknown Sources. In the main menu, provide your ROM. The game loads its assets from it."
+    }
+  ],
+  "notes": "The repository has a single release with the fixed tag n64, apparently updated in place; the payload version (v0.1.20) does not appear in the tag or asset name, so qgp cannot tell versions apart from GitHub."
+}

@@ -1,0 +1,42 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "road-rash-jailbreak-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.rrjb.vr",
+    "version": "v0.1.0",
+    "targetPath": "/sdcard/Android/data/com.rrjb.vr/files/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "dubrovskiy-yevhen-stakelogic/road-rash-jailbreak",
+      "asset": "^RoadRashJailbreak-.*\\.zip$",
+      "inZip": "\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "disc",
+      "kind": "file",
+      "label": "Road Rash: Jailbreak PS1 disc image (USA, SLUS-01053)",
+      "help": "Your own dump of Road Rash: Jailbreak (USA, SLUS-01053) as a single-track MODE2/2352 .bin. A .iso does not work.",
+      "extensions": [".bin"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    { "do": "launch", "why": "Android creates Android/data/com.rrjb.vr/files on the first launch." },
+    {
+      "do": "push",
+      "input": "disc",
+      "map": [{ "to": "/sdcard/Android/data/com.rrjb.vr/files/disc.bin" }]
+    },
+    { "do": "verify", "files": ["/sdcard/Android/data/com.rrjb.vr/files/disc.bin"] },
+    { "do": "tell", "text": "Open Road Rash VR from Library > Unknown Sources." }
+  ],
+  "notes": "Uncertain. The guide uses the release zip's INSTALL.bat, which verifies the disc by its executable SHA-1, \"prepares the tracks\", installs the APK and copies the disc. The payload says the installer copies the disc to files/disc.bin and the game opens the first .bin or .img there; this recipe relies on that and skips the hash check and any track preparation. If the game needs more than the raw .bin, switch to guided with INSTALL.bat as preparedWith. The APK's path inside the zip was not checked; inZip takes the only .apk. The repository's install.ps1 accepts only a single data-track MODE2/2352 BIN/CUE dump."
+}

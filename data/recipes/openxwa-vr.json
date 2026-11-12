@@ -1,0 +1,69 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "openxwa-vr",
+  "status": "draft",
+  "support": "guided",
+  "checkedAgainst": {
+    "packageName": "org.openxwa.quest",
+    "version": "v1.1.2",
+    "targetPath": "/sdcard/Android/obb/org.openxwa.quest/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "neitey/OpenXWA-Quest",
+      "asset": "^OpenXWA-Quest-.*\\.zip$",
+      "inZip": "^OpenXWA-quest-.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "import",
+      "kind": "file",
+      "label": "X-Wing Alliance game ZIP",
+      "help": "On your PC, zip the contents of your installed X-Wing Alliance folder (GOG, Steam or CD), so that RESDATA.TXT is at the top of the zip.",
+      "extensions": [".zip"],
+      "keepArchived": true
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "shell",
+      "args": [
+        "content",
+        "call",
+        "--uri",
+        "content://org.openxwa.quest.setup",
+        "--method",
+        "mkdirs",
+        "--arg",
+        "XWA"
+      ],
+      "why": "The app creates its import folders. Files copied with a plain adb push belong to the wrong user, so the app unpacks the zip itself."
+    },
+    {
+      "do": "push",
+      "input": "import",
+      "map": [{ "to": "/sdcard/Android/obb/org.openxwa.quest/openxwa-import.zip" }]
+    },
+    {
+      "do": "shell",
+      "args": [
+        "content",
+        "call",
+        "--uri",
+        "content://org.openxwa.quest.setup",
+        "--method",
+        "unzip",
+        "--arg",
+        "XWA"
+      ],
+      "why": "The app unpacks openxwa-import.zip into its own storage."
+    },
+    { "do": "tell", "text": "Open OpenXWA from Library > Unknown sources." }
+  ],
+  "notes": "Follows the manual install from README.txt in the release zip. The normal path is OpenXWA-VR-Launcher.exe (in the same zip), a Windows program that installs the app, copies about 1 GB of game files, checks them and can bring PC pilots along; qgp could later zip the pc-install itself instead. Releases also carry a PCVR zip. Steam app ID 361670 (from the guide) is not needed while the input is a zip."
+}

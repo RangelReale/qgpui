@@ -1,0 +1,69 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "nolf-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "net.relith.nolf",
+    "version": "v0.4.0",
+    "targetPath": "/sdcard/nolf/"
+  },
+  "requirements": {
+    "freeSpaceMB": 1100
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "alex-nax/relith",
+      "asset": "^relith-nolf-quest-.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "rez",
+      "kind": "file",
+      "label": "No One Lives Forever game archives",
+      "help": "From your own NOLF PC copy. On the original discs, Disc 1 Data has NOLF2.REZ, nolfu003.rez and nolfu003cres.rez, and Disc 2 Data has NOLF.REZ.",
+      "names": ["NOLF.REZ", "NOLF2.REZ", "nolfu003.rez", "nolfu003cres.rez"]
+    },
+    {
+      "id": "goty",
+      "kind": "file",
+      "label": "GOTY bonus chapter (optional)",
+      "required": false,
+      "help": "NOLFGOTY.REZ from a Game of the Year copy adds the Rest and Relaxation chapter.",
+      "names": ["NOLFGOTY.REZ"]
+    }
+  ],
+  "steps": [
+    {
+      "do": "tell",
+      "text": "If ReLith 0.3.1 or older is installed, back up /sdcard/nolf/Save and /sdcard/nolf/autoexec.cfg, then uninstall it first. Version 0.4.0 has a new signing key and cannot install over it."
+    },
+    { "do": "install-apk" },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The guide says the first launch must grant All files access so the game reads /sdcard/nolf/."
+    },
+    { "do": "launch", "why": "Launching creates /sdcard/nolf/." },
+    { "do": "push", "input": "rez", "map": [{ "to": "/sdcard/nolf/" }] },
+    { "do": "push", "input": "goty", "map": [{ "to": "/sdcard/nolf/" }] },
+    {
+      "do": "verify",
+      "files": [
+        "/sdcard/nolf/NOLF.REZ",
+        "/sdcard/nolf/NOLF2.REZ",
+        "/sdcard/nolf/nolfu003.rez",
+        "/sdcard/nolf/nolfu003cres.rez"
+      ]
+    },
+    {
+      "do": "tell",
+      "text": "Open ReLith from Library > Unknown Sources. If it asks for access to manage all files, allow it. You should get the main menu."
+    }
+  ],
+  "notes": "The newest release (v0.4.1) has only a Windows build; qgp skips releases without a matching asset and picks v0.4.0. The 0.3.1 to 0.4.0 signing change needs a backup, uninstall and restore; qgp cannot do the backup yet, so a tell step warns. Files on /sdcard keep their exact case (NOLF.REZ, nolfu003.rez). FontData.fnt is optional and not modelled. Do not copy MODERNIZER; it is in the APK."
+}

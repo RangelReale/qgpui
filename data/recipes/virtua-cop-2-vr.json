@@ -1,0 +1,64 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "virtua-cop-2-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.vrlightgunhub.vcop2",
+    "version": "v0.2.15",
+    "targetPath": "/sdcard/Download/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "vr4all-standalone/vcop2-vr",
+      "asset": "^vcop2-vr-quest\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "rom",
+      "kind": "file",
+      "label": "Virtua Cop 2 arcade ROM set (MAME vcop2)",
+      "help": "Your own MAME vcop2.zip. Leave it zipped.",
+      "names": ["vcop2.zip"],
+      "keepArchived": true,
+      "checkedByApp": true
+    },
+    {
+      "id": "billboard",
+      "kind": "file",
+      "label": "Billboard firmware (segabill.zip)",
+      "help": "Your own segabill.zip. Not needed if your vcop2.zip already holds all 31 required files. Leave it zipped.",
+      "names": ["segabill.zip"],
+      "required": false,
+      "keepArchived": true,
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The app reads the ROM sets from Download. The guide has the user allow game-file access on the first start."
+    },
+    {
+      "do": "push",
+      "input": "rom",
+      "map": [{ "from": "vcop2.zip", "to": "/sdcard/Download/" }]
+    },
+    {
+      "do": "push",
+      "input": "billboard",
+      "map": [{ "from": "segabill.zip", "to": "/sdcard/Download/" }]
+    },
+    {
+      "do": "tell",
+      "text": "Open Virtua Cop 2 VR from Library > Unknown Sources. If it asks for file access, allow it. The app checks the ROM sets and enters VR when they pass."
+    }
+  ],
+  "notes": "This is the vr4all-standalone build (Model 2A on patched MAME), not a Port0r game, so no tag filter is needed. segabill.zip is optional because a vcop2.zip with all 31 payloads also works. The guide says \"allow game-file access\" without naming the permission; All files access is assumed. Releases also carry vcop2-vr-pcvr.zip and vcop2-vr-source.zip."
+}

@@ -1,0 +1,54 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "fotg-vr",
+  "status": "draft",
+  "support": "guided",
+  "checkedAgainst": {
+    "packageName": "com.bilko.fotgvr",
+    "version": "v0.3.7-beta",
+    "targetPath": "/sdcard/FotG/FotG_R/"
+  },
+  "requirements": { "freeSpaceMB": 9000 },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "SgtBilko76/FotG-VR",
+      "prerelease": true,
+      "asset": "^FotG-VR-.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "fotg",
+      "kind": "pc-install",
+      "label": "Fate of the Galaxy (Knossos.NET install)",
+      "help": "The free Fate of the Galaxy mod, installed on the PC with Knossos.NET. Pick its FotG_R-<version> folder. FreeSpace 2 is not needed.",
+      "preparedWith": {
+        "tool": "Knossos.NET",
+        "url": "https://knossosnet.github.io/Knossos-Release-Page/",
+        "help": "Install Fate of the Galaxy with Knossos.NET. It downloads the free data (2.6 GB) into a FotG_R-<version> folder."
+      },
+      "detect": ["data/tables", "data/models", "data/maps"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk", "grantAll": true },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The game reads its data from /sdcard/FotG. The guide has the user allow access to all files on the first start."
+    },
+    {
+      "do": "push",
+      "input": "fotg",
+      "map": [{ "from": "data/**", "to": "/sdcard/FotG/FotG_R/data/" }]
+    },
+    {
+      "do": "tell",
+      "text": "Open Fate of the Galaxy VR from Library > Unknown Sources. If it asks for access to all files, allow it."
+    }
+  ],
+  "notes": "The guide installs with adb install -r -g, hence grantAll. The guide names folders, not files, inside data (tables, models, maps), so detect lists folders; replace them with real file names once known. The guide's other route, get_fotg_data.py --push from the FotG-VR repository, downloads from the Nebula server and pushes by itself; qgp does not model it. Releases are all pre-releases. About 9 GB is needed on the headset."
+}

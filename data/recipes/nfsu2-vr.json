@@ -1,0 +1,44 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "nfsu2-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "org.nfsu2.quest",
+    "version": "dev-2026-11-10-r3",
+    "targetPath": "/sdcard/Download/"
+  },
+  "requirements": {
+    "freeSpaceMB": 11000
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "DR-89/nfsu2-vr",
+      "prerelease": true,
+      "asset": "^NFSU2VR-Quest3-.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "disc",
+      "kind": "file",
+      "label": "Need for Speed: Underground 2 (original Xbox, USA)",
+      "help": "Your own unmodified original Xbox USA (NTSC-U) copy of Need for Speed: Underground 2: an .iso or .xiso, a .zip or .7z of the game files, or a .zip or .7z with exactly one ISO. PC and European editions, RAR and split archives do not work.",
+      "extensions": [".iso", ".xiso", ".zip", ".7z"],
+      "keepArchived": true,
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    { "do": "push", "input": "disc", "map": [{ "to": "/sdcard/Download/" }] },
+    {
+      "do": "tell",
+      "text": "Open NFSU2 Quest Development from Library > Unknown Sources. In the setup panel, press Select archive, open Download and pick your file. Keep the panel open until the import is complete, then press Start game. Afterwards you can delete the file from Download. To update later, install over the top. Do not uninstall, or the imported data and saves are deleted."
+    }
+  ],
+  "notes": "Releases are all pre-releases. The asset pattern avoids the PCVR zips and source zips. Free space needed depends on the input: about 5 GB for a zip of game files, 11 GB for a full ISO, 17 GB for a 7z holding the ISO; freeSpaceMB uses the ISO figure. The guide's install-time file names are older than the payload version."
+}

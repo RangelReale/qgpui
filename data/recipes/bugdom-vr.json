@@ -1,0 +1,30 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "bugdom-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "io.jor.bugdom",
+    "version": "v1.3.5-vr-beta1"
+  },
+  "requirements": {
+    "freeSpaceMB": 100
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "SgtBilko76/Bugdom",
+      "prerelease": true,
+      "asset": "^Bugdom-VR-.*\\.apk$"
+    }
+  ],
+  "inputs": [],
+  "steps": [
+    {
+      "do": "install-apk"
+    }
+  ],
+  "notes": "The game data is bundled in the APK. Releases are all pre-releases."
+}

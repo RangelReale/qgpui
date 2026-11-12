@@ -1,0 +1,78 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "confidential-mission-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.vrlightgunhub.confmiss",
+    "version": "v1.3.5",
+    "targetPath": "/sdcard/Download/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "vr4all-standalone/confidential-mission-vr",
+      "asset": "^confidential-mission-vr-quest\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "roms",
+      "kind": "file",
+      "label": "Confidential Mission NAOMI sets",
+      "help": "Your own MAME sets confmiss.zip and naomi.zip. Leave them zipped.",
+      "names": [
+        "confmiss.zip",
+        "naomi.zip"
+      ],
+      "keepArchived": true,
+      "checkedByApp": true
+    },
+    {
+      "id": "chd",
+      "kind": "file",
+      "label": "Confidential Mission disc image (gds-0001.chd)",
+      "help": "The CHD from your confmiss set, usually in a confmiss folder.",
+      "names": [
+        "gds-0001.chd"
+      ],
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The game asks for All Files Access to read the sets."
+    },
+    {
+      "do": "push",
+      "input": "roms",
+      "map": [
+        {
+          "to": "/sdcard/Download/"
+        }
+      ]
+    },
+    {
+      "do": "push",
+      "input": "chd",
+      "map": [
+        {
+          "from": "gds-0001.chd",
+          "to": "/sdcard/Download/confmiss/"
+        }
+      ]
+    },
+    {
+      "do": "tell",
+      "text": "Open Confidential Mission VR from Library > Unknown Sources. If it asks for All Files Access, allow it. The game checks your files and starts."
+    }
+  ],
+  "notes": "The release also has a PCVR zip and a source zip."
+}

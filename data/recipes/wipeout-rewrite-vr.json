@@ -1,0 +1,29 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "wipeout-rewrite-vr",
+  "status": "draft",
+  "support": "manual",
+  "checkedAgainst": {
+    "packageName": "online.portroyale.wipeoutrewritevr",
+    "version": "v0.1.0-beta1"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "SgtBilko76/Wipeout-Rewrite-VR",
+      "prerelease": true,
+      "asset": "^WipeoutRewriteVR-.*-quest\\.apk$"
+    }
+  ],
+  "inputs": [],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "tell",
+      "text": "The game data must come from your own PS1 NTSC copy of wipEout. On the PC, prepare a wipeout folder as the README of github.com/SgtBilko76/Wipeout-Rewrite-VR describes. Put it into a checkout of that repository and, with the headset connected, run android/push_data.sh before the first start. Then open Wipeout Rewrite VR from Library > Unknown Sources."
+    }
+  ],
+  "notes": "The APK is ready, but the game data is prepared by hand and pushed with the repository's android/push_data.sh; the guide does not say where the script puts the data, so qgp cannot push it yet. Read push_data.sh to turn this into a push step. Optional music goes in wipeout/music/trackNN.qoa. Releases are all pre-releases and also carry a Pico APK, which the asset pattern does not match."
+}

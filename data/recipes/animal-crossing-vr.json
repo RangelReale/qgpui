@@ -1,0 +1,34 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "animal-crossing-vr",
+  "status": "draft",
+  "support": "guided",
+  "checkedAgainst": {
+    "packageName": "com.liquidazir.animalcrossingquest",
+    "version": "v0.9.3-vr20"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "LiquidAzir/animal-crossing-vr",
+      "asset": "^AnimalCrossing-Quest-v.*\\.apk$"
+    }
+  ],
+  "inputs": [],
+  "steps": [
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "tell",
+      "text": "The disc image must be imported with the game's own installer. Download AnimalCrossing-Quest zip from the GitHub release, extract it, close Animal Crossing on the headset and run Install-Quest.cmd. Choose your Animal Crossing USA Rev 0 (GAFE01) .iso, .gcm or .ciso when asked. RVZ and zipped images do not work."
+    },
+    {
+      "do": "tell",
+      "text": "Do not uninstall the app or clear its data. That deletes the stored disc image and your saves."
+    }
+  ],
+  "notes": "The disc image goes into app-private storage through Install-Quest.cmd or device_data.py (both in the Quest zip); the guide says not to copy it into Android/data by hand, so qgp cannot push it. qgp could later run device_data.py itself. The disc is GAFE01 revision 0."
+}

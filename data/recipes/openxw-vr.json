@@ -1,0 +1,52 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "openxw-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.bilko.openxwvr",
+    "version": "v0.1.3-beta",
+    "targetPath": "/sdcard/OpenXW/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "SgtBilko76/OpenXW-VR",
+      "prerelease": true,
+      "asset": "^OpenXW-VR-.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "game",
+      "kind": "pc-install",
+      "label": "Star Wars: X-Wing Special Edition (Steam)",
+      "help": "Your installed Steam copy. qgp copies its collectors_cd and remastered folders.",
+      "stores": [{ "store": "steam", "installDir": "STAR WARS X-Wing" }],
+      "detect": ["collectors_cd", "remastered"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The guide has the user allow access to all files when the app asks."
+    },
+    {
+      "do": "push",
+      "input": "game",
+      "map": [
+        { "from": "collectors_cd/**", "to": "/sdcard/OpenXW/XW94/" },
+        { "from": "remastered/**", "to": "/sdcard/OpenXW/XW98/" }
+      ]
+    },
+    {
+      "do": "tell",
+      "text": "Open OpenXW VR from Library > Unknown Sources. If it asks for access to all files, allow it."
+    }
+  ],
+  "notes": "Releases are all pre-releases. Steam app ID left out because it is not confirmed here. detect lists the two folders the guide names; no file inside them is documented. Granting the appop over adb is not yet tested on a Quest."
+}

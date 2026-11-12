@@ -1,0 +1,53 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "goldeneye-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.gevr.port",
+    "version": "v0.5.15",
+    "targetPath": "/sdcard/Android/data/com.gevr.port/files/data/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "MrSco/goldeneye-vr",
+      "asset": "^GoldenEye-VR-v[0-9.]+\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "rom",
+      "kind": "file",
+      "label": "GoldenEye 007 ROM (USA)",
+      "help": "Your own GoldenEye 007 (USA / NTSC-U) N64 ROM, about 12 MB.",
+      "extensions": [
+        ".z64",
+        ".v64",
+        ".n64"
+      ],
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "push",
+      "input": "rom",
+      "map": [
+        {
+          "to": "/sdcard/Download/"
+        }
+      ]
+    },
+    {
+      "do": "tell",
+      "text": "Open GoldenEye VR from Library > Unknown Sources. Press Choose ROM file and pick your ROM in Download. The launcher copies it into place."
+    }
+  ],
+  "notes": "The guide also allows pushing straight to Android/data/com.gevr.port/files/data/ge.z64 after one launch; the picker route is used because the launcher handles .v64 and .n64 names. The release also has GoldenEyeVR-*-android.apk (phone), a frame APK, iOS, Linux and Windows builds; the pattern avoids them and the -test pre-releases."
+}

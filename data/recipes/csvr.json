@@ -1,0 +1,64 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "csvr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.lvonasek.csvr",
+    "version": "v1.0.5",
+    "targetPath": "/sdcard/xash/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "Team-Beef-Studios/CSVR",
+      "asset": "^CSVR-.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "cstrike",
+      "kind": "pc-install",
+      "label": "Counter-Strike 1.6 (Steam)",
+      "help": "Your Steam install of Counter-Strike 1.6. qgp copies its cstrike folder.",
+      "stores": [
+        {
+          "store": "steam",
+          "appId": "10",
+          "installDir": "Half-Life"
+        }
+      ],
+      "root": "cstrike",
+      "detect": [
+        "cstrike.wad"
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "launch",
+      "why": "The first launch creates the /sdcard/xash folders."
+    },
+    {
+      "do": "push",
+      "input": "cstrike",
+      "map": [
+        {
+          "to": "/sdcard/xash/cstrike/"
+        }
+      ]
+    },
+    {
+      "do": "verify",
+      "files": [
+        "/sdcard/xash/cstrike/cstrike.wad"
+      ]
+    }
+  ],
+  "notes": "The guide installs the APK from SideQuest; the GitHub release has it too. v1.0.4 was a pre-release, which prerelease false skips."
+}

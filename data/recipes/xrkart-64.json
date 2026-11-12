@@ -1,0 +1,43 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "xrkart-64",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.n64vr.spaghettikart",
+    "version": "v0.2.0",
+    "targetPath": "/sdcard/Download/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "ArtfulRascal8/XRKart-64",
+      "asset": "^XRKart-64-.*-Quest\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "rom",
+      "kind": "file",
+      "label": "Mario Kart 64 ROM (US)",
+      "help": "Your own US Mario Kart 64 ROM as .z64, .n64 or .v64 (12 MiB).",
+      "extensions": [".z64", ".n64", ".v64"],
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "push",
+      "input": "rom",
+      "map": [{ "to": "/sdcard/Download/" }]
+    },
+    {
+      "do": "tell",
+      "text": "Open XRKart 64 from Library > Unknown Sources. Choose Select legally dumped ROM, pick your ROM and wait for the check. Then choose Generate local game data. This takes several minutes: keep the app open and the headset awake. The game starts by itself when it is done."
+    }
+  ],
+  "notes": "The guide gives a normalized SHA-1 (579C48E211AE952530FFC8738709F078D5DD215E), which equals the file hash only for a .z64 (big-endian) ROM. It is not in sha1 because that would reject .n64 and .v64 files; qgp could check it after byte-order normalization."
+}

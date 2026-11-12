@@ -1,0 +1,31 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "crazy-taxi-vr",
+  "status": "draft",
+  "support": "manual",
+  "checkedAgainst": {
+    "packageName": "com.baywilly.crazytaxivr",
+    "version": "v0.1-beta"
+  },
+  "apks": [
+    {
+      "source": "manual",
+      "page": "https://github.com/Baywilly/Crazy-Taxi-VR-Standalone",
+      "asset": "\\.apk$",
+      "help": "The project ships a patch, not an APK. Get the original Crazy Taxi for Android 6.0-80 file legally, download crazywilly.xdelta from the releases, apply it with Delta Patcher, and rename the result from .apkm to .apk. Then pick that file here."
+    }
+  ],
+  "inputs": [],
+  "steps": [
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "tell",
+      "text": "Open Crazy Taxi VR Standalone from your app library and choose your driver."
+    }
+  ],
+  "notes": "The patch is made for com.sega.CrazyTaxiplayhaven_6.0-80_2arch_7dpi_24lang_1feat_017e8b1c582569ff9682193551b7e22c_apkmirror.com.apkm. Uncertain: an .apkm is normally a split bundle, yet the guide renames the patched file to .apk and installs it as one APK. Delta Patcher: https://github.com/marco-calautti/DeltaPatcher. qgp could later apply the xdelta itself."
+}

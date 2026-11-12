@@ -1,0 +1,29 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "forsaken-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.bilko.forsakenvr",
+    "version": "v0.1.2"
+  },
+  "requirements": {
+    "freeSpaceMB": 1000
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "SgtBilko76/Forsaken-VR",
+      "asset": "^Forsaken-VR-v.*-full\\.apk$"
+    }
+  ],
+  "inputs": [],
+  "steps": [
+    {
+      "do": "install-apk"
+    }
+  ],
+  "notes": "The game data is bundled in the APK (about 752 MB)."
+}

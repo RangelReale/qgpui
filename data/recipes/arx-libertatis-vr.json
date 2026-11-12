@@ -1,0 +1,94 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "arx-libertatis-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "org.arxlibertatis.vr",
+    "version": "vr-v0.5.0"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "cmpayc/ArxLibertatisVR",
+      "asset": "^ArxLibertatisVR-.*-android-arm64\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "arx",
+      "kind": "pc-install",
+      "label": "Arx Fatalis game data",
+      "help": "Your installed Arx Fatalis from Steam, GOG or CD. The free demo data also works.",
+      "stores": [
+        {
+          "store": "steam",
+          "appId": "1700"
+        },
+        {
+          "store": "gog"
+        }
+      ],
+      "detect": [
+        "sfx.pak"
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "launch",
+      "why": "The first launch creates /sdcard/ArxLibertatis/ with its config. The game does not start yet."
+    },
+    {
+      "do": "push",
+      "input": "arx",
+      "map": [
+        {
+          "from": "data*.pak",
+          "to": "/sdcard/ArxLibertatis/"
+        },
+        {
+          "from": "sfx.pak",
+          "to": "/sdcard/ArxLibertatis/"
+        },
+        {
+          "from": "speech*.pak",
+          "to": "/sdcard/ArxLibertatis/"
+        },
+        {
+          "from": "loc*.pak",
+          "to": "/sdcard/ArxLibertatis/"
+        },
+        {
+          "from": "misc/**",
+          "to": "/sdcard/ArxLibertatis/misc/"
+        },
+        {
+          "from": "graph/**",
+          "to": "/sdcard/ArxLibertatis/graph/"
+        }
+      ]
+    },
+    {
+      "do": "verify",
+      "files": [
+        "/sdcard/ArxLibertatis/sfx.pak"
+      ]
+    },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The guide has the user allow All files access on the next launch."
+    },
+    {
+      "do": "tell",
+      "text": "Open Arx Libertatis VR from Library > Unknown Sources. If it asks for All files access, allow it, then start the game again."
+    }
+  ],
+  "notes": "Steam app ID 1700 is from memory, not from the guide; check it. The exact .pak names depend on the copy and language, hence the globs. The demo may lack some files; detect uses only sfx.pak. The release also has a win64 PCVR zip."
+}

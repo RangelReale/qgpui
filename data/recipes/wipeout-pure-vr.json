@@ -1,0 +1,47 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "wipeout-pure-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "online.portroyale.wipeoutpurevr",
+    "version": "v0.1.0-beta",
+    "targetPath": "/sdcard/Android/data/online.portroyale.wipeoutpurevr/files/import/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "SgtBilko76/WipeoutPure-VR",
+      "asset": "^WipeoutPure-VR-.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "iso",
+      "kind": "file",
+      "label": "Wipeout Pure PSP disc image (UCUS-98612, v2.00)",
+      "help": "A disc image dumped from your own Wipeout Pure, US Greatest Hits edition (UCUS-98612, version 2.00), as .iso. Any file name works. Other editions and regions are refused.",
+      "extensions": [".iso"],
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "launch",
+      "why": "The first start creates Android/data/online.portroyale.wipeoutpurevr/files/import."
+    },
+    {
+      "do": "push",
+      "input": "iso",
+      "map": [{ "to": "/sdcard/Android/data/online.portroyale.wipeoutpurevr/files/import/" }]
+    },
+    {
+      "do": "tell",
+      "text": "Open Wipeout Pure VR from Library > Unknown Sources. It checks the disc image, sets the game up and starts. Keep Wi-Fi on: the first start downloads an HD texture pack of about 450 MB. If the image is refused, import/SETUP-ERROR.txt says why."
+    }
+  ],
+  "notes": "An empty files/no-hd-textures created before the first start skips the HD texture download. qgp has no optional steps yet, so that marker (shell touch /sdcard/Android/data/online.portroyale.wipeoutpurevr/files/no-hd-textures) is not added; it would also have to come before the launch step, which may itself start the download. Saves and settings live in files/; uninstalling the app deletes them."
+}

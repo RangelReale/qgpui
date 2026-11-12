@@ -1,0 +1,25 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "rvgl-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": { "packageName": "com.bilko.rvglvr", "version": "v0.1.1" },
+  "requirements": { "freeSpaceMB": 500 },
+  "apks": [{ "source": "github", "repo": "SgtBilko76/RVGL-VR", "asset": "^RVGL-VR-.*\\.apk$" }],
+  "inputs": [],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The setup panel asks for file access before it downloads the game data to /sdcard/RVGL."
+    },
+    {
+      "do": "tell",
+      "text": "Open RVGL VR from Library > Unknown Sources. If the setup panel asks for file access, press Allow file access, switch it on and press Done. Then press Download and install; it needs Wi-Fi and takes a minute or two."
+    }
+  ],
+  "notes": "The app downloads the free game data (about 225 MB, 500 MB on the headset) itself. Existing RVGL data in /sdcard/RVGL is reused. Releases also carry a .apk.sha256; the pattern skips it. Granting the appop over adb is not yet tested on a Quest."
+}

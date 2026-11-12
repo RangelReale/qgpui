@@ -1,0 +1,56 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "dolphinxr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "org.dolphinemu.dolphinemu.quest.debug",
+    "version": "v0.5"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "iChris4/dolphinXR",
+      "asset": "^DolphinVR-Redux-.*-Quest\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "games",
+      "kind": "file",
+      "label": "GameCube or Wii games",
+      "help": "Your own dumped GameCube or Wii games.",
+      "extensions": [
+        ".iso",
+        ".gcm",
+        ".ciso",
+        ".gcz",
+        ".rvz",
+        ".wia",
+        ".wbfs"
+      ],
+      "multiple": true
+    }
+  ],
+  "steps": [
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "push",
+      "input": "games",
+      "map": [
+        {
+          "to": "/sdcard/Download/"
+        }
+      ]
+    },
+    {
+      "do": "tell",
+      "text": "Open DolphinXR from Library > Unknown Sources. Apply the recommended Quest bindings on the first-launch screen, then add the Download folder to the game library and start a game."
+    }
+  ],
+  "notes": "Uncertain: the guide names no file types; the extension list is Dolphin's usual set. The guide lets the user pick any folder; Download is a choice. The guide still names the v0.4 APK (Dolphin-VR-Redux-app-quest-debug.apk); v0.5 renamed it to DolphinVR-Redux-v0.5-Quest.apk, so the asset pattern only matches v0.5 and later naming. The optional GameSettingsVR profiles are not modelled."
+}

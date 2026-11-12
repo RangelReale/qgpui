@@ -1,0 +1,45 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "ninja-assault-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.vrlightgunhub.ninjaassault",
+    "version": "v1.0.8",
+    "targetPath": "/sdcard/Download/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "vr4all-standalone/ninja-assault-vr",
+      "asset": "^ninja-assault-vr-quest\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "roms",
+      "kind": "file",
+      "label": "Ninja Assault NAOMI sets",
+      "help": "Your own NAOMI World NJA2 Ver.A sets ninjaslt.zip and naomi.zip. Leave them zipped. No CHD is needed.",
+      "names": ["ninjaslt.zip", "naomi.zip"],
+      "keepArchived": true,
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The game reads the sets from Download. The guide has the user grant storage access."
+    },
+    { "do": "push", "input": "roms", "map": [{ "to": "/sdcard/Download/" }] },
+    {
+      "do": "tell",
+      "text": "Open Ninja Assault VR from Library > Unknown Sources. If it asks for storage access, allow it. Wait while it prepares the guns the first time."
+    }
+  ],
+  "notes": "Releases also carry a PCVR zip and a source zip. Granting the appop over adb is not yet tested on a Quest."
+}

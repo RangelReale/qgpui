@@ -1,0 +1,53 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "behind-enemy-lines-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.vrlightgunhub.bel",
+    "version": "v0.1.2-beta",
+    "targetPath": "/sdcard/Download/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "vr4all-standalone/behind-enemy-lines-vr",
+      "prerelease": true,
+      "asset": "^behind-enemy-lines-vr-quest\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "roms",
+      "kind": "file",
+      "label": "Behind Enemy Lines arcade set (bel.zip)",
+      "help": "Your own Sega Model 2C set bel.zip with all 31 original files. Leave it zipped.",
+      "names": [
+        "bel.zip"
+      ],
+      "keepArchived": true,
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "push",
+      "input": "roms",
+      "map": [
+        {
+          "to": "/sdcard/Download/"
+        }
+      ]
+    },
+    {
+      "do": "tell",
+      "text": "Open Behind Enemy Lines - VR4ALL from Library > Unknown Sources and finish the ROM check on the setup screen."
+    }
+  ],
+  "notes": "Releases are all pre-releases. The release also has a PCVR zip and a source zip."
+}

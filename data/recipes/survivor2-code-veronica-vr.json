@@ -1,0 +1,39 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "survivor2-code-veronica-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.vrlightgunhub.survivor2",
+    "version": "v1.0.11",
+    "targetPath": "/sdcard/Download/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "vr4all-standalone/survivor2-code-veronica-vr",
+      "asset": "^survivor2-code-veronica-vr-quest\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "roms",
+      "kind": "file",
+      "label": "NAOMI arcade set gunsur2",
+      "help": "Your own NAOMI World cartridge set gunsur2.zip and the BIOS set naomi.zip. Leave them zipped.",
+      "names": ["gunsur2.zip", "naomi.zip"],
+      "keepArchived": true
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    { "do": "push", "input": "roms", "map": [{ "to": "/sdcard/Download/" }] },
+    {
+      "do": "tell",
+      "text": "Open Survivor 2 Code: Veronica VR from Library > Unknown Sources. Move with the left thumbstick and snap-turn with the right thumbstick."
+    }
+  ],
+  "notes": "Releases also carry a PCVR zip and a source zip; the asset pattern takes only the Quest APK."
+}

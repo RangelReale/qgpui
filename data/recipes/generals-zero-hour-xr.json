@@ -1,0 +1,84 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "generals-zero-hour-xr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.generalsx.zerohour.xr",
+    "version": "v1.2.36-xr-preview"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "Cesarus85/Generals-Zero-Hour-XR",
+      "asset": "^Generals-Zero-Hour-XR\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "zh",
+      "kind": "pc-install",
+      "label": "Command & Conquer Generals: Zero Hour",
+      "help": "Your installed Zero Hour, the folder with INIZH.big. Steam installs often hold the base game in a ZH_Generals subfolder; keep it. CD or ISO editions must be installed first.",
+      "stores": [
+        {
+          "store": "steam"
+        }
+      ],
+      "detect": [
+        "INIZH.big"
+      ]
+    },
+    {
+      "id": "generals",
+      "kind": "pc-install",
+      "label": "Command & Conquer Generals (base game)",
+      "help": "Only if your Zero Hour folder has no ZH_Generals subfolder: the installed base game, with Terrain.big, Textures.big and W3D.big.",
+      "required": false,
+      "detect": [
+        "Terrain.big",
+        "Textures.big",
+        "W3D.big"
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "do": "tell",
+      "text": "Do not uninstall an earlier build of Generals: Zero Hour XR. Updating over it keeps your settings and game folder choice."
+    },
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "push",
+      "input": "zh",
+      "map": [
+        {
+          "to": "/sdcard/Download/GeneralsZH/"
+        }
+      ]
+    },
+    {
+      "do": "push",
+      "input": "generals",
+      "map": [
+        {
+          "to": "/sdcard/Download/Generals/"
+        }
+      ]
+    },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The setup assistant asks for file access."
+    },
+    {
+      "do": "tell",
+      "text": "Open Generals: Zero Hour XR and allow file access. In the setup assistant, choose /sdcard/Download/GeneralsZH as the Zero Hour folder. If it cannot find the base game, pick /sdcard/Download/Generals. Confirm with Use these folders and play."
+    }
+  ],
+  "notes": "The guide copies the whole Zero Hour folder to /sdcard/Download/GeneralsZH as an example; any folder works. The separate base game folder name is a choice. The APK needs about 250 MB plus the game data; the data size is not given, so no freeSpaceMB. Steam is the tested store; no app ID is set. Releases are named -xr-preview but are not marked as pre-releases."
+}

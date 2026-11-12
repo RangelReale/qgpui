@@ -1,0 +1,49 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "jkxr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.drbeef.jkxr",
+    "version": "v1.2.0",
+    "targetPath": "/sdcard/JKXR/"
+  },
+  "apks": [{ "source": "github", "repo": "Team-Beef-Studios/JKXR", "asset": "^jkxr-.*\\.apk$" }],
+  "inputs": [
+    {
+      "id": "jk2",
+      "kind": "pc-install",
+      "label": "Star Wars Jedi Knight II: Jedi Outcast",
+      "help": "Your installed copy of Jedi Outcast from Steam. qgp uses the pk3 files in GameData/base.",
+      "stores": [{ "store": "steam", "appId": "6030", "installDir": "Jedi Outcast" }],
+      "root": "GameData/base",
+      "detect": ["assets0.pk3"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "push",
+      "input": "jk2",
+      "map": [
+        { "from": "assets0.pk3", "to": "/sdcard/JKXR/base/" },
+        { "from": "assets1.pk3", "to": "/sdcard/JKXR/base/" },
+        { "from": "assets2.pk3", "to": "/sdcard/JKXR/base/" },
+        { "from": "assets5.pk3", "to": "/sdcard/JKXR/base/" }
+      ]
+    },
+    {
+      "do": "verify",
+      "files": [
+        "/sdcard/JKXR/base/assets0.pk3",
+        "/sdcard/JKXR/base/assets1.pk3",
+        "/sdcard/JKXR/base/assets2.pk3",
+        "/sdcard/JKXR/base/assets5.pk3"
+      ]
+    },
+    { "do": "tell", "text": "Open JKXR from Library > Unknown Sources." }
+  ],
+  "notes": "The v1.2.0 release also has jkxrcompanion_115meta.apk; the guide does not mention it, so it is not installed. Jedi Academy (JKA) support is not covered by the guide. GOG install not listed because the guide names only Steam."
+}

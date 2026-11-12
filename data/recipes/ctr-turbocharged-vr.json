@@ -1,0 +1,54 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "ctr-turbocharged-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.bilko.ctrvr",
+    "version": "v0.1.0"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "SgtBilko76/CTR-Turbocharged-VR",
+      "asset": "^CTR-Turbocharged-VR-v.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "disc",
+      "kind": "file",
+      "label": "Crash Team Racing disc image (NTSC-U, SCUS-94426)",
+      "help": "Your own US disc image of Crash Team Racing as a raw .bin. qgp copies it as ctr-u.bin.",
+      "extensions": [
+        ".bin"
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "push",
+      "input": "disc",
+      "map": [
+        {
+          "to": "/sdcard/CTR/assets/ctr-u.bin"
+        }
+      ]
+    },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The guide has the user allow file access on the first start."
+    },
+    {
+      "do": "tell",
+      "text": "Open CTR Turbocharged VR from Library > Unknown Sources. If it asks for file access, allow it and start the app again."
+    }
+  ],
+  "notes": "Only a raw .bin of SCUS-94426 works; the guide does not say what happens with a .cue next to it."
+}

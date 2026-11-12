@@ -1,0 +1,29 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "ppsspp-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": { "packageName": "org.ppsspp.ppssppvr", "version": "v1.20.4", "targetPath": "/sdcard/PSP/" },
+  "apks": [{ "source": "url", "url": "https://www.ppsspp.org/files/1_20_4/ppsspp_vr.apk" }],
+  "inputs": [
+    {
+      "id": "games",
+      "kind": "file",
+      "label": "PSP games",
+      "help": "Your own PSP game backups as .iso, .cso, .pbp or .chd files.",
+      "extensions": [".iso", ".cso", ".pbp", ".chd"],
+      "multiple": true
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    { "do": "push", "input": "games", "map": [{ "to": "/sdcard/PSP/GAME/" }] },
+    {
+      "do": "tell",
+      "text": "Open PPSSPP VR from Library > Unknown Sources. Your games are in the game list. Set the virtual screen size in the settings."
+    }
+  ],
+  "notes": "The GitHub releases of hrydgard/ppsspp have no Android or VR APK, so the APK comes from ppsspp.org. The URL names version 1.20.4 and must be updated by hand for new versions."
+}

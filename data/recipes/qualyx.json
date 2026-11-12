@@ -1,0 +1,46 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "qualyx",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": { "packageName": "org.hlvr.quest", "version": "v1.0.85", "targetPath": "/sdcard/Qualyx/game/" },
+  "apks": [{ "source": "github", "repo": "tinsarfal/Qualyx", "asset": "^Qualyx-.*\\.apk$" }],
+  "inputs": [
+    {
+      "id": "alyx",
+      "kind": "pc-install",
+      "label": "Half-Life: Alyx",
+      "help": "Your installed copy of Half-Life: Alyx from Steam. qgp copies the hlvr and core folders.",
+      "stores": [{ "store": "steam", "appId": "546560", "installDir": "Half-Life Alyx" }],
+      "root": "game",
+      "detect": ["hlvr/pak01_dir.vpk", "core/pak01_dir.vpk"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The guide has the user grant storage permissions on the first launch."
+    },
+    {
+      "do": "push",
+      "input": "alyx",
+      "map": [
+        { "from": "hlvr/**", "to": "/sdcard/Qualyx/game/hlvr/" },
+        { "from": "core/**", "to": "/sdcard/Qualyx/game/core/" }
+      ]
+    },
+    {
+      "do": "verify",
+      "files": ["/sdcard/Qualyx/game/hlvr/pak01_dir.vpk", "/sdcard/Qualyx/game/core/pak01_dir.vpk"]
+    },
+    {
+      "do": "tell",
+      "text": "Open Qualyx from Library > Unknown Sources. If it asks for storage access, allow it. Let it check the game files, then tap Launch in VR. The guide recommends turning on Settings > Experimental > Positional time warp."
+    }
+  ],
+  "notes": "The hlvr and core folders are large; the guide gives no free-space figure. Granting the appop over adb is not yet tested on a Quest."
+}

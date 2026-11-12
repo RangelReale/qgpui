@@ -1,0 +1,27 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "red-dead-redemption-vr",
+  "status": "draft",
+  "support": "manual",
+  "checkedAgainst": { "packageName": "com.rockstargames.rdr", "version": "v0.1.0-alpha" },
+  "requirements": { "freeSpaceMB": 8000 },
+  "apks": [
+    {
+      "source": "manual",
+      "page": "https://github.com/dubrovskiy-yevhen-stakelogic/rdr1-quest",
+      "asset": "\\.apk$",
+      "help": "There is no ready APK. You build it on your PC with the project's kit from your own Red Dead Redemption for Android (Google Play version 1.58.63226194). The Netflix Games edition does not work. Follow the kit's README: export the game from your phone, then run BUILD_AND_INSTALL."
+    }
+  ],
+  "inputs": [],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "tell",
+      "text": "Open RDR from Library > Unknown sources, in a well-lit room. Keep your personal signing key: updates must use the same key, or you must uninstall and lose your saves."
+    }
+  ],
+  "notes": "The kit exports the Google Play game from an Android phone, builds the mod, signs it with a personal key and installs it itself, so qgp can at most install an APK the user already built. The built APK's file name is unknown; the asset pattern accepts any .apk. The package name com.rockstargames.rdr is the original game's. Saves: TRANSFER_SAVES.bat -FromHeadset. Needs about 20 GB on the PC."
+}

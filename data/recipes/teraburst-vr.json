@@ -1,0 +1,49 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "teraburst-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.vrlightgunhub.teraburst",
+    "version": "v0.1.3",
+    "targetPath": "/sdcard/Download/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "vr4all-standalone/teraburst-vr",
+      "asset": "^teraburst-vr-quest\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "rom",
+      "kind": "file",
+      "label": "Teraburst arcade ROM set (MAME terabrst)",
+      "help": "Your own complete terabrst.zip (Teraburst, July 17, 1998, US UEL). Leave it zipped. A .7z renamed to .zip does not work. No CHD or BIOS is needed.",
+      "names": ["terabrst.zip"],
+      "keepArchived": true,
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The app reads the ROM set from Download. The guide has the user allow file access on the first start."
+    },
+    {
+      "do": "push",
+      "input": "rom",
+      "map": [{ "from": "terabrst.zip", "to": "/sdcard/Download/" }]
+    },
+    {
+      "do": "tell",
+      "text": "Open Teraburst VR from Library > Unknown Sources. If it asks for file access, allow it. Keep both controllers awake. The setup screen checks the ROM set, then starts VR. Press A to add credits and start."
+    }
+  ],
+  "notes": "The guide says \"allow the requested file access\" without naming the permission; All files access is assumed. Releases also carry teraburst-vr-pcvr.zip and teraburst-vr-source.zip, which the asset pattern does not match."
+}

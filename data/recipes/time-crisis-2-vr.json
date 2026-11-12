@@ -1,0 +1,28 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "time-crisis-2-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "org.timecrisis2.arcadevr",
+    "version": "v0.3.3"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "DR-89/time-crisis-2-vr",
+      "asset": "^TimeCrisis2VR-.*-quest3?\\.apk$"
+    }
+  ],
+  "inputs": [],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "tell",
+      "text": "Open Time Crisis II VR (Test) from Library > Unknown Sources. Wait for the arcade startup, press A to insert credits, then press either trigger to start."
+    }
+  ],
+  "notes": "The release APK bundles the game files, so there is nothing to copy. It installs alongside Time Crisis VR (a different package). Releases also carry a Windows build (zip) and SHA256SUMS.txt."
+}

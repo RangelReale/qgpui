@@ -1,0 +1,61 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "ghost-squad-evolution-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "org.lindbergh.gse.vr",
+    "version": "v0.4.0",
+    "targetPath": "/sdcard/GhostSquadEvolution/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "lialan/lindbergh-recomp-ports",
+      "asset": "^GhostSquadEvolutionVR-v.*-quest3\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "vsg",
+      "kind": "pc-install",
+      "label": "Ghost Squad Evolution vsg_l folder",
+      "help": "The vsg_l folder of your own Ghost Squad Evolution Lindbergh game files. The app runs only the version it was built from.",
+      "detect": [
+        "vsg"
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "push",
+      "input": "vsg",
+      "map": [
+        {
+          "to": "/sdcard/GhostSquadEvolution/vsg_l/"
+        }
+      ]
+    },
+    {
+      "do": "verify",
+      "files": [
+        "/sdcard/GhostSquadEvolution/vsg_l/vsg"
+      ]
+    },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The first start opens the All files access screen."
+    },
+    {
+      "do": "tell",
+      "text": "Open Ghost Squad Evolution VR from Library > Unknown Sources. If the All files access screen opens, allow it and start the app again."
+    }
+  ],
+  "notes": "lindbergh-recomp-ports releases several games together under one tag, so the asset pattern selects the game; no tag filter is needed while every release carries it. Which game version the app accepts is not stated."
+}

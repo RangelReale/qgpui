@@ -1,0 +1,83 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "freespace2-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.bilko.fs2vr",
+    "version": "v0.1.7-beta",
+    "targetPath": "/sdcard/FS2/"
+  },
+  "requirements": {
+    "freeSpaceMB": 1800
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "SgtBilko76/FreeSpace2-VR",
+      "asset": "^FreeSpace2-VR-v.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "fs2",
+      "kind": "pc-install",
+      "label": "FreeSpace 2",
+      "help": "Your installed FreeSpace 2 from GOG or Steam.",
+      "stores": [
+        {
+          "store": "gog"
+        },
+        {
+          "store": "steam"
+        }
+      ],
+      "detect": [
+        "root_fs2.vp",
+        "warble_fs2.vp"
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "do": "install-apk",
+      "grantAll": true
+    },
+    {
+      "do": "push",
+      "input": "fs2",
+      "map": [
+        {
+          "from": "*.vp",
+          "to": "/sdcard/FS2/"
+        },
+        {
+          "from": "data2/**",
+          "to": "/sdcard/FS2/data2/"
+        },
+        {
+          "from": "data3/**",
+          "to": "/sdcard/FS2/data3/"
+        }
+      ]
+    },
+    {
+      "do": "verify",
+      "files": [
+        "/sdcard/FS2/root_fs2.vp"
+      ]
+    },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The guide has the user allow access to all files."
+    },
+    {
+      "do": "tell",
+      "text": "Open FreeSpace 2 VR from Library > Unknown Sources. If it asks for access to all files, allow it. The first start moves the cutscenes into place."
+    }
+  ],
+  "notes": "The guide names nine .vp files but lists only the first and last; *.vp copies all of them. freeSpaceMB is from the guide's 1.8 GB of game files. The guide installs with adb install -r -g."
+}

@@ -1,0 +1,50 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "bomberman-hero-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.bmhero.recompiled",
+    "version": "n64 (APK 0.8.5)"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "VistaLargaGames/Bomberman-Hero-Quest-3-VR-Standalone",
+      "asset": "^BombermanHeroQuest3\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "rom",
+      "kind": "file",
+      "label": "Bomberman Hero ROM (North America v1.0)",
+      "help": "Your own Bomberman Hero (USA) v1.0 N64 ROM.",
+      "extensions": [
+        ".z64"
+      ],
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "push",
+      "input": "rom",
+      "map": [
+        {
+          "to": "/sdcard/Download/"
+        }
+      ]
+    },
+    {
+      "do": "tell",
+      "text": "Open Bomberman Hero from Library > Unknown Sources. When it asks for the ROM, select your copy in the Download folder."
+    }
+  ],
+  "notes": "The guide only shows a .z64 file; other N64 ROM formats may also work. The only release has the tag n64, not a version."
+}

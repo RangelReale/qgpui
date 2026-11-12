@@ -1,0 +1,45 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "strikers-charged-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "io.github.lancesweatpants.strikerscharged",
+    "version": "v0.1.1-alpha1.1",
+    "targetPath": "/sdcard/Download/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "LanceSweatpants/Quest-3-Strikers-CHARGED",
+      "asset": "^QuestStrikersCharged-.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "disc",
+      "kind": "file",
+      "label": "Mario Strikers Charged disc image (USA, revision 1)",
+      "help": "Your own Wii disc image of Mario Strikers Charged, USA (R4QE01) revision 1, as .iso, .rvz or .wia. Unzip it first. Other regions and revisions do not work yet.",
+      "extensions": [".iso", ".rvz", ".wia"],
+      "disc": { "platform": "wii", "gameId": "R4QE01", "revision": 1 },
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The app searches the headset for the disc image. The guide has the user allow access to manage all files on the first start."
+    },
+    { "do": "push", "input": "disc", "map": [{ "to": "/sdcard/Download/" }] },
+    {
+      "do": "tell",
+      "text": "Open Quest 3 Strikers Charged from Library > Unknown Sources. If it asks for access to manage all files, allow it and go back. Press Start. If it does not find the game, press Choose game file and pick yours."
+    }
+  ],
+  "notes": "Quest 3 and 3S only. Granting the appop over adb is not yet tested on a Quest."
+}

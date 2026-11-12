@@ -1,0 +1,62 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "mok-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.vrlightgunhub.mok",
+    "version": "v1.0.8",
+    "targetPath": "/sdcard/Download/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "vr4all-standalone/mok-vr",
+      "asset": "^mok-vr-quest\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "roms",
+      "kind": "file",
+      "label": "The Maze of the Kings NAOMI ROM sets (MAME mok, naomi)",
+      "help": "Your own MAME sets mok.zip and naomi.zip. Leave them zipped.",
+      "names": ["mok.zip", "naomi.zip"],
+      "keepArchived": true,
+      "checkedByApp": true
+    },
+    {
+      "id": "chd",
+      "kind": "file",
+      "label": "The Maze of the Kings disc (gds-0022.chd)",
+      "help": "The GD-ROM image from the mok folder of your MAME set.",
+      "names": ["gds-0022.chd"],
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The app reads the sets from Download. The guide has the user grant storage access on the first start."
+    },
+    {
+      "do": "push",
+      "input": "roms",
+      "map": [{ "to": "/sdcard/Download/" }]
+    },
+    {
+      "do": "push",
+      "input": "chd",
+      "map": [{ "from": "gds-0022.chd", "to": "/sdcard/Download/mok/" }]
+    },
+    {
+      "do": "tell",
+      "text": "Open The Maze of the Kings VR from Library > Unknown Sources. If it asks for storage access, allow it."
+    }
+  ],
+  "notes": "The guide says \"grant storage access\" without naming the permission; All files access is assumed. Releases also carry mok-vr-pcvr.zip and mok-vr-source.zip."
+}

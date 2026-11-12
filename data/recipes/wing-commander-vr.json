@@ -1,0 +1,56 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "wing-commander-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.bilko.wc1vr",
+    "version": "quest-vr-1.0.1",
+    "targetPath": "/sdcard/WingCommander/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "SgtBilko76/wc1-re-vr",
+      "asset": "^WingCommanderVR-.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "wc1",
+      "kind": "pc-install",
+      "label": "Wing Commander (DOS, GOG)",
+      "help": "Your GOG Wing Commander folder: the one that holds WC.EXE, SM2.EXE and GAMEDAT.",
+      "stores": [{ "store": "gog" }],
+      "detect": ["WC.EXE", "SM2.EXE"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The game reads /sdcard/WingCommander. The guide has the user allow access to all files on the first start."
+    },
+    {
+      "do": "push",
+      "input": "wc1",
+      "map": [
+        { "from": "WC.EXE", "to": "/sdcard/WingCommander/" },
+        { "from": "SM2.EXE", "to": "/sdcard/WingCommander/" },
+        { "from": "GAMEDAT/**", "to": "/sdcard/WingCommander/GAMEDAT/" }
+      ]
+    },
+    {
+      "do": "verify",
+      "files": ["/sdcard/WingCommander/WC.EXE", "/sdcard/WingCommander/SM2.EXE"]
+    },
+    {
+      "do": "tell",
+      "text": "Open Wing Commander VR from Library > Unknown Sources. If it asks for access to all files, allow it."
+    }
+  ],
+  "notes": "The GOG install folder name is not stated in the guide, so stores has no installDir. The release also carries WingCommanderVR-1.0.1.zip and a .sha256 file, which the asset pattern does not match. The tag prefix is quest-vr-."
+}

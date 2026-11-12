@@ -1,0 +1,58 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "lupin-the-third-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.vrlightgunhub.lupin",
+    "version": "v1.0.9",
+    "targetPath": "/sdcard/Download/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "vr4all-standalone/lupin-the-third-vr",
+      "asset": "^lupin-the-third-vr-quest\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "roms",
+      "kind": "file",
+      "label": "Lupin the Third: The Shooting NAOMI sets",
+      "help": "Your own sets lupinshoo.zip and naomi.zip (GDS-0018). Leave them zipped.",
+      "names": ["lupinshoo.zip", "naomi.zip"],
+      "keepArchived": true,
+      "checkedByApp": true
+    },
+    {
+      "id": "chd",
+      "kind": "file",
+      "label": "Lupin the Third GD-ROM image (gds-0018.chd)",
+      "help": "The gds-0018.chd from your lupinshoo folder.",
+      "names": ["gds-0018.chd"],
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The game reads the sets from Download. The guide has the user allow file access when prompted."
+    },
+    { "do": "push", "input": "roms", "map": [{ "to": "/sdcard/Download/" }] },
+    {
+      "do": "push",
+      "input": "chd",
+      "map": [{ "from": "gds-0018.chd", "to": "/sdcard/Download/lupinshoo/gds-0018.chd" }]
+    },
+    {
+      "do": "tell",
+      "text": "Open Lupin the Third VR from Library > Unknown Sources. If it asks for file access, allow it. Then select Play."
+    }
+  ],
+  "notes": "Releases also carry a PCVR zip and a source zip. Granting the appop over adb is not yet tested on a Quest."
+}

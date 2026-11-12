@@ -1,0 +1,49 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "hexen2vr",
+  "status": "draft",
+  "support": "guided",
+  "checkedAgainst": {
+    "packageName": "com.uhexen2.vhexen2",
+    "version": "v0.1.0-alpha",
+    "targetPath": "/sdcard/Hexen2VR/"
+  },
+  "apks": [
+    {
+      "source": "manual",
+      "page": "https://sidequestvr.com/",
+      "asset": "\\.apk$",
+      "help": "Download Hexen II VR from SideQuest and pick the APK file."
+    }
+  ],
+  "inputs": [
+    {
+      "id": "hexen2",
+      "kind": "pc-install",
+      "label": "Hexen II (Steam)",
+      "help": "Your installed copy of Hexen II from Steam. qgp uses the pak files in its data1 folder.",
+      "stores": [{ "store": "steam", "installDir": "HeXen II" }],
+      "root": "data1",
+      "detect": ["pak0.pak", "pak1.pak"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "push",
+      "input": "hexen2",
+      "map": [
+        { "from": "pak0.pak", "to": "/sdcard/Hexen2VR/data1/" },
+        { "from": "pak1.pak", "to": "/sdcard/Hexen2VR/data1/" }
+      ]
+    },
+    {
+      "do": "verify",
+      "files": ["/sdcard/Hexen2VR/data1/pak0.pak", "/sdcard/Hexen2VR/data1/pak1.pak"]
+    },
+    { "do": "tell", "text": "Open Hexen II VR from Library > Unknown Sources." }
+  ],
+  "notes": "The payload download URL is the uhexen2 README, not an APK, and uhexen2 has no GitHub releases. The guide only says \"install from SideQuest\"; the exact SideQuest page is unknown, so page is the SideQuest home page. Steam app ID left out because it is not confirmed here. The payload expects only pak0.pak; the guide copies pak0.pak and pak1.pak."
+}

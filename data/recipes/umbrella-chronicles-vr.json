@@ -1,0 +1,56 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "umbrella-chronicles-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "org.uc.umbrellachronicles.vr",
+    "version": "v0.1.5",
+    "targetPath": "/sdcard/UmbrellaChronicles/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "lialan/reuc-vr",
+      "tag": "^quest-v",
+      "asset": "^UmbrellaChroniclesVR-.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "disc",
+      "kind": "file",
+      "label": "Resident Evil: The Umbrella Chronicles disc image (NTSC-U, RBUE08)",
+      "help": "Your own disc image of the North American release (RBUE08) as one .wbfs or .iso file. PAL and Japanese do not work. Convert .rvz, .ciso, .wia or split .wbf1 files to .iso or a single .wbfs first, for example in Dolphin.",
+      "extensions": [".wbfs", ".iso"]
+    },
+    {
+      "id": "key",
+      "kind": "file",
+      "label": "Wii common key (common-key.bin)",
+      "help": "The 16-byte Wii common key as a file named common-key.bin. The app does not include it; the project README says you can take it from your own Wii.",
+      "names": ["common-key.bin"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "On the first start Android asks for All files access, which the app needs to read the image and key."
+    },
+    { "do": "push", "input": "disc", "map": [{ "to": "/sdcard/UmbrellaChronicles/" }] },
+    {
+      "do": "push",
+      "input": "key",
+      "map": [{ "from": "common-key.bin", "to": "/sdcard/UmbrellaChronicles/" }]
+    },
+    {
+      "do": "tell",
+      "text": "Open Umbrella Chronicles VR from Library > Unknown Sources. If Android opens the All files access screen, turn the switch on, go back and start the app again. If something is missing, the app tells you what."
+    }
+  ],
+  "notes": "The tag pattern ^quest-v skips other tags the repository may get. quest-v0.1.0 is a pre-release and is ignored. No disc check: qgp cannot read a .wbfs header as a Wii disc. The key must be in the same folder as the image. The author has not confirmed that a real encrypted image loads. Granting the appop over adb is not yet tested on a Quest."
+}

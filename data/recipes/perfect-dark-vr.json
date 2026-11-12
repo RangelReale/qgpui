@@ -1,0 +1,48 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "perfect-dark-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.perfectdark.port",
+    "version": "v2.1",
+    "targetPath": "/sdcard/Android/data/com.perfectdark.port/files/data/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "Alex-LeTux/perfect_dark_VR",
+      "asset": "^Perfect_Dark_VR_Standalone[-_]NTSC_.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "rom",
+      "kind": "file",
+      "label": "Perfect Dark ROM (NTSC Final)",
+      "help": "Your own Perfect Dark (USA, NTSC Final) N64 ROM as .z64. The PAL and Japanese versions do not work.",
+      "extensions": [".z64"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "launch",
+      "why": "Android creates Android/data/com.perfectdark.port/files on the first launch."
+    },
+    {
+      "do": "push",
+      "input": "rom",
+      "map": [{ "to": "/sdcard/Android/data/com.perfectdark.port/files/data/pd.ntsc-final.z64" }]
+    },
+    {
+      "do": "verify",
+      "files": ["/sdcard/Android/data/com.perfectdark.port/files/data/pd.ntsc-final.z64"],
+      "why": "The launcher only starts when this exact file name exists."
+    },
+    { "do": "tell", "text": "Open Perfect Dark VR from Library > Unknown Sources." }
+  ],
+  "notes": "The guide has the user pick the ROM in the app, which copies it to files/data/pd.ntsc-final.z64; the payload says copying the file there directly works too, which this recipe does. Release assets also include PCVR zips and JPN/PAL APKs (names start with _), which the anchored pattern avoids. v2.0 named the APK Standalone-NTSC, v2.1 Standalone_NTSC, hence [-_]."
+}

@@ -1,0 +1,90 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "descent-1-2-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "net.gameordie.descentvr",
+    "version": "v1.2.1"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "GameOrDie007/Descent-1-and-2-VR",
+      "inZip": "(^|/)files/DescentVR\\.apk$",
+      "asset": "^Descent-1-and-2-VR-.*-Quest\\.zip$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "descent1",
+      "kind": "pc-install",
+      "label": "Descent (PC)",
+      "help": "Your installed Descent from Steam, GOG or disc. You need Descent, Descent 2, or both.",
+      "required": false,
+      "stores": [
+        {
+          "store": "steam"
+        },
+        {
+          "store": "gog"
+        }
+      ],
+      "detect": [
+        "descent.hog"
+      ]
+    },
+    {
+      "id": "descent2",
+      "kind": "pc-install",
+      "label": "Descent 2 (PC)",
+      "help": "Your installed Descent 2 from Steam, GOG or disc. You need Descent, Descent 2, or both.",
+      "required": false,
+      "stores": [
+        {
+          "store": "steam"
+        },
+        {
+          "store": "gog"
+        }
+      ],
+      "detect": [
+        "descent2.hog"
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "do": "install-apk"
+    },
+    {
+      "do": "launch",
+      "why": "Android creates Android/data/net.gameordie.descentvr/files on the first launch."
+    },
+    {
+      "do": "push",
+      "input": "descent1",
+      "map": [
+        {
+          "to": "/sdcard/Android/data/net.gameordie.descentvr/files/"
+        }
+      ]
+    },
+    {
+      "do": "push",
+      "input": "descent2",
+      "map": [
+        {
+          "to": "/sdcard/Android/data/net.gameordie.descentvr/files/descent2/"
+        }
+      ]
+    },
+    {
+      "do": "tell",
+      "text": "Open Descent 1 & 2 VR from Library > Unknown Sources and pick Descent or Descent II. The game choice screen lists any missing files."
+    }
+  ],
+  "notes": "This follows the guide's Option B (by hand). The recommended Setup.bat in the zip also builds the in-game Game Tome from each game's manual.pdf, which qgp does not do. At least one of the two inputs is needed; the schema cannot say so. Uncertain: the detect files descent.hog and descent2.hog are not named in the guide, and the guide does not list which game files to copy, so the whole install is pushed. The guide does not launch first; the launch is there because the target is in Android/data. The release also has a PCVR zip and a Windows installer."
+}

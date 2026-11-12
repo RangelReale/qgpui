@@ -1,0 +1,43 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "opencmr2-vr",
+  "status": "draft",
+  "support": "guided",
+  "checkedAgainst": {
+    "packageName": "org.opencmr2.vr",
+    "version": "v0.1.0",
+    "targetPath": "/sdcard/Download/"
+  },
+  "requirements": {
+    "freeSpaceMB": 3000
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "DR-89/opencmr2-vr",
+      "asset": "^OpenCMR2-VR-Quest-arm64-.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "zip",
+      "kind": "file",
+      "label": "Colin McRae Rally 2.0 game ZIP",
+      "help": "On your PC, make a ZIP of your full installed Colin McRae Rally 2.0 folder (about 640 MB). Use ZIP, not RAR, 7z or ISO. A console edition, demo, ISO or uninstalled CD is not enough.",
+      "extensions": [".zip"],
+      "keepArchived": true,
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    { "do": "push", "input": "zip", "map": [{ "to": "/sdcard/Download/" }] },
+    {
+      "do": "tell",
+      "text": "Open OpenCMR2 VR from Library > Unknown Sources. Choose Select game data ZIP, open Downloads in the file picker and pick your ZIP. Wait for Import complete, then choose Start game. Afterwards you can delete the ZIP from Download."
+    }
+  ],
+  "notes": "Guided because the user makes the ZIP; qgp could build it from a pc-install later. Import steps come from the repository README (the guide links to it). The README says the ZIP needs Game/Bigfiles/common.bfl, FrontEnd/common.bfl and Sounds/surface.bfl. Releases also have a PCVR zip and a source tarball."
+}

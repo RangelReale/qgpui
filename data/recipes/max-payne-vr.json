@@ -1,0 +1,48 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "max-payne-vr",
+  "status": "draft",
+  "support": "guided",
+  "checkedAgainst": {
+    "packageName": "com.MPQ.HaveliSkywalker",
+    "version": "v0.9.1"
+  },
+  "apks": [
+    {
+      "source": "manual",
+      "page": "https://drive.google.com/file/d/1a-c8HGKg9zLv__blFpQPgO1qpU-qCXNy/view",
+      "asset": "^Max_Payne_VR_Nightmare_Edition_.*\\.apk$",
+      "help": "Download Max_Payne_VR_Nightmare_Edition_*.apk from the developer's Google Drive link and pick the file."
+    }
+  ],
+  "inputs": [
+    {
+      "id": "mobile",
+      "kind": "file",
+      "label": "Max Payne Mobile 1.7 (64-bit) APK and OBB",
+      "help": "Your own Rockstar Max Payne Mobile 1.7 (64-bit) APK and its main.<number>.com.rockstar.maxpayne.obb file. Pick both.",
+      "extensions": [".apk", ".obb"],
+      "multiple": true,
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "launch",
+      "why": "Android creates Android/data/com.MPQ.HaveliSkywalker/files on the first launch."
+    },
+    {
+      "do": "push",
+      "input": "mobile",
+      "map": [{ "to": "/sdcard/Android/data/com.MPQ.HaveliSkywalker/files/" }]
+    },
+    {
+      "do": "tell",
+      "text": "Open MP VR from Library > Unknown Sources. It checks your copy of Max Payne Mobile and unpacks it. Keep the headset on and the app open until it finishes, then restart the app."
+    }
+  ],
+  "notes": "APK only on Google Drive and Discord; no GitHub release. The app checks the Rockstar APK by SHA-256 and that the OBB belongs to it; the hash is not in the guide. The guide does not launch first; the launch is there so Android creates the folder. Needs enough free space to unpack the game data; the guide gives no figure. Optional music and language files are not modelled."
+}

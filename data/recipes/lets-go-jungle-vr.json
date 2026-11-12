@@ -1,0 +1,56 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "lets-go-jungle-vr",
+  "status": "draft",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "org.lindbergh.lgj.vr",
+    "version": "v0.2.7",
+    "targetPath": "/sdcard/LetsGoJungle/"
+  },
+  "requirements": {
+    "freeSpaceMB": 1000
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "lialan/lindbergh-recomp-ports",
+      "asset": "^LetsGoJungleVR-.*-quest3\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "lgj",
+      "kind": "pc-install",
+      "label": "Let's Go Jungle! arcade files",
+      "help": "The folder of your own Let's Go Jungle! (Lindbergh, not Special) copy that holds lgj_final and the data, shader and extraShader folders. The app runs only the game version it was built from.",
+      "detect": ["lgj_final"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The game reads /sdcard/LetsGoJungle/. The guide has the user allow All files access on the first start."
+    },
+    {
+      "do": "push",
+      "input": "lgj",
+      "map": [
+        { "from": "lgj_final", "to": "/sdcard/LetsGoJungle/" },
+        { "from": "data/**", "to": "/sdcard/LetsGoJungle/data/" },
+        { "from": "shader/**", "to": "/sdcard/LetsGoJungle/shader/" },
+        { "from": "extraShader/**", "to": "/sdcard/LetsGoJungle/extraShader/" }
+      ]
+    },
+    { "do": "verify", "files": ["/sdcard/LetsGoJungle/lgj_final"] },
+    {
+      "do": "tell",
+      "text": "Open Let's Go Jungle VR from Library > Unknown Sources. If it opens the All files access screen, allow it and start the app again."
+    }
+  ],
+  "notes": "lindbergh-recomp-ports releases several games; v0.4.0 (the newest) has no Let's Go Jungle APK; qgp skips releases without a matching asset and picks v0.2.7. The glob pushes keep paths below the glob's fixed prefix, as the format now defines. freeSpaceMB is the guide's \"about 1 GB\"."
+}
