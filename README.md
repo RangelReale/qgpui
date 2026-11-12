@@ -1,40 +1,72 @@
 # QGPUI
 
-Tools for Meta Quest headsets over adb: finding headsets, managing connections, installing APKs and
-copying files.
+QGPUI installs [QuestPorts](https://questports.com) games on a Meta Quest headset from a Windows PC.
 
-- [`apps/qgpui`](apps/qgpui): the main application. For now it shows the QuestPorts games as a grid of
-  covers.
-- [`libs/gamestores`](libs/gamestores): finds the games installed from Steam and GOG on this PC, and
-  the GOG games the user owns.
-- [`libs/qadb`](libs/qadb/README.md): a Qt 6 client library for the adb server.
-- [`libs/questports`](libs/questports): reads the QGPUI catalog, which holds the QuestPorts games and
-  their install recipes.
-- [`tools/adbmanager`](tools/adbmanager): a debug window for trying qadb on a real headset.
-- [`tools/questports-payload`](tools/questports-payload/README.md): builds one JSON file with the
-  QuestPorts game list and each game's install requirements (Node).
-- [`docs`](docs/README.md): research, architecture and decision records.
+QuestPorts lists ports of PC and console games to the Quest. Many of them need more than an APK:
+files from a game you own on Steam or GOG, a ROM or a disc image, copied into the right folder on
+the headset. QGPUI finds those files on your PC, downloads the port, and runs every install step
+for you.
 
-## Build
+QGPUI is at an early stage. Expect missing games and rough edges.
 
-Requirements: CMake 3.25, Qt 6.8 (Core, Network, Sql, Widgets, Test), a C++20 compiler. Set
-`QT_ROOT` to the folder that holds Qt in aqtinstall's layout (for example `QT_ROOT=C:\Qt` with Qt
-in `C:\Qt\6.8.3\msvc2022_64`).
+## What it does
 
-```bash
-cmake --preset windows
-cmake --build --preset windows-debug
-ctest --preset windows-debug
-```
+- **Browse the games.** The main window shows every QuestPorts game as a cover. Sort them, and
+  filter by source platform, store, headset model, VR style, type, developer and port status.
+  "Self-contained only" shows the games that need nothing you have to supply.
+- **Find your files.** QGPUI looks for the PC games a port needs in your Steam and GOG libraries.
+  It looks for everything else in your files folder, one folder per game. You can also pick a file
+  or folder by hand.
+- **Install and update.** Open a game and press Install. QGPUI downloads the APK from the port's
+  releases, installs it, copies your files and tells you when to do a step in the headset. A game
+  with a newer release gets an Update tag.
+- **Know what is on the headset.** Games on the connected headset get an Installed tag, whether
+  QGPUI installed them or not.
+- **Connect without a cable.** Pair or connect a headset over Wi-Fi, or switch a USB headset to
+  Wi-Fi.
+- **Keep the headset awake.** The eye button on the toolbar keeps the headset's screen on while you
+  work, even when you take it off. File > Settings can also do this during each install.
 
-With [go-task](https://taskfile.dev) installed, `task build`, `task test`, `task run`, `task clean`
-and `task distclean` do the same for the current OS (`task --list` shows all tasks). Add
-`CONFIG=Release` for a Release build.
+QGPUI works without a headset connected. You can browse the catalog and check your files at any
+time.
 
-The app is `build/windows/bin/Debug/qgpui.exe` and the debug tool is
-`build/windows/bin/Debug/adbmanager.exe`.
+## What you need
 
-The app reads the catalog that `tools/questports-payload` builds with `build-catalog` (`task
-catalog`). It takes the file from its command line, or else the file opened last, or else
-`qgpui-catalog.json` in its data folder (`%APPDATA%\qgpui` on Windows). Development builds also look in `local/` in the repository, where the
-tool writes it by default.
+- A Windows PC.
+- A Meta Quest headset with developer mode turned on. Meta's
+  [developer mode guide](https://developers.meta.com/horizon/documentation/native/android/mobile-device-setup/)
+  explains how.
+- The QGPUI catalog file (`qgpui-catalog.json`), which lists the games and how to install them.
+- The PC games, ROMs or other files that the ports you want need.
+
+QGPUI comes with its own copy of adb, so you do not need the Android SDK.
+
+## Getting QGPUI
+
+There is no ready-made download yet. To build QGPUI and its catalog from source, follow
+[DEVELOPMENT.md](DEVELOPMENT.md).
+
+## Using QGPUI
+
+1. **Open the catalog.** Start `qgpui.exe`. QGPUI opens the catalog you used last, or the one in
+   its data folder (`%APPDATA%\qgpui`). Use File > Open Catalog to pick another one.
+2. **Connect your headset.** Connect it with a USB cable and allow USB debugging in the headset.
+   Click Headset on the toolbar, or the round indicator in the status bar, to see the headsets
+   QGPUI found, pick one, or add one over Wi-Fi. The indicator turns green when a headset is
+   connected.
+3. **Set up your files folder.** By default it is `Documents\qgpui\files`. Change it with
+   File > Files Folder. Each game's folder holds a `qgpui - what goes here.txt` that says what to
+   put there.
+4. **Install a game.** Double-click a game. The game dialog shows what the port needs and where
+   QGPUI found it, with a Choose button for each. Details shows the port's installation guide and
+   every command QGPUI will run. Press Install and follow the progress and the log.
+
+## Where QGPUI keeps its data
+
+- Settings: the Windows registry, under `HKEY_CURRENT_USER\Software\qgpui`.
+- The catalog and a copy of each headset's install records: `%APPDATA%\qgpui`.
+- On each headset, the list of games QGPUI installed: `/sdcard/qgpui/installs.json`.
+
+## Author
+
+Rangel Reale ([realerangel@gmail.com](mailto:realerangel@gmail.com))
