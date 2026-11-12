@@ -16,6 +16,7 @@ namespace {
 
 const QString kSerialSetting = QStringLiteral("headset/serial");
 const QString kNameSetting = QStringLiteral("headset/name");
+const QString kHardwareSetting = QStringLiteral("headset/hardwareSerial");
 
 // How long after pairing or connecting a new headset may take to show up and become current.
 constexpr int kAdoptMsecs = 30000;
@@ -47,6 +48,7 @@ HeadsetConnection::HeadsetConnection(QObject* parent)
     QSettings settings;
     m_serial = settings.value(kSerialSetting).toString();
     m_name = settings.value(kNameSetting).toString();
+    m_hardwareSerial = settings.value(kHardwareSetting).toString();
 
     connect(m_tracker, &qadb::DeviceTracker::connectedChanged, this, [this](bool connected) {
         if (connected) {
@@ -129,9 +131,13 @@ void HeadsetConnection::setCurrentSerial(const QString& serial)
     else if (serial.isEmpty())
         m_name.clear();
 
+    m_hardwareSerial = m_hardwareBySerial.value(serial);
+
     QSettings settings;
     settings.setValue(kSerialSetting, m_serial);
     settings.setValue(kNameSetting, m_name);
+    settings.setValue(kHardwareSetting, m_hardwareSerial);
+    lookUpHardwareSerials();
     emit statusChanged();
     emit devicesChanged();
 }
@@ -228,6 +234,9 @@ void HeadsetConnection::trackerDevicesChanged()
         reconnectRemembered();
     }
 
+    lookUpHardwareSerials();
+    selectByHardwareSerial();
+
     emit devicesChanged();
     emit statusChanged();
 }
@@ -253,6 +262,59 @@ void HeadsetConnection::adoptNewHeadset()
     }
     if (m_serial.isEmpty() && online.size() == 1)
         setCurrentSerial(online.first());
+}
+
+void HeadsetConnection::lookUpHardwareSerials()
+{
+    QSet<QString> online;
+    for (const qadb::DeviceInfo& device : m_tracker->devices()) {
+        if (device.isOnline())
+            online.insert(device.serial);
+    }
+    // Forget devices that went away: their address may come back as another headset.
+    for (auto it = m_hardwareBySerial.begin(); it != m_hardwareBySerial.end();) {
+        if (online.contains(it.key()))
+            ++it;
+        else
+            it = m_hardwareBySerial.erase(it);
+    }
+    for (const QString& serial : std::as_const(online)) {
+        if (m_hardwareBySerial.contains(serial) || m_hardwarePending.contains(serial))
+            continue;
+        m_hardwarePending.insert(serial);
+        qadb::Reply* reply = m_client->getProperty(serial, QStringLiteral("ro.serialno"));
+        connect(reply, &qadb::Reply::finished, this, [this, reply, serial] {
+            reply->deleteLater();
+            m_hardwarePending.remove(serial);
+            const QString hardware = reply->outputText().trimmed();
+            if (!reply->isSuccess() || hardware.isEmpty())
+                return;
+            m_hardwareBySerial.insert(serial, hardware);
+            if (serial == m_serial && hardware != m_hardwareSerial) {
+                m_hardwareSerial = hardware;
+                QSettings().setValue(kHardwareSetting, m_hardwareSerial);
+            }
+            selectByHardwareSerial();
+        });
+    }
+}
+
+void HeadsetConnection::selectByHardwareSerial()
+{
+    if (m_hardwareSerial.isEmpty())
+        return;
+    if (const auto device = currentDevice(); device && device->isOnline())
+        return;
+    // Prefer a USB connection, then any other: the first one found in the device list.
+    QString match;
+    for (const qadb::DeviceInfo& device : m_tracker->devices()) {
+        if (!device.isOnline() || m_hardwareBySerial.value(device.serial) != m_hardwareSerial)
+            continue;
+        if (match.isEmpty() || !isAddressSerial(device.serial))
+            match = device.serial;
+    }
+    if (!match.isEmpty() && match != m_serial)
+        setCurrentSerial(match);
 }
 
 // The server forgets network headsets when it restarts: connect the current one again.

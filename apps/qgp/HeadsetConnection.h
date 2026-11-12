@@ -5,7 +5,9 @@
 
 #include <QDeadlineTimer>
 #include <QIcon>
+#include <QHash>
 #include <QList>
+#include <QSet>
 #include <QObject>
 #include <QPointer>
 #include <QString>
@@ -19,6 +21,10 @@ class DeviceTracker;
 
 // The app's link to the headsets: starts the adb server when it is not running, keeps the list of
 // connected headsets, and remembers the one headset the user chose (the current headset).
+//
+// The current headset is remembered by its adb serial and by its hardware serial (ro.serialno,
+// decision 0004). When the remembered adb serial is not online, for example because wireless
+// debugging moved to another port, the online device with the same hardware serial becomes current.
 class HeadsetConnection : public QObject
 {
     Q_OBJECT
@@ -92,6 +98,9 @@ private:
     void trackerDevicesChanged();
     void adoptNewHeadset();
     void reconnectRemembered();
+    // Reads ro.serialno of online devices not read yet, then selectByHardwareSerial().
+    void lookUpHardwareSerials();
+    void selectByHardwareSerial();
 
     qadb::Client* m_client;
     qadb::DeviceTracker* m_tracker;
@@ -103,6 +112,9 @@ private:
     QString m_adbError;
     QString m_serial;
     QString m_name;
+    QString m_hardwareSerial; // Of the current headset; empty until read.
+    QHash<QString, QString> m_hardwareBySerial; // adb serial -> ro.serialno, for online devices.
+    QSet<QString> m_hardwarePending;
     // Until then, the next headset that comes online becomes the current one.
     QDeadlineTimer m_adoptUntil;
     QList<QString> m_onlineBefore;
