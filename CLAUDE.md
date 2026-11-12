@@ -12,6 +12,12 @@ library and a debug tool.
 - `tools/<name>/`: developer tools, not shipped.
 - `tools/adbmanager/`: a Qt Widgets window with one button per qadb feature and a log. Use it to
   try library changes against a real headset.
+- `tools/questports-payload/`: a Node tool, outside the CMake build, that joins the QuestPorts game
+  list (Supabase) with each game's install requirements (TypeScript in the QuestPorts repository)
+  into one JSON file. `npm install`, then `npm run build-payload` and `npm test`. See its README
+  for the payload format.
+- `local/`: ignored by git. Holds uncommitted working files, such as the generated payload and
+  current keys or passwords. Never commit its contents.
 - `apps/<name>/`: shipped applications, when there are any.
 - `cmake/`: shared CMake functions (`qgp_add_qt_test`).
 - `docs/`: research notes, such as where QuestPorts keeps its data.

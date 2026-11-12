@@ -221,7 +221,7 @@ Useful helper functions in the same file:
 
 ### `app/data/expansions.ts`
 
-`PORT_EXPANSIONS` lists base campaigns and DLC for games that have them. It covers 7 games: `lambda1vr`, `sourcevr`, `doom3quest`, `quake2quest`, `razexr`, `qualyx` and `nolf-vr`.
+`PORT_EXPANSIONS` lists base campaigns, DLC and other content sets for games that have them. It covers 8 games: `lambda1vr`, `sourcevr`, `doom3quest`, `quake2quest`, `razexr`, `qualyx`, `nolf-vr` and `metal-gear-solid-vr` (one entry per disc language, computed from `MGS_DISC_LANGUAGES`).
 
 ```ts
 interface PortCampaign {

@@ -1,0 +1,20 @@
+{
+  "name": "questports-payload",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Builds one JSON file that joins the QuestPorts game list with each game's install requirements.",
+  "type": "module",
+  "bin": {
+    "questports-payload": "src/main.mjs"
+  },
+  "scripts": {
+    "build-payload": "node src/main.mjs",
+    "test": "node --test \"test/*.test.mjs\""
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "esbuild": "0.25.10"
+  }
+}
