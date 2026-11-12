@@ -42,9 +42,10 @@ class GameDialog : public QDialog
     Q_OBJECT
 
 public:
-    // releases finds the newest release of the game's APK; the main window shares it.
+    // releases finds the newest release of the game's APK; the main window shares it. sourceLabel
+    // is the catalog's name for the game's origin platform, such as "PC".
     GameDialog(const questports::Game& game, HeadsetConnection* headset, CoverCache* covers,
-               installer::ReleaseLookup* releases, QWidget* parent = nullptr);
+               installer::ReleaseLookup* releases, const QString& sourceLabel, QWidget* parent = nullptr);
 
     QString slug() const { return m_game.slug; }
 
@@ -67,6 +68,9 @@ private:
     void openFilesFolder();
     void openStorePage(const StorePage& page);
     void showHeadsetState();
+    // Shows the installed badge, or hides it when the state is not known (no headset, no package).
+    enum class Installed { Unknown, NotInstalled, ByQgp, OutsideQgp };
+    void showInstalledBadge(Installed installed);
     // Adds to state whether the newest release is newer than the installed package, and turns
     // Install into Update when it is.
     void showUpdate(const QString& state, const qadb::PackageInfo& installed,
@@ -101,6 +105,8 @@ private:
 
     QLabel* m_cover;
     QLabel* m_headsetState;
+    QLabel* m_installedBadge;
+    QLabel* m_updateBadge;
     QGroupBox* m_filesBox;
     QGridLayout* m_filesGrid;
     QPushButton* m_installButton;

@@ -103,4 +103,5 @@ private:
     QHash<QString, QPointer<GameDialog>> m_gameDialogs;
     QToolButton* m_headsetStatus;
     QString m_catalogPath;
+    QHash<QString, QString> m_sourceLabels; // Origin platform ID -> the catalog's label.
 };

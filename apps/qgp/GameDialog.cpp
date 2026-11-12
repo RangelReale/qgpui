@@ -73,6 +73,59 @@ QString statusText(const QString& status)
     return GameDialog::tr("not yet tested");
 }
 
+// The site's names for its port types, for one game.
+QString categoryText(const QString& category)
+{
+    if (category == QLatin1StringView("source_port"))
+        return GameDialog::tr("Source port");
+    if (category == QLatin1StringView("decompilation"))
+        return GameDialog::tr("Decomp");
+    if (category == QLatin1StringView("engine_recreation"))
+        return GameDialog::tr("Engine recreation");
+    if (category == QLatin1StringView("emulator"))
+        return GameDialog::tr("Emulator");
+    if (category == QLatin1StringView("wrapper"))
+        return GameDialog::tr("Wrapper");
+    if (category == QLatin1StringView("vr_injection"))
+        return GameDialog::tr("VR mod");
+    if (category == QLatin1StringView("game_mod"))
+        return GameDialog::tr("Game mod");
+    QString text = category;
+    return text.replace(QLatin1Char('_'), QLatin1Char(' '));
+}
+
+// Badge colours as "r, g, b". Translucent tints read on both light and dark palettes, as the
+// result banner's do.
+const QString kGreen = QStringLiteral("46, 160, 67");
+const QString kBlue = QStringLiteral("56, 132, 255");
+const QString kPurple = QStringLiteral("137, 87, 229");
+const QString kOrange = QStringLiteral("210, 153, 34");
+const QString kRed = QStringLiteral("218, 54, 51");
+const QString kGrey = QStringLiteral("128, 128, 128");
+
+// The port's status, and the colour of its badge.
+std::pair<QString, QString> portStatusBadge(const QString& status)
+{
+    if (status == QLatin1StringView("released"))
+        return {GameDialog::tr("Released"), kGreen};
+    if (status == QLatin1StringView("playable_beta"))
+        return {GameDialog::tr("Playable beta"), kOrange};
+    if (status == QLatin1StringView("in_development"))
+        return {GameDialog::tr("In development"), kRed};
+    QString text = status;
+    return {text.replace(QLatin1Char('_'), QLatin1Char(' ')), kGrey};
+}
+
+// Sets a badge's text, tooltip and colour.
+void setBadge(QLabel* badge, const QString& text, const QString& toolTip, const QString& colour)
+{
+    badge->setText(text);
+    badge->setToolTip(toolTip);
+    badge->setStyleSheet(QStringLiteral("QLabel { background: rgba(%1, 0.18); border: 1px solid rgba(%1, 0.7);"
+                                        " border-radius: 9px; padding: 1px 8px; }")
+                             .arg(colour));
+}
+
 QString native(const QString& path)
 {
     return QDir::toNativeSeparators(path);
@@ -103,7 +156,7 @@ void GameDialog::setFilesRoot(const QString& folder)
 }
 
 GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset, CoverCache* covers,
-                       installer::ReleaseLookup* releases, QWidget* parent)
+                       installer::ReleaseLookup* releases, const QString& sourceLabel, QWidget* parent)
     : QDialog(parent)
     , m_game(game)
     , m_headset(headset)
@@ -111,6 +164,8 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     , m_releases(releases)
     , m_cover(new QLabel(this))
     , m_headsetState(new QLabel(this))
+    , m_installedBadge(new QLabel(this))
+    , m_updateBadge(new QLabel(this))
     , m_filesBox(new QGroupBox(tr("Files"), this))
     , m_filesGrid(new QGridLayout)
     , m_installButton(new QPushButton(tr("&Install"), this))
@@ -146,6 +201,31 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     title->setFont(titleFont);
     title->setWordWrap(true);
 
+    // Badges: the game on the headset, then the catalog's source, type and status.
+    auto* badges = new QHBoxLayout;
+    badges->setSpacing(6);
+    badges->addWidget(m_installedBadge);
+    setBadge(m_updateBadge, tr("Update available"), tr("A newer release of the game's APK is out"), kOrange);
+    badges->addWidget(m_updateBadge);
+    m_installedBadge->hide();
+    m_updateBadge->hide();
+    const auto addBadge = [this, badges](const QString& text, const QString& toolTip, const QString& colour) {
+        auto* badge = new QLabel(this);
+        setBadge(badge, text, toolTip, colour);
+        badges->addWidget(badge);
+    };
+    if (!m_game.originPlatform.isEmpty()) {
+        const QString source = sourceLabel.isEmpty() ? m_game.originPlatform : sourceLabel;
+        addBadge(source, tr("Source: the platform the game was first made for"), kBlue);
+    }
+    if (!m_game.category.isEmpty())
+        addBadge(categoryText(m_game.category), tr("Type of port"), kPurple);
+    if (!m_game.status.isEmpty()) {
+        const auto [text, colour] = portStatusBadge(m_game.status);
+        addBadge(text, tr("Status of the port"), colour);
+    }
+    badges->addStretch();
+
     auto* about = new QLabel(this);
     about->setWordWrap(true);
     QStringList lines;
@@ -168,6 +248,7 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
 
     auto* headerText = new QVBoxLayout;
     headerText->addWidget(title);
+    headerText->addLayout(badges);
     headerText->addWidget(about);
     headerText->addWidget(m_headsetState);
     headerText->addStretch();
@@ -485,6 +566,8 @@ void GameDialog::openStorePage(const StorePage& page)
 void GameDialog::showHeadsetState()
 {
     m_updateAvailable = false;
+    m_updateBadge->hide();
+    showInstalledBadge(Installed::Unknown);
     updateButtons();
     if (!m_headset->isReady()) {
         m_headsetState->setText(tr("Headset: %1").arg(m_headset->statusText()));
@@ -509,6 +592,7 @@ void GameDialog::showHeadsetState()
         }
         if (!reply->isInstalled()) {
             m_headsetState->setText(tr("Not installed on %1.").arg(name));
+            showInstalledBadge(Installed::NotInstalled);
             return;
         }
         const qadb::PackageInfo installed = reply->info();
@@ -531,9 +615,30 @@ void GameDialog::showHeadsetState()
             const QString state = record ? tr("Installed on %1 by qgp: version %2.").arg(name, version)
                                          : tr("Installed on %1 outside qgp: version %2.").arg(name, version);
             m_headsetState->setText(state);
+            showInstalledBadge(record ? Installed::ByQgp : Installed::OutsideQgp);
             showUpdate(state, installed, record);
         });
     });
+}
+
+void GameDialog::showInstalledBadge(Installed installed)
+{
+    switch (installed) {
+    case Installed::Unknown:
+        m_installedBadge->hide();
+        return;
+    case Installed::NotInstalled:
+        setBadge(m_installedBadge, tr("Not installed"), tr("The game is not on the current headset"), kGrey);
+        break;
+    case Installed::ByQgp:
+        setBadge(m_installedBadge, tr("Installed"), tr("qgp installed the game on the current headset"), kGreen);
+        break;
+    case Installed::OutsideQgp:
+        setBadge(m_installedBadge, tr("Installed outside qgp"),
+                 tr("The game is on the current headset, but qgp did not install it"), kGreen);
+        break;
+    }
+    m_installedBadge->show();
 }
 
 void GameDialog::showUpdate(const QString& state, const qadb::PackageInfo& installed,
@@ -552,6 +657,7 @@ void GameDialog::showUpdate(const QString& state, const qadb::PackageInfo& insta
         switch (installer::updateStatus(installed, record, asset->tag)) {
         case installer::UpdateStatus::UpdateAvailable:
             m_updateAvailable = true;
+            m_updateBadge->show();
             m_headsetState->setText(tr("%1 An update is available: release %2.").arg(state, asset->tag));
             break;
         case installer::UpdateStatus::UpToDate:
