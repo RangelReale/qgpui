@@ -54,6 +54,41 @@ The tool fails, and writes nothing, if a request fails, if the database returns 
 reports, or if two rows share a slug. Games that exist in only one source are kept or skipped as
 described below and listed as warnings.
 
+## The qgp catalog
+
+A second command joins the payload with qgp's hand-written install recipes in `data/recipes/`.
+The recipe format is described in [`docs/install-recipes.md`](../../docs/install-recipes.md).
+
+```bash
+npm run build-catalog
+```
+
+This reads `local/questports-payload.json` and writes `local/qgp-catalog.json`. From the
+repository root, `task catalog` does the same.
+
+Options (`node src/build-catalog.mjs --help`):
+
+| Option | Default | Meaning |
+|---|---|---|
+| `--payload <file>` | `local/questports-payload.json` | Payload to read. |
+| `--recipes <dir>` | `data/recipes` | Recipe folder. |
+| `--schema <file>` | `data/recipe.schema.json` | Recipe schema. |
+| `--out <file>` | `local/qgp-catalog.json` | Output file. |
+| `--strict` | off | Fail on the warnings below. |
+| `--verbose` | off | Also list the games without a recipe. |
+
+The command fails, and writes nothing, if any recipe breaks the schema or the checks in
+`src/recipes.mjs`. It then reports what changed in the payload since each recipe was written:
+
+- **Warning:** a recipe has no game, or the payload changed a recipe's `packageName` or
+  `targetPath`. The recipe may install the wrong app or to the wrong place. With `--strict`, the
+  command fails and writes nothing.
+- **Note:** the payload changed a recipe's `version`. The recipe may still be right, but the new
+  release is worth a look.
+
+To clear a warning or a note, check the recipe against the new payload and update its
+`checkedAgainst`.
+
 ## Tests
 
 ```bash
@@ -114,3 +149,44 @@ One JSON object, version 1:
   is left out of `games`, because the site does not show that game.
 
 Raise `version` when a change would break a reader of the previous format.
+
+## Catalog format
+
+One JSON object, version 1. Each game is the payload's game entry, unchanged, plus `recipe` and
+`drift`:
+
+```jsonc
+{
+  "format": "qgp-catalog",
+  "version": 1,
+  "generatedAt": "2026-11-12T10:00:00.000Z",
+  "sources": {
+    "payload": { "generatedAt": "2026-11-12T00:04:36.622Z", "sources": { /* the payload's sources */ } },
+    "recipes": { "count": 5 }
+  },
+  "games": [
+    {
+      "slug": "xelee",
+      "port": {}, "install": {}, "campaigns": null, "resolved": {},  // as in the payload
+      "recipe": {
+        "status": "draft",
+        "apks": [ /* ... */ ], "inputs": [ /* ... */ ], "steps": [ /* ... */ ]
+      },
+      "drift": [
+        { "field": "version", "recipe": "v0.4.1-beta", "payload": "v0.5.0-beta" }
+      ]
+    }
+  ],
+  "unmatched": {
+    "portsWithoutInstall": [], "installWithoutPort": [], "campaignsWithoutPort": [],
+    "gamesWithoutRecipe": [ /* slugs */ ],
+    "recipesWithoutGame": [ /* slugs */ ]
+  }
+}
+```
+
+- `recipe` is the recipe file without the keys that matter only in the file: `$schema`, `format`,
+  `version`, `slug`, `checkedAgainst` and `notes`. It is `null` for a game without a recipe.
+- `drift` lists the payload values that differ from the recipe's `checkedAgainst`. The fields are
+  `packageName`, `version` and `targetPath`. A value that is not set is `null`.
+- A recipe without a game is left out of `games` and listed in `unmatched.recipesWithoutGame`.

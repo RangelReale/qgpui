@@ -5,10 +5,12 @@
   "description": "Builds one JSON file that joins the QuestPorts game list with each game's install requirements.",
   "type": "module",
   "bin": {
-    "questports-payload": "src/main.mjs"
+    "questports-payload": "src/main.mjs",
+    "qgp-catalog": "src/build-catalog.mjs"
   },
   "scripts": {
     "build-payload": "node src/main.mjs",
+    "build-catalog": "node src/build-catalog.mjs",
     "test": "node --test \"test/*.test.mjs\""
   },
   "engines": {

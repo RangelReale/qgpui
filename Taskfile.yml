@@ -90,6 +90,13 @@ tasks:
     cmds:
       - npm run build-payload -- {{.CLI_ARGS}}
 
+  catalog:
+    desc: Join the payload with data/recipes into local/qgp-catalog.json
+    deps: [payload:install]
+    dir: '{{.PAYLOAD_DIR}}'
+    cmds:
+      - npm run build-catalog -- {{.CLI_ARGS}}
+
   payload:test:
     desc: Run the payload tool's tests
     deps: [payload:install]

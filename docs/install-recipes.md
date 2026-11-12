@@ -13,7 +13,7 @@ Recipes are written by hand and committed, one file per game:
 - `data/recipes/<slug>.json`: the recipes. The file name is the game's slug.
 - `data/recipe.schema.json`: the JSON Schema they follow (draft 2020-12). Editors that read `$schema` check a recipe while you write it.
 
-`tools/questports-payload` checks every recipe with `npm test`. A later merge command will join the recipes with the payload into one catalog file for qgp. It will also report games that have no recipe and recipes whose payload values have changed.
+`tools/questports-payload` checks every recipe with `npm test`. Its `build-catalog` command (`task catalog`) joins the recipes with the payload into `local/qgp-catalog.json`, the file qgp will read. It also reports recipes without a game and recipes whose payload values have changed. The tool's README describes the command and the catalog format.
 
 ## Status
 
@@ -36,7 +36,7 @@ New step kinds and fields will be added as more games get recipes. Planned addit
 | `format`, `version` | Always `qgp-install-recipe` and `1`. |
 | `slug` | The game's slug. It must match the file name. |
 | `status` | `draft` means written from the guide. `reviewed` means checked by a person. `tested` means installed on a real headset. |
-| `checkedAgainst` | The payload's `packageName`, `latest_version` and `targetPath` at the time the recipe was written. The merge tool warns when they change. |
+| `checkedAgainst` | The payload's `packageName`, `latest_version` and `targetPath` at the time the recipe was written. `build-catalog` reports when they change. |
 | `packageName` | Optional. Overrides the payload's package name when the payload is wrong. |
 | `requirements.freeSpaceMB` | Free space the headset needs. |
 | `apks` | Where the APKs come from. The first one is the game's main app. |

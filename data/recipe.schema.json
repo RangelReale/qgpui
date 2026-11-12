@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/RangelReale/qgp/data/recipe.schema.json",
   "title": "qgp install recipe",
-  "description": "How qgp installs one QuestPorts game. Holds only what the QuestPorts payload lacks. See docs/install-recipes.md.",
+  "description": "How qgp installs one QuestPorts game. Holds only what the QuestPorts payload lacks. See docs/install-recipes.md. Uses the OpenAPI discriminator keyword, which Ajv supports with its discriminator option.",
   "type": "object",
   "additionalProperties": false,
   "required": ["format", "version", "slug", "status", "checkedAgainst", "apks", "inputs", "steps"],
@@ -16,7 +16,7 @@
       "enum": ["draft", "reviewed", "tested"]
     },
     "checkedAgainst": {
-      "description": "Payload values the recipe was written against. The merge tool warns when the payload changes them.",
+      "description": "Payload values the recipe was written against. build-catalog reports when the payload changes them.",
       "type": "object",
       "additionalProperties": false,
       "required": ["packageName", "version"],
@@ -67,7 +67,7 @@
     "apk": {
       "type": "object",
       "required": ["source"],
-      "properties": { "source": { "enum": ["github", "url", "manual"] } },
+      "discriminator": { "propertyName": "source" },
       "oneOf": [
         { "$ref": "#/$defs/apkGithub" },
         { "$ref": "#/$defs/apkUrl" },
@@ -116,7 +116,7 @@
     "input": {
       "type": "object",
       "required": ["kind"],
-      "properties": { "kind": { "enum": ["pc-install", "file"] } },
+      "discriminator": { "propertyName": "kind" },
       "oneOf": [
         { "$ref": "#/$defs/inputPcInstall" },
         { "$ref": "#/$defs/inputFile" }
@@ -230,7 +230,7 @@
     "step": {
       "type": "object",
       "required": ["do"],
-      "properties": { "do": { "enum": ["install-apk", "grant", "launch", "push", "verify", "tell"] } },
+      "discriminator": { "propertyName": "do" },
       "oneOf": [
         { "$ref": "#/$defs/stepInstallApk" },
         { "$ref": "#/$defs/stepGrant" },

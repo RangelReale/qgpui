@@ -17,7 +17,14 @@ test('the schema rejects an unknown step', async () => {
   const validate = await loadSchemaValidator()
   const recipe = await sample('supertuxkart-vr')
   recipe.steps.push({ do: 'reboot' })
-  assert.notDeepEqual(validate(recipe), [])
+  assert.deepEqual(validate(recipe), ['/steps/1 value of tag "do" must be in oneOf'])
+})
+
+test('the schema reports only the errors of the step kind named by do', async () => {
+  const validate = await loadSchemaValidator()
+  const recipe = await sample('starship-vr')
+  delete recipe.steps[1].why
+  assert.deepEqual(validate(recipe), ["/steps/1 must have required property 'why'"])
 })
 
 test('the schema rejects a push outside /sdcard', async () => {
@@ -59,7 +66,7 @@ test('checkRecipe finds a from that is not one of the names', async () => {
 test('checkRecipe finds a launch before install-apk', async () => {
   const recipe = await sample('starship-vr')
   recipe.steps.reverse()
-  assert.ok(checkRecipe(recipe).some((e) => e.includes('(launch) comes before install-apk')))
+  assert.ok(checkRecipe(recipe).some(e => e.includes('(launch) comes before install-apk')))
 })
 
 test('checkRecipe finds an invalid asset pattern', async () => {

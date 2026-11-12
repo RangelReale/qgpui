@@ -13,10 +13,10 @@ export const DEFAULT_SCHEMA_FILE = path.join(repositoryRoot, 'data', 'recipe.sch
 export async function loadSchemaValidator(schemaFile = DEFAULT_SCHEMA_FILE) {
   const schema = JSON.parse(await readFile(schemaFile, 'utf8'))
   // strictRequired would reject `anyOf: [{ required: [...] }]`, which the schema uses for "one of these keys".
-  const ajv = new Ajv2020({ allErrors: true, strict: true, strictRequired: false })
+  const ajv = new Ajv2020({ allErrors: true, strict: true, strictRequired: false, discriminator: true })
   const validate = ajv.compile(schema)
   return (recipe) =>
-    validate(recipe) ? [] : validate.errors.map((e) => `${e.instancePath || '/'} ${e.message}`)
+    validate(recipe) ? [] : validate.errors.map(e => `${e.instancePath || '/'} ${e.message}`)
 }
 
 /** Checks what the schema cannot express. Returns a list of errors. */
@@ -48,7 +48,7 @@ export function checkRecipe(recipe, fileName) {
     }
     pushed.add(input.id)
     if (input.kind === 'file' && input.names) {
-      const names = input.names.map((n) => n.toLowerCase())
+      const names = input.names.map(n => n.toLowerCase())
       for (const [j, m] of step.map.entries()) {
         if (m.from !== undefined && !names.includes(m.from.toLowerCase())) {
           errors.push(`/steps/${i}/map/${j} from ${m.from} is not one of input ${input.id}'s names`)
@@ -61,7 +61,7 @@ export function checkRecipe(recipe, fileName) {
   }
 
   const steps = recipe.steps ?? []
-  const installAt = steps.findIndex((s) => s.do === 'install-apk')
+  const installAt = steps.findIndex(s => s.do === 'install-apk')
   if (installAt === -1) errors.push('no install-apk step')
   const needsApp = new Set(['grant', 'launch'])
   for (const [i, step] of steps.entries()) {
@@ -75,7 +75,7 @@ export function checkRecipe(recipe, fileName) {
 /** Reads every recipe in a folder. Returns { recipes, errors }, where errors maps a file name to its errors. */
 export async function loadRecipes(dir = DEFAULT_RECIPES_DIR, schemaFile = DEFAULT_SCHEMA_FILE) {
   const validate = await loadSchemaValidator(schemaFile)
-  const files = (await readdir(dir)).filter((f) => f.endsWith('.json')).sort()
+  const files = (await readdir(dir)).filter(f => f.endsWith('.json')).sort()
   const recipes = []
   const errors = {}
   for (const file of files) {
