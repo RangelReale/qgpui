@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "razexr",
   "support": "automatic",
@@ -11,7 +11,7 @@
       "id": "duke3d",
       "kind": "pc-install",
       "label": "Duke Nukem 3D",
-      "help": "Your installed copy of Duke Nukem 3D. qgp copies duke3d.grp.",
+      "help": "Your installed copy of Duke Nukem 3D. QGPUI copies duke3d.grp.",
       "stores": [{ "store": "steam", "appId": "434050" }],
       "detect": ["duke3d.grp"]
     },
@@ -19,7 +19,7 @@
       "id": "blood",
       "kind": "pc-install",
       "label": "Blood (optional)",
-      "help": "Your installed copy of Blood. qgp copies blood.rff and the sound files.",
+      "help": "Your installed copy of Blood. QGPUI copies blood.rff and the sound files.",
       "required": false,
       "stores": [{ "store": "steam", "appId": "1010750" }],
       "detect": ["blood.rff"]
@@ -28,7 +28,7 @@
       "id": "sw",
       "kind": "pc-install",
       "label": "Shadow Warrior (optional)",
-      "help": "Your installed copy of Shadow Warrior. qgp copies sw.grp.",
+      "help": "Your installed copy of Shadow Warrior. QGPUI copies sw.grp.",
       "required": false,
       "stores": [{ "store": "steam", "appId": "225160" }],
       "detect": ["sw.grp"]

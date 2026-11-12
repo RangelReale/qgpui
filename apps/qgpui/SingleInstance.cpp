@@ -18,7 +18,7 @@
 
 namespace {
 
-// One name per user, so that two users on one PC each get their own qgp. Windows named pipes are
+// One name per user, so that two users on one PC each get their own qgpui. Windows named pipes are
 // visible to every user, hence the user name in it; hashing keeps it free of odd characters.
 QString instanceName()
 {
@@ -26,7 +26,7 @@ QString instanceName()
     if (user.isEmpty())
         user = qEnvironmentVariable("USER");
     const QByteArray hash = QCryptographicHash::hash(user.toUtf8(), QCryptographicHash::Sha1).toHex().left(12);
-    return QStringLiteral("qgp-") + QString::fromLatin1(hash);
+    return QStringLiteral("qgpui-") + QString::fromLatin1(hash);
 }
 
 QString lockPath()
@@ -87,7 +87,7 @@ bool SingleInstance::claim(const QString& message)
     // On Unix a crashed instance leaves its socket file behind; the lock says it is gone.
     QLocalServer::removeServer(instanceName());
     if (!m_server->listen(instanceName()))
-        qWarning("qgp: cannot listen for other instances: %s", qPrintable(m_server->errorString()));
+        qWarning("qgpui: cannot listen for other instances: %s", qPrintable(m_server->errorString()));
     connect(m_server, &QLocalServer::newConnection, this, &SingleInstance::readConnection);
     return true;
 }

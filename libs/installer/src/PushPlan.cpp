@@ -66,7 +66,7 @@ QStringList filesBelow(const QString& folder)
     while (it.hasNext()) {
         const QString path = it.next();
         // The guide that the app writes into the user's files folder (gamestores::FilesFolder).
-        if (it.fileName() != QLatin1StringView("qgp - what goes here.txt"))
+        if (it.fileName() != QLatin1StringView("qgpui - what goes here.txt"))
             files.append(base.relativeFilePath(path));
     }
     files.sort(Qt::CaseInsensitive);

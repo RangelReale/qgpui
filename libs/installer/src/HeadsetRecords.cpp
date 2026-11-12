@@ -83,7 +83,7 @@ void HeadsetRecordSync::merge(const QList<InstallRecord>& onHeadset)
         saveCache();
         return;
     }
-    // Outside Android/data, adb creates /sdcard/qgp itself and the file is ordinary shared storage.
+    // Outside Android/data, adb creates /sdcard/qgpui itself and the file is ordinary shared storage.
     auto* push = m_client->pushData(m_adbSerial, after, remotePath(), 0666);
     connect(push, &qadb::Reply::finished, this, [this, push] {
         push->deleteLater();

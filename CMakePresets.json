@@ -8,7 +8,7 @@
       "architecture": "x64",
       "binaryDir": "${sourceDir}/build/windows",
       "cacheVariables": {
-        "QGP_QT_SUBDIR": "6.8.3/msvc2022_64"
+        "QGPUI_QT_SUBDIR": "6.8.3/msvc2022_64"
       },
       "condition": {
         "type": "equals",
@@ -33,7 +33,7 @@
       "generator": "Ninja Multi-Config",
       "binaryDir": "${sourceDir}/build/macos",
       "cacheVariables": {
-        "QGP_QT_SUBDIR": "6.8.3/macos"
+        "QGPUI_QT_SUBDIR": "6.8.3/macos"
       },
       "condition": {
         "type": "equals",

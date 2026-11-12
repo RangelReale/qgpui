@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "questcarnage",
   "support": "automatic",
@@ -21,7 +21,7 @@
       "id": "carmageddon",
       "kind": "pc-install",
       "label": "Carmageddon (PC)",
-      "help": "Your installed PC copy of Carmageddon (Steam Max Pack, GOG or the original CD). qgp copies its DATA folder.",
+      "help": "Your installed PC copy of Carmageddon (Steam Max Pack, GOG or the original CD). QGPUI copies its DATA folder.",
       "stores": [
         {
           "store": "steam"
@@ -62,5 +62,5 @@
       ]
     }
   ],
-  "notes": "The guide says later tags can be PC-only (b004 is PCVRCarnage.zip, pico-test is a Pico build); qgp skips releases without a matching asset and picks b003. The legacy path /sdcard/questcarnage/DATA also works. Steam app ID and install folder names are not given. File name case on CD installs may differ. The GOG Max Pack keeps the game in CARMA/ (and the Splat Pack in CARSPLAT/), so root is CARMA; qgp falls back to the install folder itself where CARMA/ does not exist."
+  "notes": "The guide says later tags can be PC-only (b004 is PCVRCarnage.zip, pico-test is a Pico build); QGPUI skips releases without a matching asset and picks b003. The legacy path /sdcard/questcarnage/DATA also works. Steam app ID and install folder names are not given. File name case on CD installs may differ. The GOG Max Pack keeps the game in CARMA/ (and the Splat Pack in CARSPLAT/), so root is CARMA; QGPUI falls back to the install folder itself where CARMA/ does not exist."
 }

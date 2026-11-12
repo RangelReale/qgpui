@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "wwf-no-mercy-vr",
   "support": "automatic",
@@ -37,5 +37,5 @@
       "text": "Open WWF No Mercy VR from Library > Unknown Sources. In the main menu, provide your ROM. The game loads its assets from it."
     }
   ],
-  "notes": "The repository has a single release with the fixed tag n64, apparently updated in place; the payload version (v0.1.20) does not appear in the tag or asset name, so qgp cannot tell versions apart from GitHub."
+  "notes": "The repository has a single release with the fixed tag n64, apparently updated in place; the payload version (v0.1.20) does not appear in the tag or asset name, so QGPUI cannot tell versions apart from GitHub."
 }

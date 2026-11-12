@@ -1,1 +1,1 @@
-add_subdirectory(qgp)
+add_subdirectory(qgpui)

@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "descent-1-2-vr",
   "support": "automatic",
@@ -93,8 +93,8 @@
     {
       "label": "Descent 1 and 2 VR setup",
       "url": "https://github.com/GameOrDie007/Descent-1-and-2-VR/releases/latest",
-      "help": "Run Setup.bat from Descent-1-and-2-VR-<version>-Quest.zip, or Descent.1.and.2.VR.Installer.exe from the same page. Either installs the game and copies your game files over USB. Setup.bat also builds the in-game Game Tome from each game's manual.pdf, which qgp does not."
+      "help": "Run Setup.bat from Descent-1-and-2-VR-<version>-Quest.zip, or Descent.1.and.2.VR.Installer.exe from the same page. Either installs the game and copies your game files over USB. Setup.bat also builds the in-game Game Tome from each game's manual.pdf, which QGPUI does not."
     }
   ],
-  "notes": "This follows the guide's Option B (by hand). The recommended Setup.bat in the zip also builds the in-game Game Tome from each game's manual.pdf, which qgp does not do. At least one of the two inputs is needed; the schema cannot say so. Uncertain: the detect files descent.hog and descent2.hog are not named in the guide, and the guide does not list which game files to copy, so the whole install is pushed. The guide does not launch first; the launch is there because the target is in Android/data. The release also has a PCVR zip and a Windows installer."
+  "notes": "This follows the guide's Option B (by hand). The recommended Setup.bat in the zip also builds the in-game Game Tome from each game's manual.pdf, which QGPUI does not do. At least one of the two inputs is needed; the schema cannot say so. Uncertain: the detect files descent.hog and descent2.hog are not named in the guide, and the guide does not list which game files to copy, so the whole install is pushed. The guide does not launch first; the launch is there because the target is in Android/data. The release also has a PCVR zip and a Windows installer."
 }

@@ -7,7 +7,7 @@
 
 namespace gamestores::detail {
 
-// Recipes and slugs come from the catalog, which comes from outside qgp. These checks keep the
+// Recipes and slugs come from the catalog, which comes from outside qgpui. These checks keep the
 // names and paths taken from it inside the folder they are joined to.
 
 // True for one folder or file name: not empty, not "." or "..", no separator, drive colon or

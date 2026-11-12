@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "nolf-vr",
   "support": "automatic",
@@ -64,5 +64,5 @@
       "text": "Open ReLith from Library > Unknown Sources. If it asks for access to manage all files, allow it. You should get the main menu."
     }
   ],
-  "notes": "The newest release (v0.4.1) has only a Windows build; qgp skips releases without a matching asset and picks v0.4.0. The 0.3.1 to 0.4.0 signing change needs a backup, uninstall and restore; qgp cannot do the backup yet, so a tell step warns. Files on /sdcard keep their exact case (NOLF.REZ, nolfu003.rez). FontData.fnt is optional and not modelled. Do not copy MODERNIZER; it is in the APK."
+  "notes": "The newest release (v0.4.1) has only a Windows build; QGPUI skips releases without a matching asset and picks v0.4.0. The 0.3.1 to 0.4.0 signing change needs a backup, uninstall and restore; QGPUI cannot do the backup yet, so a tell step warns. Files on /sdcard keep their exact case (NOLF.REZ, nolfu003.rez). FontData.fnt is optional and not modelled. Do not copy MODERNIZER; it is in the APK."
 }

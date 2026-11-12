@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "sourcevr",
   "support": "automatic",
@@ -15,7 +15,7 @@
       "id": "hl2",
       "kind": "pc-install",
       "label": "Half-Life 2",
-      "help": "Your installed copy of Half-Life 2 from Steam. qgp copies the hl2 and platform folders.",
+      "help": "Your installed copy of Half-Life 2 from Steam. QGPUI copies the hl2 and platform folders.",
       "stores": [{ "store": "steam", "appId": "220", "installDir": "Half-Life 2" }],
       "detect": ["hl2/gameinfo.txt"]
     },
@@ -23,7 +23,7 @@
       "id": "ep1",
       "kind": "pc-install",
       "label": "Half-Life 2: Episode One (optional)",
-      "help": "Your installed copy of Episode One. qgp copies the episodic folder.",
+      "help": "Your installed copy of Episode One. QGPUI copies the episodic folder.",
       "required": false,
       "stores": [{ "store": "steam", "appId": "380" }],
       "detect": ["episodic/gameinfo.txt"]
@@ -32,7 +32,7 @@
       "id": "ep2",
       "kind": "pc-install",
       "label": "Half-Life 2: Episode Two (optional)",
-      "help": "Your installed copy of Episode Two. qgp copies the ep2 folder.",
+      "help": "Your installed copy of Episode Two. QGPUI copies the ep2 folder.",
       "required": false,
       "stores": [{ "store": "steam", "appId": "420" }],
       "detect": ["ep2/gameinfo.txt"]
@@ -41,7 +41,7 @@
       "id": "portal",
       "kind": "pc-install",
       "label": "Portal (optional)",
-      "help": "Your installed copy of Portal from Steam. qgp copies the portal folder. Portal also needs Half-Life 2's files.",
+      "help": "Your installed copy of Portal from Steam. QGPUI copies the portal folder. Portal also needs Half-Life 2's files.",
       "required": false,
       "stores": [{ "store": "steam", "appId": "400", "installDir": "Portal" }],
       "detect": ["portal/gameinfo.txt"]

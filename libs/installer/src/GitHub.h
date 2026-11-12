@@ -6,7 +6,7 @@
 
 namespace installer::detail {
 
-// A request with qgp's user agent that follows redirects which stay as safe.
+// A request with QGPUI's user agent that follows redirects which stay as safe.
 QNetworkRequest request(const QUrl& url);
 
 // GitHub's "list releases" request for owner/name: the newest 100 releases. Sends GITHUB_TOKEN,

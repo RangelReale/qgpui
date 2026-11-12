@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "animal-crossing-vr",
   "support": "guided",
@@ -33,8 +33,8 @@
     {
       "label": "Animal Crossing VR Quest package",
       "url": "https://github.com/LiquidAzir/animal-crossing-vr/releases/latest",
-      "help": "Extract AnimalCrossing-Quest-<version>.zip and run Install-Quest.cmd on Windows. It installs the game and imports your disc image. qgp needs it for the disc image too."
+      "help": "Extract AnimalCrossing-Quest-<version>.zip and run Install-Quest.cmd on Windows. It installs the game and imports your disc image. QGPUI needs it for the disc image too."
     }
   ],
-  "notes": "The disc image goes into app-private storage through Install-Quest.cmd or device_data.py (both in the Quest zip); the guide says not to copy it into Android/data by hand, so qgp cannot push it. qgp could later run device_data.py itself. The disc is GAFE01 revision 0."
+  "notes": "The disc image goes into app-private storage through Install-Quest.cmd or device_data.py (both in the Quest zip); the guide says not to copy it into Android/data by hand, so QGPUI cannot push it. QGPUI could later run device_data.py itself. The disc is GAFE01 revision 0."
 }

@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "openmohaa-vr",
   "support": "guided",
@@ -22,7 +22,7 @@
       "id": "mohaa",
       "kind": "pc-install",
       "label": "Medal of Honor: Allied Assault (PC)",
-      "help": "Your installed PC copy of Medal of Honor: Allied Assault. qgp copies every .pk3 from its main folder.",
+      "help": "Your installed PC copy of Medal of Honor: Allied Assault. QGPUI copies every .pk3 from its main folder.",
       "root": "main",
       "detect": ["Pak0.pk3"]
     },
@@ -63,5 +63,5 @@
     },
     { "do": "tell", "text": "Open OpenMoHAA from Library > Unknown Sources in the headset." }
   ],
-  "notes": "Guided because autoexec.cfg is a second release asset that qgp cannot download yet; qgp could fetch it from the same release later. The guide says not to start the app with adb shell am start; the launch step may do exactly that, so check it. detect uses Pak0.pk3, which is not named in the guide or payload (the payload only matches *.pk3); confirm the file name. No store install: MOHAA is not listed on Steam or GOG in the payload. All releases are pre-releases."
+  "notes": "Guided because autoexec.cfg is a second release asset that QGPUI cannot download yet; QGPUI could fetch it from the same release later. The guide says not to start the app with adb shell am start; the launch step may do exactly that, so check it. detect uses Pak0.pk3, which is not named in the guide or payload (the payload only matches *.pk3); confirm the file name. No store install: MOHAA is not listed on Steam or GOG in the payload. All releases are pre-releases."
 }

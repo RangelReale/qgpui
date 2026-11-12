@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "wiicompiled-vr-plus",
   "support": "automatic",
@@ -37,5 +37,5 @@
       "text": "Open WiiCompiled from Library > Unknown Sources. Import your disc image from Download in the launcher, then choose Build on this Quest. When it is done, select Mario Kart Wii or Retro Rewind."
     }
   ],
-  "notes": "The guide does not say where the launcher looks for the disc image; Download is assumed. qgp can only read the header of uncompressed formats, so the disc check may not apply to GCZ, CISO, WBFS, WIA or RVZ. The guide's alternative (an extracted DATA folder pushed to Android/data/org.wiicompiled.quest/files/WiiCompiledOpenXRVR/DATA, or a .wcgame built with the PC tools) is not modelled. After each APK update the user must rebuild the game in the launcher. Releases also carry WiiCompiled-Setup.exe and a portable Windows zip."
+  "notes": "The guide does not say where the launcher looks for the disc image; Download is assumed. QGPUI can only read the header of uncompressed formats, so the disc check may not apply to GCZ, CISO, WBFS, WIA or RVZ. The guide's alternative (an extracted DATA folder pushed to Android/data/org.wiicompiled.quest/files/WiiCompiledOpenXRVR/DATA, or a .wcgame built with the PC tools) is not modelled. After each APK update the user must rebuild the game in the launcher. Releases also carry WiiCompiled-Setup.exe and a portable Windows zip."
 }

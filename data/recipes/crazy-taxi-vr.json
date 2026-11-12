@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "crazy-taxi-vr",
   "support": "manual",
@@ -26,5 +26,5 @@
       "text": "Open Crazy Taxi VR Standalone from your app library and choose your driver."
     }
   ],
-  "notes": "The patch is made for com.sega.CrazyTaxiplayhaven_6.0-80_2arch_7dpi_24lang_1feat_017e8b1c582569ff9682193551b7e22c_apkmirror.com.apkm. Uncertain: an .apkm is normally a split bundle, yet the guide renames the patched file to .apk and installs it as one APK. Delta Patcher: https://github.com/marco-calautti/DeltaPatcher. qgp could later apply the xdelta itself."
+  "notes": "The patch is made for com.sega.CrazyTaxiplayhaven_6.0-80_2arch_7dpi_24lang_1feat_017e8b1c582569ff9682193551b7e22c_apkmirror.com.apkm. Uncertain: an .apkm is normally a split bundle, yet the guide renames the patched file to .apk and installs it as one APK. Delta Patcher: https://github.com/marco-calautti/DeltaPatcher. QGPUI could later apply the xdelta itself."
 }

@@ -11,7 +11,7 @@ class GameListModel;
 // Which games to show. A game must match every part.
 struct GameFilter
 {
-    enum class Headset { Any, OnHeadset, InstalledByQgp, InstalledOutsideQgp, NotOnHeadset, UpdateAvailable };
+    enum class Headset { Any, OnHeadset, InstalledByQgpui, InstalledOutsideQgpui, NotOnHeadset, UpdateAvailable };
 
     QString source;        // An origin platform id; empty for any.
     GameFlags store;       // One of the store flags; empty for any.

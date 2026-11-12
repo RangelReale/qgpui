@@ -58,12 +58,12 @@ tasks:
       - task: build
 
   run:
-    desc: Build and start qgp (arguments after -- go to the app)
+    desc: Build and start QGPUI (arguments after -- go to the app)
     deps: [build]
     cmds:
-      - cmd: '"{{.BIN_DIR}}/qgp.exe" {{.CLI_ARGS}}'
+      - cmd: '"{{.BIN_DIR}}/qgpui.exe" {{.CLI_ARGS}}'
         platforms: [windows]
-      - cmd: open "{{.BIN_DIR}}/qgp.app" --args {{.CLI_ARGS}}
+      - cmd: open "{{.BIN_DIR}}/qgpui.app" --args {{.CLI_ARGS}}
         platforms: [darwin]
 
   adbmanager:
@@ -91,7 +91,7 @@ tasks:
       - npm run build-payload -- {{.CLI_ARGS}}
 
   catalog:
-    desc: Join the payload with data/recipes into local/qgp-catalog.json
+    desc: Join the payload with data/recipes into local/qgpui-catalog.json
     deps: [payload:install]
     dir: '{{.PAYLOAD_DIR}}'
     cmds:

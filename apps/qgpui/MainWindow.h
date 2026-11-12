@@ -30,7 +30,7 @@ class QLabel;
 class QListView;
 class QToolButton;
 
-// The main window: every game of the qgp catalog as a cover with its title below.
+// The main window: every game of the QGPUI catalog as a cover with its title below.
 class MainWindow : public QMainWindow
 {
     Q_OBJECT

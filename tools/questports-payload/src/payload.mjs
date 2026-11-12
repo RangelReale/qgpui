@@ -1,6 +1,6 @@
 // Joins the database rows with the install data into one payload object.
 
-export const PAYLOAD_FORMAT = 'qgp-questports-payload'
+export const PAYLOAD_FORMAT = 'qgpui-questports-payload'
 export const PAYLOAD_VERSION = 1
 
 /**
@@ -14,7 +14,7 @@ export const PAYLOAD_VERSION = 1
  * Games are the database rows. Install configs whose slug has no row are listed in
  * `unmatched.installWithoutPort` and otherwise left out, because the site does not show them.
  */
-// A slug becomes a folder name in qgp's files folder, so it must be a plain lower-case id, as
+// A slug becomes a folder name in QGPUI's files folder, so it must be a plain lower-case id, as
 // data/recipe.schema.json requires of recipe slugs. The site's database is not ours to trust.
 const SLUG_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/
 

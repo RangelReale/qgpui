@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "hexen2vr",
   "support": "guided",
@@ -22,7 +22,7 @@
       "id": "hexen2",
       "kind": "pc-install",
       "label": "Hexen II (Steam)",
-      "help": "Your installed copy of Hexen II from Steam. qgp uses the pak files in its data1 folder.",
+      "help": "Your installed copy of Hexen II from Steam. QGPUI uses the pak files in its data1 folder.",
       "stores": [{ "store": "steam", "installDir": "HeXen II" }],
       "root": "data1",
       "detect": ["pak0.pak", "pak1.pak"]

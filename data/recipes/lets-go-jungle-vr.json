@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "lets-go-jungle-vr",
   "support": "automatic",
@@ -51,5 +51,5 @@
       "text": "Open Let's Go Jungle VR from Library > Unknown Sources. If it opens the All files access screen, allow it and start the app again."
     }
   ],
-  "notes": "lindbergh-recomp-ports releases several games; v0.4.0 (the newest) has no Let's Go Jungle APK; qgp skips releases without a matching asset and picks v0.2.7. The glob pushes keep paths below the glob's fixed prefix, as the format now defines. freeSpaceMB is the guide's \"about 1 GB\"."
+  "notes": "lindbergh-recomp-ports releases several games; v0.4.0 (the newest) has no Let's Go Jungle APK; QGPUI skips releases without a matching asset and picks v0.2.7. The glob pushes keep paths below the glob's fixed prefix, as the format now defines. freeSpaceMB is the guide's \"about 1 GB\"."
 }

@@ -1,4 +1,4 @@
-# Draws the temporary qgp icon: PNG files in several sizes and a Windows .ico that holds them all.
+# Draws the temporary QGPUI icon: PNG files in several sizes and a Windows .ico that holds them all.
 # Run with Windows PowerShell from this folder: powershell -ExecutionPolicy Bypass -File make-icon.ps1
 # The outputs are committed; run this again only to change the icon.
 
@@ -45,7 +45,7 @@ function New-IconBitmap([int]$size) {
 $pngs = @()
 foreach ($size in $sizes) {
     $bmp = New-IconBitmap $size
-    $file = Join-Path $here "qgp-$size.png"
+    $file = Join-Path $here "qgpui-$size.png"
     $bmp.Save($file, [System.Drawing.Imaging.ImageFormat]::Png)
     $bmp.Dispose()
     $pngs += , @($size, [System.IO.File]::ReadAllBytes($file))
@@ -73,5 +73,5 @@ foreach ($entry in $pngs) {
 }
 foreach ($entry in $pngs) { $writer.Write([Byte[]]$entry[1]) }
 $writer.Flush()
-[System.IO.File]::WriteAllBytes((Join-Path $here 'qgp.ico'), $stream.ToArray())
-Write-Output "Wrote qgp.ico and $($pngs.Count) PNG files to $here"
+[System.IO.File]::WriteAllBytes((Join-Path $here 'qgpui.ico'), $stream.ToArray())
+Write-Output "Wrote qgpui.ico and $($pngs.Count) PNG files to $here"

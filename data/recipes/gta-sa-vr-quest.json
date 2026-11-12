@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "gta-sa-vr-quest",
   "support": "manual",
@@ -35,7 +35,7 @@
     {
       "label": "GTA San Andreas VR build kit",
       "url": "https://github.com/dubrovskiy-yevhen-stakelogic/gta-sa-vr-quest",
-      "help": "No APK is published. The kit builds it from your own Google Play copy, installs it and copies the data to the headset. qgp only installs an APK you have already built."
+      "help": "No APK is published. The kit builds it from your own Google Play copy, installs it and copies the data to the headset. QGPUI only installs an APK you have already built."
     }
   ],
   "notes": "The payload's latest_version is null, but the schema needs a string, so checkedAgainst.version is empty and build-catalog will report drift. The build script also needs the audio mod pack gta-sa-ps2-style-mod-pack_1786856007_737162.7z, as the repository specifies. BUILD_AND_INSTALL installs the APK itself, so the install-apk step is only for a user who built it separately. The repository has no releases."

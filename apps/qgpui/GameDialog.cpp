@@ -59,11 +59,11 @@ QString supportText(installer::Support support)
 {
     switch (support) {
     case installer::Support::Automatic:
-        return GameDialog::tr("qgp installs it");
+        return GameDialog::tr("QGPUI installs it");
     case installer::Support::Guided:
-        return GameDialog::tr("qgp installs it with your help");
+        return GameDialog::tr("QGPUI installs it with your help");
     case installer::Support::Manual:
-        return GameDialog::tr("qgp installs part of it; the rest is up to you");
+        return GameDialog::tr("QGPUI installs part of it; the rest is up to you");
     }
     return {};
 }
@@ -203,7 +203,7 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     if (m_game.hasRecipe())
         m_recipe = installer::parseRecipe(m_game.recipe, gamePackageName(m_game), &m_recipeError);
 
-    // Header: the cover, then the title and what qgp knows about the game.
+    // Header: the cover, then the title and what QGPUI knows about the game.
     m_cover->setPixmap(m_covers->cover(m_game.coverUrl));
     connect(m_covers, &CoverCache::coverReady, this, [this](const QUrl& url) {
         if (url == m_game.coverUrl)
@@ -265,7 +265,7 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     } else if (m_game.hasRecipe()) {
         lines.append(tr("The recipe cannot be read: %1").arg(m_recipeError.toHtmlEscaped()));
     } else {
-        lines.append(tr("qgp has no install recipe for this game yet."));
+        lines.append(tr("QGPUI has no install recipe for this game yet."));
     }
     // Every external link on one line: QuestPorts, then the Steam and GOG pages of each PC game the
     // recipe needs. Store links are "store:<index>", because a GOG page needs a lookup first.
@@ -300,8 +300,8 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     });
     m_headsetState->setWordWrap(true);
 
-    // Ways to install the game without qgp, such as the port's own installer, highlighted: a user
-    // who reads the port's guide expects them, and some need fewer steps than qgp's way.
+    // Ways to install the game without QGPUI, such as the port's own installer, highlighted: a user
+    // who reads the port's guide expects them, and some need fewer steps than QGPUI's way.
     auto* otherWays = new QLabel(this);
     if (m_recipe && !m_recipe->otherWays.isEmpty()) {
         QStringList ways;
@@ -666,7 +666,7 @@ void GameDialog::showHeadsetState()
         const qadb::PackageInfo installed = reply->info();
         const QString version = installed.versionName.isEmpty() ? QString::number(installed.versionCode)
                                                                 : installed.versionName;
-        // Whether qgp installed it: the headset's install records say.
+        // Whether QGPUI installed it: the headset's install records say.
         auto* records = client->shell(serial, QStringList{QStringLiteral("cat"), QLatin1StringView(installer::kHeadsetRecordsPath)});
         connect(records, &qadb::Reply::finished, this, [this, records, name, package, installed, version] {
             records->deleteLater();
@@ -680,10 +680,10 @@ void GameDialog::showHeadsetState()
                         record = *it;
                 }
             }
-            const QString state = record ? tr("Installed on %1 by qgp: version %2.").arg(name, version)
-                                         : tr("Installed on %1 outside qgp: version %2.").arg(name, version);
+            const QString state = record ? tr("Installed on %1 by qgpui: version %2.").arg(name, version)
+                                         : tr("Installed on %1 outside qgpui: version %2.").arg(name, version);
             m_headsetState->setText(state);
-            showInstalledBadge(record ? Installed::ByQgp : Installed::OutsideQgp);
+            showInstalledBadge(record ? Installed::ByQgpui : Installed::OutsideQgpui);
             showUpdate(state, installed, record);
         });
     });
@@ -698,12 +698,12 @@ void GameDialog::showInstalledBadge(Installed installed)
     case Installed::NotInstalled:
         setBadge(m_installedBadge, tr("Not installed"), tr("The game is not on the current headset"), kGrey);
         break;
-    case Installed::ByQgp:
-        setBadge(m_installedBadge, tr("Installed"), tr("qgp installed the game on the current headset"), kGreen);
+    case Installed::ByQgpui:
+        setBadge(m_installedBadge, tr("Installed"), tr("QGPUI installed the game on the current headset"), kGreen);
         break;
-    case Installed::OutsideQgp:
-        setBadge(m_installedBadge, tr("Installed outside qgp"),
-                 tr("The game is on the current headset, but qgp did not install it"), kGreen);
+    case Installed::OutsideQgpui:
+        setBadge(m_installedBadge, tr("Installed outside qgpui"),
+                 tr("The game is on the current headset, but QGPUI did not install it"), kGreen);
         break;
     }
     m_installedBadge->show();
@@ -732,7 +732,7 @@ void GameDialog::showUpdate(const QString& state, const qadb::PackageInfo& insta
             m_headsetState->setText(tr("%1 It is up to date with release %2.").arg(state, asset->tag));
             break;
         case installer::UpdateStatus::Unknown:
-            m_headsetState->setText(tr("%1 The newest release is %2; qgp cannot tell whether it is newer.")
+            m_headsetState->setText(tr("%1 The newest release is %2; QGPUI cannot tell whether it is newer.")
                                         .arg(state, asset->tag));
             break;
         case installer::UpdateStatus::NotInstalled:
@@ -814,13 +814,13 @@ void GameDialog::showInstallDetails()
     if (m_recipe) {
         installer::InstallPlan plan = installer::planInstall(*m_recipe, {}, InputResolver::sources(m_inputs));
         plan.steps.append({tr("Record the install"),
-                           {tr("Write the release and version to /sdcard/qgp/installs.json on the headset.")}});
+                           {tr("Write the release and version to /sdcard/qgpui/installs.json on the headset.")}});
         const QString text = plan.toText();
         auto* page = new QWidget(tabs);
         auto* pageLayout = new QVBoxLayout(page);
         auto* intro = new QLabel(tr("The install runs these steps in order, with the files as they are found now. "
                                     "Lines that start with adb are the commands as the adb tool would take them; "
-                                    "qgp sends them to the adb server itself."),
+                                    "QGPUI sends them to the adb server itself."),
                                  page);
         intro->setWordWrap(true);
         auto* view = new QPlainTextEdit(text, page);
@@ -829,7 +829,7 @@ void GameDialog::showInstallDetails()
         view->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
         pageLayout->addWidget(intro);
         pageLayout->addWidget(view, 1);
-        const int index = tabs->addTab(page, tr("&qgp's Steps"));
+        const int index = tabs->addTab(page, tr("&QGPUI's Steps"));
         copy = buttons->addButton(tr("&Copy Steps"), QDialogButtonBox::ActionRole);
         connect(copy, &QPushButton::clicked, dialog, [text] { QApplication::clipboard()->setText(text); });
         connect(tabs, &QTabWidget::currentChanged, copy, [copy, index](int current) { copy->setVisible(current == index); });
@@ -886,7 +886,7 @@ void GameDialog::updateKeepAwake()
             if (state == installer::KeepAwake::State::Holding)
                 log(tr("Keeping the headset's screen on until the install ends."));
             else if (state == installer::KeepAwake::State::Deferring)
-                log(tr("Another app on the headset already keeps its screen on; qgp leaves it alone."));
+                log(tr("Another app on the headset already keeps its screen on; QGPUI leaves it alone."));
         });
         m_keepAwake->start();
     }

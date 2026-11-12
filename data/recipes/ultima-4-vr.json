@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "ultima-4-vr",
   "support": "automatic",
@@ -22,7 +22,7 @@
       "kind": "pc-install",
       "free": true,
       "label": "Ultima IV: Quest of the Avatar (free on GOG)",
-      "help": "Your Ultima IV install folder from GOG, where it is free. qgp copies the whole folder.",
+      "help": "Your Ultima IV install folder from GOG, where it is free. QGPUI copies the whole folder.",
       "stores": [
         {
           "store": "gog",
@@ -65,7 +65,7 @@
         "{}",
         "+"
       ],
-      "why": "Save files copied from a PC must be writable. The guide gives chmod 666 for copied .SAV files; find does the matching, because qgp quotes every argument, and succeeds when there are none."
+      "why": "Save files copied from a PC must be writable. The guide gives chmod 666 for copied .SAV files; find does the matching, because QGPUI quotes every argument, and succeeds when there are none."
     },
     {
       "do": "verify",

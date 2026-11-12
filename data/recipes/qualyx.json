@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "qualyx",
   "support": "automatic",
@@ -11,7 +11,7 @@
       "id": "alyx",
       "kind": "pc-install",
       "label": "Half-Life: Alyx",
-      "help": "Your installed copy of Half-Life: Alyx from Steam. qgp copies the hlvr and core folders.",
+      "help": "Your installed copy of Half-Life: Alyx from Steam. QGPUI copies the hlvr and core folders.",
       "stores": [{ "store": "steam", "appId": "546560", "installDir": "Half-Life Alyx" }],
       "root": "game",
       "detect": ["hlvr/pak01_dir.vpk", "core/pak01_dir.vpk"]

@@ -9,7 +9,7 @@
 
 namespace installer {
 
-// An install recipe as qgp runs it. The JSON format is data/recipe.schema.json, described in
+// An install recipe as QGPUI runs it. The JSON format is data/recipe.schema.json, described in
 // docs/architecture/install-recipes.md; build-catalog has already checked it, so parsing only rejects what the
 // runner cannot work with.
 
@@ -50,7 +50,7 @@ struct Input
     QJsonObject json; // The input as written, for gamestores::GameFinder::find().
 };
 
-// A way to install the game that qgp does not run, such as the port's own installer.
+// A way to install the game that QGPUI does not run, such as the port's own installer.
 struct OtherWay
 {
     QString label; // The tool's name.
@@ -98,7 +98,7 @@ struct Recipe
 // install.packageName, used unless the recipe overrides it. Returns nothing, and sets
 // *errorMessage when it is given, for an unknown step, source or input kind, a push of an
 // input the recipe does not have, an other way whose link is not https, or a value that breaks the checks below. The catalog comes
-// from outside qgp, so the paths and names that reach the PC's or the headset's file system,
+// from outside QGPUI, so the paths and names that reach the PC's or the headset's file system,
 // or a shell command, are checked here again, even though build-catalog checked them.
 std::optional<Recipe> parseRecipe(const QJsonObject& json, const QString& defaultPackageName,
                                   QString* errorMessage = nullptr);

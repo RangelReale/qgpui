@@ -16,8 +16,8 @@ using namespace installer;
 
 // Installs one recipe on a real headset: downloads its APK, runs every step and answers each tell
 // step at once. Only recipes without inputs can run this way. Skipped unless both are set:
-//   QGP_INSTALL_LIVE_SERIAL  the headset's adb serial
-//   QGP_INSTALL_LIVE_SLUG    the recipe, such as urbanterror-vr
+//   QGPUI_INSTALL_LIVE_SERIAL  the headset's adb serial
+//   QGPUI_INSTALL_LIVE_SLUG    the recipe, such as urbanterror-vr
 // The APK is cached in the build folder, so a second run does not download it again.
 class TestLive : public QObject
 {
@@ -30,15 +30,15 @@ private:
 private slots:
     void initTestCase()
     {
-        m_serial = qEnvironmentVariable("QGP_INSTALL_LIVE_SERIAL");
-        m_slug = qEnvironmentVariable("QGP_INSTALL_LIVE_SLUG");
+        m_serial = qEnvironmentVariable("QGPUI_INSTALL_LIVE_SERIAL");
+        m_slug = qEnvironmentVariable("QGPUI_INSTALL_LIVE_SLUG");
         if (m_serial.isEmpty() || m_slug.isEmpty())
-            QSKIP("Set QGP_INSTALL_LIVE_SERIAL and QGP_INSTALL_LIVE_SLUG to install a recipe on a headset.");
+            QSKIP("Set QGPUI_INSTALL_LIVE_SERIAL and QGPUI_INSTALL_LIVE_SLUG to install a recipe on a headset.");
     }
 
     void installsTheRecipe()
     {
-        QFile file(QDir(QStringLiteral(QGP_RECIPES_DIR)).filePath(m_slug + QStringLiteral(".json")));
+        QFile file(QDir(QStringLiteral(QGPUI_RECIPES_DIR)).filePath(m_slug + QStringLiteral(".json")));
         QVERIFY2(file.open(QIODevice::ReadOnly), qPrintable(file.fileName()));
         const QJsonObject json = QJsonDocument::fromJson(file.readAll()).object();
         const QString package = json.value(QLatin1StringView("checkedAgainst")).toObject()

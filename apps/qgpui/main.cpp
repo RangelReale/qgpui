@@ -13,11 +13,11 @@
 
 namespace {
 
-// How long qgp waits on exit for the headsets to answer the keep-awake releases.
+// How long QGPUI waits on exit for the headsets to answer the keep-awake releases.
 constexpr int kReleaseWaitMsecs = 2000;
 
 // Where to read the catalog when the command line names none: the file opened last, else
-// qgp-catalog.json in the app's data folder, else (in a development build) the repository's local/
+// qgpui-catalog.json in the app's data folder, else (in a development build) the repository's local/
 // folder, where tools/questports-payload's build-catalog writes it.
 QString defaultCatalogPath()
 {
@@ -26,10 +26,10 @@ QString defaultCatalogPath()
         return last;
 
     const QString appData = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation))
-                                .filePath(QStringLiteral("qgp-catalog.json"));
-#ifdef QGP_DEV_CATALOG
-    if (!QFileInfo::exists(appData) && QFileInfo::exists(QStringLiteral(QGP_DEV_CATALOG)))
-        return QStringLiteral(QGP_DEV_CATALOG);
+                                .filePath(QStringLiteral("qgpui-catalog.json"));
+#ifdef QGPUI_DEV_CATALOG
+    if (!QFileInfo::exists(appData) && QFileInfo::exists(QStringLiteral(QGPUI_DEV_CATALOG)))
+        return QStringLiteral(QGPUI_DEV_CATALOG);
 #endif
     return appData;
 }
@@ -38,7 +38,7 @@ QIcon appIcon()
 {
     QIcon icon;
     for (int size : {16, 24, 32, 48, 64, 128, 256})
-        icon.addFile(QStringLiteral(":/icons/qgp-%1.png").arg(size), QSize(size, size));
+        icon.addFile(QStringLiteral(":/icons/qgpui-%1.png").arg(size), QSize(size, size));
     return icon;
 }
 
@@ -48,15 +48,15 @@ int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
     // QSettings stores nothing on Windows without an organization name.
-    QApplication::setOrganizationName(QStringLiteral("qgp"));
-    QApplication::setApplicationName(QStringLiteral("qgp"));
-    QApplication::setApplicationDisplayName(QStringLiteral("qgp"));
+    QApplication::setOrganizationName(QStringLiteral("qgpui"));
+    QApplication::setApplicationName(QStringLiteral("qgpui"));
+    QApplication::setApplicationDisplayName(QStringLiteral("QGPUI"));
     QApplication::setWindowIcon(appIcon());
 
     QCommandLineParser parser;
     parser.setApplicationDescription(QStringLiteral("Meta Quest game ports manager."));
     parser.addHelpOption();
-    parser.addPositionalArgument(QStringLiteral("catalog"), QStringLiteral("qgp catalog file to open."),
+    parser.addPositionalArgument(QStringLiteral("catalog"), QStringLiteral("QGPUI catalog file to open."),
                                  QStringLiteral("[catalog]"));
     parser.process(app);
 

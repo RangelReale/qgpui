@@ -87,7 +87,7 @@ private slots:
         QTest::newRow("source") << QByteArray("{'apks':[{'source':'ftp'}]}") << QStringLiteral("Unknown APK source");
         QTest::newRow("input") << QByteArray("{'inputs':[{'id':'a','kind':'disc'}]}") << QStringLiteral("Unknown input kind");
         QTest::newRow("push") << QByteArray("{'steps':[{'do':'push','input':'x','map':[]}]}") << QStringLiteral("unknown input");
-        // The catalog comes from outside qgp: what reaches a file system or a shell is checked again.
+        // The catalog comes from outside qgpui: what reaches a file system or a shell is checked again.
         QTest::newRow("input id") << QByteArray("{'inputs':[{'id':'../x','kind':'file'}]}") << QStringLiteral("Bad input id");
         QTest::newRow("root") << QByteArray("{'inputs':[{'id':'a','kind':'pc-install','root':'../..'}]}")
                               << QStringLiteral("unsafe root");
@@ -175,7 +175,7 @@ private slots:
     // The checks must not reject a recipe that build-catalog accepts.
     void readsEveryRecipe()
     {
-        const QDir dir(QStringLiteral(QGP_RECIPES_DIR));
+        const QDir dir(QStringLiteral(QGPUI_RECIPES_DIR));
         const QStringList files = dir.entryList({QStringLiteral("*.json")}, QDir::Files);
         QVERIFY(!files.isEmpty());
         for (const QString& name : files) {

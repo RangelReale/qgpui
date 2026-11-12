@@ -96,12 +96,12 @@ private slots:
         QVERIFY(!edited.find(QStringLiteral("OTHERQUEST"), QStringLiteral("com.bilko.urtquest")));
     }
 
-    // The first save on a PC creates the folder (AppData/Roaming/qgp does not exist yet).
+    // The first save on a PC creates the folder (AppData/Roaming/qgpui does not exist yet).
     void savesIntoAMissingFolder()
     {
         QTemporaryDir tmp;
         QVERIFY(tmp.isValid());
-        const QString path = tmp.filePath(QStringLiteral("qgp/new/installs.json"));
+        const QString path = tmp.filePath(QStringLiteral("qgpui/new/installs.json"));
         InstallRecords records = InstallRecords::load(path);
         records.set(QStringLiteral("2G0YC5ZG4D040F"), record(QStringLiteral("v1.0.1"), 101));
         QString error;
@@ -119,7 +119,7 @@ private slots:
         file.close();
         QString error;
         const InstallRecords records = InstallRecords::load(path, &error);
-        QVERIFY(error.contains(QStringLiteral("not a qgp install record")));
+        QVERIFY(error.contains(QStringLiteral("not a QGPUI install record")));
         QVERIFY(!records.find(QStringLiteral("x"), QStringLiteral("y")));
     }
 
@@ -130,7 +130,7 @@ private slots:
 
         QCOMPARE(updateStatus(std::nullopt, std::nullopt, v101), UpdateStatus::NotInstalled);
 
-        // Installed by qgp and unchanged: the tag decides.
+        // Installed by QGPUI and unchanged: the tag decides.
         QCOMPARE(updateStatus(installed(101, QStringLiteral("1.0.1")), record(v101, 101), v101), UpdateStatus::UpToDate);
         QCOMPARE(updateStatus(installed(101, QStringLiteral("1.0.1")), record(v101, 101), v102),
                  UpdateStatus::UpdateAvailable);
@@ -138,7 +138,7 @@ private slots:
         QCOMPARE(updateStatus(installed(3, QStringLiteral("x")), record(QStringLiteral("b003"), 3), QStringLiteral("b004")),
                  UpdateStatus::UpdateAvailable);
 
-        // The app updated itself since qgp installed it: compare with what the headset has.
+        // The app updated itself since QGPUI installed it: compare with what the headset has.
         QCOMPARE(updateStatus(installed(103, QStringLiteral("1.0.3")), record(v101, 101), v102), UpdateStatus::UpToDate);
 
         // Installed elsewhere: compare versions, or say Unknown.

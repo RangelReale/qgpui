@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "umbrella-chronicles-vr",
   "support": "automatic",
@@ -51,5 +51,5 @@
       "text": "Open Umbrella Chronicles VR from Library > Unknown Sources. If Android opens the All files access screen, turn the switch on, go back and start the app again. If something is missing, the app tells you what."
     }
   ],
-  "notes": "The tag pattern ^quest-v skips other tags the repository may get. quest-v0.1.0 is a pre-release and is ignored. No disc check: qgp cannot read a .wbfs header as a Wii disc. The key must be in the same folder as the image. The author has not confirmed that a real encrypted image loads. Granting the appop over adb is not yet tested on a Quest."
+  "notes": "The tag pattern ^quest-v skips other tags the repository may get. quest-v0.1.0 is a pre-release and is ignored. No disc check: QGPUI cannot read a .wbfs header as a Wii disc. The key must be in the same folder as the image. The author has not confirmed that a real encrypted image loads. Granting the appop over adb is not yet tested on a Quest."
 }

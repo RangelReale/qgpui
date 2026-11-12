@@ -20,14 +20,14 @@ qt_add_library(installer STATIC
     src/Runner.cpp
     src/Updates.cpp
 )
-add_library(qgp::installer ALIAS installer)
+add_library(qgpui::installer ALIAS installer)
 
 target_include_directories(installer
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     PRIVATE src)
-target_link_libraries(installer PUBLIC Qt6::Core qgp::qadb PRIVATE Qt6::Network)
+target_link_libraries(installer PUBLIC Qt6::Core qgpui::qadb PRIVATE Qt6::Network)
 target_compile_definitions(installer PRIVATE QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 
-if(QGP_BUILD_TESTS)
+if(QGPUI_BUILD_TESTS)
     add_subdirectory(tests)
 endif()

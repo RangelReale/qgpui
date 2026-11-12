@@ -6,7 +6,7 @@
   "type": "module",
   "bin": {
     "questports-payload": "src/main.mjs",
-    "qgp-catalog": "src/build-catalog.mjs"
+    "qgpui-catalog": "src/build-catalog.mjs"
   },
   "scripts": {
     "build-payload": "node src/main.mjs",

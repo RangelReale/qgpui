@@ -56,7 +56,7 @@ public:
     QString serial() const { return m_serial; }
 
     // Stops every active KeepAwake and waits up to waitMsecs for the headsets to answer the
-    // releases. qgp calls it before it exits; works also after the application's event loop ended.
+    // releases. QGPUI calls it before it exits; works also after the application's event loop ended.
     static void releaseAll(int waitMsecs);
 
     int renewInterval() const { return m_timer.interval(); }

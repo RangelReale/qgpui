@@ -1,11 +1,11 @@
-// Joins the QuestPorts payload with qgp's install recipes into the catalog qgp reads.
+// Joins the QuestPorts payload with QGPUI's install recipes into the catalog QGPUI reads.
 
 import { PAYLOAD_FORMAT, PAYLOAD_VERSION } from './payload.mjs'
 
-export const CATALOG_FORMAT = 'qgp-catalog'
+export const CATALOG_FORMAT = 'qgpui-catalog'
 export const CATALOG_VERSION = 1
 
-// Recipe keys that only matter in the recipe file, not to qgp.
+// Recipe keys that only matter in the recipe file, not to qgpui.
 const RECIPE_FILE_KEYS = ['$schema', 'format', 'version', 'slug', 'checkedAgainst', 'notes']
 
 // Drift in these fields can make a recipe install to the wrong place or the wrong app.

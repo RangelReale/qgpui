@@ -94,10 +94,10 @@ QVariant GameListModel::data(const QModelIndex& index, int role) const
     case Qt::ToolTipRole: {
         const GameFlags flags = this->flags(index.row());
         QStringList lines{game.title};
-        if (flags & GameFlag::InstalledByQgp)
-            lines.append(tr("On your headset, installed by qgp"));
-        else if (flags & GameFlag::InstalledOutsideQgp)
-            lines.append(tr("On your headset, installed outside qgp"));
+        if (flags & GameFlag::InstalledByQgpui)
+            lines.append(tr("On your headset, installed by qgpui"));
+        else if (flags & GameFlag::InstalledOutsideQgpui)
+            lines.append(tr("On your headset, installed outside qgpui"));
         if (flags & GameFlag::UpdateAvailable)
             lines.append(tr("An update is available"));
         if (flags & GameFlag::InSteamLibrary)
@@ -112,7 +112,7 @@ QVariant GameListModel::data(const QModelIndex& index, int role) const
         QPixmap cover = m_covers->cover(game.coverUrl);
         const GameFlags flags = this->flags(index.row());
         QList<Tag> tags;
-        if (flags & (GameFlag::InstalledByQgp | GameFlag::InstalledOutsideQgp))
+        if (flags & (GameFlag::InstalledByQgpui | GameFlag::InstalledOutsideQgpui))
             tags.append({tr("Installed"), QColor(46, 125, 50, 235)});
         if (flags & GameFlag::UpdateAvailable)
             tags.append({tr("Update"), QColor(21, 101, 192, 235)});

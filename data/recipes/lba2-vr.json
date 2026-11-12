@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "lba2-vr",
   "support": "automatic",
@@ -21,7 +21,7 @@
       "id": "lba2",
       "kind": "pc-install",
       "label": "Little Big Adventure 2 data folder",
-      "help": "The folder of your own LBA2 (GOG, Steam or retail CD) that holds lba2.hqr, with music, video and vox next to it. If qgp does not find it, pick that folder.",
+      "help": "The folder of your own LBA2 (GOG, Steam or retail CD) that holds lba2.hqr, with music, video and vox next to it. If QGPUI does not find it, pick that folder.",
       "stores": [
         {
           "store": "steam",

@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "quakequest",
   "support": "automatic",
@@ -21,7 +21,7 @@
       "id": "quake",
       "kind": "pc-install",
       "label": "Quake (original, not the rerelease)",
-      "help": "Your installed copy of Quake from Steam, GOG or Bethesda. qgp uses the original id1 folder, not rerelease/id1.",
+      "help": "Your installed copy of Quake from Steam, GOG or Bethesda. QGPUI uses the original id1 folder, not rerelease/id1.",
       "stores": [
         { "store": "steam", "appId": "2310", "installDir": "Quake" },
         { "store": "gog", "installDir": "Quake" },

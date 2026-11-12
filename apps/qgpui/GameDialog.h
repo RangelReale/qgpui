@@ -49,7 +49,7 @@ public:
 
     QString slug() const { return m_game.slug; }
 
-    // The user's files folder: the setting, or <Documents>/qgp/files.
+    // The user's files folder: the setting, or <Documents>/qgpui/files.
     static QString filesRoot();
     static void setFilesRoot(const QString& folder);
 
@@ -69,7 +69,7 @@ private:
     void openStorePage(const StorePage& page);
     void showHeadsetState();
     // Shows the installed badge, or hides it when the state is not known (no headset, no package).
-    enum class Installed { Unknown, NotInstalled, ByQgp, OutsideQgp };
+    enum class Installed { Unknown, NotInstalled, ByQgpui, OutsideQgpui };
     void showInstalledBadge(Installed installed);
     // Adds to state whether the newest release is newer than the installed package, and turns
     // Install into Update when it is.

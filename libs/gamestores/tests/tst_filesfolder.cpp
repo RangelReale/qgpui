@@ -55,7 +55,7 @@ private slots:
         const FilesFolder folder(root() + QStringLiteral("/"));
         QCOMPARE(folder.gameFolder(QStringLiteral("mok-vr")), path(QStringLiteral("mok-vr")));
         QCOMPARE(folder.inputFolder(QStringLiteral("mok-vr"), QStringLiteral("roms")), path(QStringLiteral("mok-vr/roms")));
-        QVERIFY(FilesFolder::defaultRoot().endsWith(QStringLiteral("/qgp/files")));
+        QVERIFY(FilesFolder::defaultRoot().endsWith(QStringLiteral("/qgpui/files")));
     }
 
     void nothingThere()
@@ -222,7 +222,7 @@ private slots:
         QVERIFY2(text.contains(QStringLiteral("    Made with Tool: https://example.com\n    Run it on the disc.\n")),
                  qPrintable(text));
         QVERIFY2(text.contains(QStringLiteral("    Put here: the game's folder, or the folder \"id1\" inside it. "
-                                              "qgp recognises it by pak0.pak and pak1.pak.\n")),
+                                              "QGPUI recognises it by pak0.pak and pak1.pak.\n")),
                  qPrintable(text));
         QVERIFY2(text.contains(QStringLiteral("anywhere in ")), qPrintable(text));
     }
@@ -254,7 +254,7 @@ private slots:
                                        "'preparedWith':{'tool':'The converter','url':'https:\\/\\/x.test','help':'Run it.'}}]");
         QCOMPARE(folder.inputGuide(list, 0, QStringLiteral("gq")),
                  (QStringList{QStringLiteral("Put in the folder \"gq\": the folder that The converter makes, or a copy of it. "
-                                             "qgp recognises it by sys/fst.bin."),
+                                             "QGPUI recognises it by sys/fst.bin."),
                               QStringLiteral("Made with The converter: https://x.test"), QStringLiteral("Run it.")}));
     }
 

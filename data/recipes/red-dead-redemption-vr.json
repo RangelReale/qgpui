@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "red-dead-redemption-vr",
   "support": "manual",
@@ -26,8 +26,8 @@
     {
       "label": "Red Dead Redemption VR build kit",
       "url": "https://github.com/dubrovskiy-yevhen-stakelogic/rdr1-quest",
-      "help": "No APK is published. The kit builds it from your own Android copy of the game and installs it. qgp only installs an APK you have already built."
+      "help": "No APK is published. The kit builds it from your own Android copy of the game and installs it. QGPUI only installs an APK you have already built."
     }
   ],
-  "notes": "The kit exports the Google Play game from an Android phone, builds the mod, signs it with a personal key and installs it itself, so qgp can at most install an APK the user already built. The built APK's file name is unknown; the asset pattern accepts any .apk. The package name com.rockstargames.rdr is the original game's. Saves: TRANSFER_SAVES.bat -FromHeadset. Needs about 20 GB on the PC."
+  "notes": "The kit exports the Google Play game from an Android phone, builds the mod, signs it with a personal key and installs it itself, so QGPUI can at most install an APK the user already built. The built APK's file name is unknown; the asset pattern accepts any .apk. The package name com.rockstargames.rdr is the original game's. Saves: TRANSFER_SAVES.bat -FromHeadset. Needs about 20 GB on the PC."
 }

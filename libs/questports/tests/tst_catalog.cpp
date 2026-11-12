@@ -9,7 +9,7 @@ namespace {
 
 QByteArray catalogJson(const QByteArray& games, const QByteArray& version = "1")
 {
-    return R"({"format":"qgp-catalog","version":)" + version +
+    return R"({"format":"qgpui-catalog","version":)" + version +
            R"(,"originPlatforms":[{"id":"pc","label":"PC"},{"id":"n64","label":"Nintendo 64"}])" +
            R"(,"vrStyles":[{"id":"motion","label":"Full VR"},{"id":"seated","label":"Seated"}])" +
            R"(,"headsets":["Quest 2","Quest 3"])" +
@@ -106,10 +106,10 @@ private slots:
         QTest::newRow("not object") << QByteArray("[]") << QStringLiteral("not a JSON object");
         QTest::newRow("format") << QByteArray(R"({"format":"other","version":1,"games":[]})")
                                 << QStringLiteral("format \"other\"");
-        QTest::newRow("payload") << QByteArray(R"({"format":"qgp-questports-payload","version":1,"games":[]})")
+        QTest::newRow("payload") << QByteArray(R"({"format":"qgpui-questports-payload","version":1,"games":[]})")
                                  << QStringLiteral("task catalog");
         QTest::newRow("version") << catalogJson("[]", "2") << QStringLiteral("Unsupported catalog version 2");
-        QTest::newRow("no games") << QByteArray(R"({"format":"qgp-catalog","version":1})")
+        QTest::newRow("no games") << QByteArray(R"({"format":"qgpui-catalog","version":1})")
                                   << QStringLiteral("no games list");
         QTest::newRow("no slug") << catalogJson(R"([{"port":{"title":"T"}}])") << QStringLiteral("Game 0 has no slug");
         QTest::newRow("slug climbs") << catalogJson(R"([{"slug":"..\/..\/x","port":{"title":"T"}}])")

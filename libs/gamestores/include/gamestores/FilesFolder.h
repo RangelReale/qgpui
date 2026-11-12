@@ -24,13 +24,13 @@ struct FilesMatch
 };
 
 // The user's files folder (decision 0009): one folder per game slug, an optional folder per input
-// below it, and shared files anywhere. qgp looks here for a recipe input's files before asking.
+// below it, and shared files anywhere. QGPUI looks here for a recipe input's files before asking.
 class FilesFolder
 {
 public:
     explicit FilesFolder(QString root);
 
-    // <Documents>/qgp/files.
+    // <Documents>/qgpui/files.
     static QString defaultRoot();
 
     QString root() const { return m_root; }
@@ -47,15 +47,15 @@ public:
     // another input of the game also accepts, so the game folder cannot tell them apart.
     static QStringList inputsNeedingFolders(const QJsonArray& inputs);
 
-    // The guide's file name. qgp writes it into a game folder and never finds or pushes it as an
+    // The guide's file name. QGPUI writes it into a game folder and never finds or pushes it as an
     // input's file; installer::planPush skips the same name.
-    static constexpr QLatin1StringView kGuideFileName{"qgp - what goes here.txt"};
+    static constexpr QLatin1StringView kGuideFileName{"qgpui - what goes here.txt"};
 
     // A plain-text explanation of what goes into the game's folders: each input with its label,
-    // help, where to put it and what qgp recognises it by.
+    // help, where to put it and what QGPUI recognises it by.
     QString guideText(const QString& title, const QJsonArray& inputs) const;
 
-    // The guide's lines for inputs[index]: its help, where to put it and what qgp recognises it
+    // The guide's lines for inputs[index]: its help, where to put it and what QGPUI recognises it
     // by, whether to keep zip files zipped, and the tool it is made with. With slug empty, the
     // lines speak from inside the game folder ("Put here"); otherwise they name the game folder
     // relative to the files folder, as the game dialog shows them.

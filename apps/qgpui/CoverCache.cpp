@@ -45,7 +45,7 @@ QPixmap CoverCache::cover(const QUrl& url)
         QNetworkRequest request(url);
         // Covers rarely change; use a cached copy even when the server says it is stale.
         request.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::PreferCache);
-        request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qgp"));
+        request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qgpui"));
         m_network->get(request);
     }
     return m_loading;

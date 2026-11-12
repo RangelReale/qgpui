@@ -3,7 +3,7 @@ qt_add_executable(adbmanager WIN32 MACOSX_BUNDLE
     main.cpp
     MainWindow.h MainWindow.cpp
 )
-target_link_libraries(adbmanager PRIVATE qgp::qadb Qt6::Widgets)
+target_link_libraries(adbmanager PRIVATE qgpui::qadb Qt6::Widgets)
 
 # Copy the Qt runtime next to the executable so it runs from the build tree.
 if(WIN32)

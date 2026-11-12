@@ -1,7 +1,7 @@
 # questports-payload
 
 Builds one JSON file that lists every QuestPorts game together with its install requirements. The
-qgp app will read this file instead of contacting QuestPorts itself.
+QGPUI app will read this file instead of contacting QuestPorts itself.
 
 The data comes from two places, as described in
 [`docs/research/questports-data-sources.md`](../../docs/research/questports-data-sources.md):
@@ -31,7 +31,7 @@ npm install
 npm run build-payload
 ```
 
-This writes `local/questports-payload.json` at the root of the qgp repository. `local/` is not
+This writes `local/questports-payload.json` at the root of the QGPUI repository. `local/` is not
 committed.
 
 Options (`node src/main.mjs --help`):
@@ -54,16 +54,16 @@ The tool fails, and writes nothing, if a request fails, if the database returns 
 reports, or if two rows share a slug. Games that exist in only one source are kept or skipped as
 described below and listed as warnings.
 
-## The qgp catalog
+## The QGPUI catalog
 
-A second command joins the payload with qgp's hand-written install recipes in `data/recipes/`.
+A second command joins the payload with QGPUI's hand-written install recipes in `data/recipes/`.
 The recipe format is described in [`docs/architecture/install-recipes.md`](../../docs/architecture/install-recipes.md).
 
 ```bash
 npm run build-catalog
 ```
 
-This reads `local/questports-payload.json` and writes `local/qgp-catalog.json`. From the
+This reads `local/questports-payload.json` and writes `local/qgpui-catalog.json`. From the
 repository root, `task catalog` does the same.
 
 Options (`node src/build-catalog.mjs --help`):
@@ -73,7 +73,7 @@ Options (`node src/build-catalog.mjs --help`):
 | `--payload <file>` | `local/questports-payload.json` | Payload to read. |
 | `--recipes <dir>` | `data/recipes` | Recipe folder. |
 | `--schema <file>` | `data/recipe.schema.json` | Recipe schema. |
-| `--out <file>` | `local/qgp-catalog.json` | Output file. |
+| `--out <file>` | `local/qgpui-catalog.json` | Output file. |
 | `--strict` | off | Fail on the warnings below. |
 | `--verbose` | off | Also list the games without a recipe. |
 
@@ -108,7 +108,7 @@ One JSON object, version 1:
 
 ```jsonc
 {
-  "format": "qgp-questports-payload",
+  "format": "qgpui-questports-payload",
   "version": 1,
   "generatedAt": "2026-11-11T12:00:00.000Z",
   "sources": {
@@ -174,7 +174,7 @@ One JSON object, version 1. Each game is the payload's game entry, unchanged, pl
 
 ```jsonc
 {
-  "format": "qgp-catalog",
+  "format": "qgpui-catalog",
   "version": 1,
   "generatedAt": "2026-11-12T10:00:00.000Z",
   "sources": {

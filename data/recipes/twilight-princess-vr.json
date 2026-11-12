@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "twilight-princess-vr",
   "support": "automatic",
@@ -40,5 +40,5 @@
       "text": "Open TPVR from Library > Unknown Sources. Select your disc image when asked, choose the Dusklight experience, then press Play."
     }
   ],
-  "notes": "Signing key changed in 2.3.0: qgp cannot back up or restore saves yet, so the first tell step warns the user. A failed install-apk over an older build is the likely symptom. No disc header check: several game IDs (GameCube and Wii, all regions but Korea) are accepted. Release 2.3.0 had no Quest asset (only tpve-android-arm64.apk); 2.4.0 has tpvr-quest-arm64.apk again, next to Linux and Windows builds. The payload version is v2.4.0; the tag is 2.4.0. Also on SideQuest (app 62532)."
+  "notes": "Signing key changed in 2.3.0: QGPUI cannot back up or restore saves yet, so the first tell step warns the user. A failed install-apk over an older build is the likely symptom. No disc header check: several game IDs (GameCube and Wii, all regions but Korea) are accepted. Release 2.3.0 had no Quest asset (only tpve-android-arm64.apk); 2.4.0 has tpvr-quest-arm64.apk again, next to Linux and Windows builds. The payload version is v2.4.0; the tag is 2.4.0. Also on SideQuest (app 62532)."
 }

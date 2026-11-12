@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "outlaws-vr",
   "support": "guided",
@@ -28,8 +28,8 @@
     {
       "label": "Outlaws VR installer",
       "url": "https://github.com/outlawshub-arch/OutlawsVR/releases/latest",
-      "help": "Run Install on Quest.bat from the release zip on Windows. It converts the cutscenes and music, installs the game and copies the data to the headset. qgp needs it for the game data too."
+      "help": "Run Install on Quest.bat from the release zip on Windows. It converts the cutscenes and music, installs the game and copies the data to the headset. QGPUI needs it for the game data too."
     }
   ],
-  "notes": "Install on Quest.bat converts cutscenes and music with FFmpeg (it downloads about 190 MB) and installs the game data; the converted layout is not in the guide, so qgp cannot push it yet and the bat installs the APK again. The release zip is about 281 to 319 MB, only for the APK. The newest release is v0.96 (OutlawsVR-v0.96-*.zip) while the payload says v0.95; v0.95 had two zips, which this asset pattern would not tell apart. Needs Outlaws + A Handful of Missions: Remaster (Steam or GOG)."
+  "notes": "Install on Quest.bat converts cutscenes and music with FFmpeg (it downloads about 190 MB) and installs the game data; the converted layout is not in the guide, so QGPUI cannot push it yet and the bat installs the APK again. The release zip is about 281 to 319 MB, only for the APK. The newest release is v0.96 (OutlawsVR-v0.96-*.zip) while the payload says v0.95; v0.95 had two zips, which this asset pattern would not tell apart. Needs Outlaws + A Handful of Missions: Remaster (Steam or GOG)."
 }

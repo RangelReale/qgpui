@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "harry-potter-vr",
   "support": "guided",
@@ -33,8 +33,8 @@
     {
       "label": "Harry Potter VR installer",
       "url": "https://github.com/dubrovskiy-yevhen-stakelogic/harry-potter-vr/releases/latest",
-      "help": "Run INSTALL.bat from HPVR-Quest-<version>.zip. It prepares the audio and maps from your PC game folder, installs the game and copies the files to the headset. qgp needs it for the game files too."
+      "help": "Run INSTALL.bat from HPVR-Quest-<version>.zip. It prepares the audio and maps from your PC game folder, installs the game and copies the files to the headset. QGPUI needs it for the game files too."
     }
   ],
-  "notes": "INSTALL.bat converts the audio and maps (tools/hpvr_quest_prepare_assets.exe in the zip) and pushes them to files/HP/ (system/HPBase.u, system/HarryPotter.u, Maps/Lev_Tut1.unr). The converted layout is not documented in the guide, so qgp cannot push the files itself yet; the bat also sideloads the APK again. The APK in the zip is named HPVR-Quest-Demo.apk even in the full 0.1.4.1 release. Needs the US 2001 PC version."
+  "notes": "INSTALL.bat converts the audio and maps (tools/hpvr_quest_prepare_assets.exe in the zip) and pushes them to files/HP/ (system/HPBase.u, system/HarryPotter.u, Maps/Lev_Tut1.unr). The converted layout is not documented in the guide, so QGPUI cannot push the files itself yet; the bat also sideloads the APK again. The APK in the zip is named HPVR-Quest-Demo.apk even in the full 0.1.4.1 release. Needs the US 2001 PC version."
 }

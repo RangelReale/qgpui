@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "starship-vr",
   "support": "guided",
@@ -47,5 +47,5 @@
       "files": ["/sdcard/Android/data/com.starship.vr/files/sf64.o2r"]
     }
   ],
-  "notes": "Releases are all pre-releases. qgp could later run the conversion itself; for now the user makes sf64.o2r."
+  "notes": "Releases are all pre-releases. QGPUI could later run the conversion itself; for now the user makes sf64.o2r."
 }

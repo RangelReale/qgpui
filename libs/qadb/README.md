@@ -17,7 +17,7 @@ the server.
 
 ## Use
 
-Link the `qgp::qadb` target and include `<qadb/qadb.h>`.
+Link the `qgpui::qadb` target and include `<qadb/qadb.h>`.
 
 ```cpp
 auto* client = new qadb::Client(this);
