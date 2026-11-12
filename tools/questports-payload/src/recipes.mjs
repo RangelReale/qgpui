@@ -27,7 +27,7 @@ export function checkRecipe(recipe, fileName) {
   }
 
   for (const [i, apk] of (recipe.apks ?? []).entries()) {
-    for (const key of ['tag', 'asset']) {
+    for (const key of ['tag', 'asset', 'inZip']) {
       if (apk[key] !== undefined) checkRegex(apk[key], `/apks/${i}/${key}`, errors)
     }
   }
@@ -36,6 +36,7 @@ export function checkRecipe(recipe, fileName) {
   for (const input of recipe.inputs ?? []) {
     if (inputs.has(input.id)) errors.push(`input id ${input.id} is used twice`)
     inputs.set(input.id, input)
+    if (input.multiple && !input.extensions) errors.push(`input ${input.id} has multiple but no extensions`)
   }
 
   const pushed = new Set()

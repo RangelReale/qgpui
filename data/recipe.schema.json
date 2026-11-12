@@ -5,7 +5,7 @@
   "description": "How qgp installs one QuestPorts game. Holds only what the QuestPorts payload lacks. See docs/install-recipes.md. Uses the OpenAPI discriminator keyword, which Ajv supports with its discriminator option.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["format", "version", "slug", "status", "checkedAgainst", "apks", "inputs", "steps"],
+  "required": ["format", "version", "slug", "status", "support", "checkedAgainst", "apks", "inputs", "steps"],
   "properties": {
     "$schema": { "type": "string" },
     "format": { "const": "qgp-install-recipe" },
@@ -14,6 +14,10 @@
     "status": {
       "description": "draft: written from the guide. reviewed: checked by a person. tested: installed on a real headset.",
       "enum": ["draft", "reviewed", "tested"]
+    },
+    "support": {
+      "description": "automatic: qgp does every step on the PC; the user may still act in the headset. guided: the user must also run a PC tool or do a step qgp cannot. manual: qgp can only install what it can and show the instructions.",
+      "enum": ["automatic", "guided", "manual"]
     },
     "checkedAgainst": {
       "description": "Payload values the recipe was written against. build-catalog reports when the payload changes them.",
@@ -85,6 +89,7 @@
         "tag": { "description": "Only releases whose tag matches. Default: any tag.", "$ref": "#/$defs/regex" },
         "prerelease": { "description": "Also consider pre-releases. Default: false.", "type": "boolean" },
         "asset": { "$ref": "#/$defs/regex" },
+        "inZip": { "$ref": "#/$defs/inZip" },
         "packageName": { "$ref": "#/$defs/packageName" }
       }
     },
@@ -96,8 +101,13 @@
       "properties": {
         "source": { "const": "url" },
         "url": { "$ref": "#/$defs/url" },
+        "inZip": { "$ref": "#/$defs/inZip" },
         "packageName": { "$ref": "#/$defs/packageName" }
       }
+    },
+    "inZip": {
+      "description": "The download is a zip; the APK is the entry whose path matches this.",
+      "$ref": "#/$defs/regex"
     },
     "apkManual": {
       "description": "The user downloads the APK from a page and picks the file.",
@@ -193,10 +203,14 @@
           "items": { "type": "string" }
         },
         "extensions": {
-          "description": "Accepted extensions, with the dot, for one file of any name.",
+          "description": "Accepted extensions, with the dot, for one file of any name (or several, with multiple).",
           "type": "array",
           "minItems": 1,
           "items": { "type": "string", "pattern": "^\\.[A-Za-z0-9]+$" }
+        },
+        "multiple": {
+          "description": "With extensions: the user picks one or more files, such as a .cue with its .bin files.",
+          "type": "boolean"
         },
         "keepArchived": { "description": "Zip files are pushed as they are, never unpacked.", "type": "boolean" },
         "disc": {
@@ -205,7 +219,7 @@
           "additionalProperties": false,
           "required": ["platform", "gameId"],
           "properties": {
-            "platform": { "enum": ["gamecube", "wii"] },
+            "platform": { "enum": ["gamecube", "wii"], "description": "Platforms whose disc header qgp can read." },
             "gameId": { "type": "string", "pattern": "^[A-Z0-9]{6}$" },
             "revision": { "type": "integer", "minimum": 0 }
           }
@@ -237,8 +251,20 @@
         { "$ref": "#/$defs/stepLaunch" },
         { "$ref": "#/$defs/stepPush" },
         { "$ref": "#/$defs/stepVerify" },
+        { "$ref": "#/$defs/stepShell" },
         { "$ref": "#/$defs/stepTell" }
       ]
+    },
+    "stepShell": {
+      "description": "Run one command on the headset with `adb shell`, for example chmod, content call, am force-stop or touch.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["do", "args", "why"],
+      "properties": {
+        "do": { "const": "shell" },
+        "args": { "description": "The command and its arguments, one per item.", "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "why": { "type": "string" }
+      }
     },
     "stepInstallApk": {
       "description": "Install every APK in apks with `adb install -r`.",

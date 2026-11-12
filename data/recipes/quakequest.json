@@ -4,6 +4,7 @@
   "version": 1,
   "slug": "quakequest",
   "status": "draft",
+  "support": "automatic",
   "checkedAgainst": {
     "packageName": "com.drbeef.quakequest",
     "version": "v1.6.0",

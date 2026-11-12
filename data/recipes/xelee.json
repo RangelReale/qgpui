@@ -4,6 +4,7 @@
   "version": 1,
   "slug": "xelee",
   "status": "draft",
+  "support": "automatic",
   "checkedAgainst": {
     "packageName": "dev.melee.game",
     "version": "v0.4.1-beta",

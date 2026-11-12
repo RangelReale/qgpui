@@ -17,7 +17,7 @@ Recipes are written by hand and committed, one file per game:
 
 ## Status
 
-The format is a first draft (`version: 1`), written from five sample games:
+The format is a first draft (`version: 1`). It was designed from five sample games:
 
 | Recipe | Kind |
 |---|---|
@@ -27,7 +27,7 @@ The format is a first draft (`version: 1`), written from five sample games:
 | `virtua-cop-vr` | Arcade ROM sets, kept zipped |
 | `supertuxkart-vr` | The APK only |
 
-New step kinds and fields will be added as more games get recipes. Planned additions include `shell` (for `chmod`), config edits, and backup and restore for ports that changed their signing key.
+Writing the other recipes added `support`, `inZip`, `multiple` and the `shell` step. Backup and restore for ports that changed their signing key is still described in `tell` steps and notes.
 
 ## Fields
 
@@ -36,6 +36,7 @@ New step kinds and fields will be added as more games get recipes. Planned addit
 | `format`, `version` | Always `qgp-install-recipe` and `1`. |
 | `slug` | The game's slug. It must match the file name. |
 | `status` | `draft` means written from the guide. `reviewed` means checked by a person. `tested` means installed on a real headset. |
+| `support` | How much qgp can do. `automatic`: qgp does every step on the PC side; the user may still act in the headset. `guided`: the user must also run a PC tool or do a step qgp cannot, such as a manual download. `manual`: qgp installs what it can and shows the instructions, for example for ports the user builds from source. |
 | `checkedAgainst` | The payload's `packageName`, `latest_version` and `targetPath` at the time the recipe was written. `build-catalog` reports when they change. |
 | `packageName` | Optional. Overrides the payload's package name when the payload is wrong. |
 | `requirements.freeSpaceMB` | Free space the headset needs. |
@@ -51,6 +52,8 @@ New step kinds and fields will be added as more games get recipes. Planned addit
   - Some repositories publish only pre-releases, so GitHub has no "latest" release. xelee and Starship-VR are examples.
   - Some releases carry Pico, PCVR or plain Android builds next to the Quest APK.
 - **`url`**: a fixed download URL.
+
+For `github` and `url`, `inZip` says the download is a zip and matches the path of the APK inside it.
 - **`manual`**: the user downloads the APK from `page`, for example itch.io or Patreon, and picks the file. qgp checks the file name against `asset`.
 
 ### Inputs
@@ -64,11 +67,13 @@ An input may name a PC tool in `preparedWith`. qgp then links to the tool and te
   - `root` is the folder inside the install that the paths are relative to. For Quake it is `id1`.
   - `detect` lists files that must exist below `root` for the folder to count as the right one.
 - **`file`**: one or more files the user picks.
-  - `names` lists exact file names that are all required. `extensions` accepts one file of any name. An input needs at least one of the two.
+  - `names` lists exact file names that are all required. `extensions` accepts one file of any name, or several with `multiple`, such as a `.cue` and its `.bin` files. An input needs `names` or `extensions`.
   - `keepArchived` means zips are pushed as they are, never unpacked.
   - `disc` checks a GameCube or Wii disc header (game ID and revision).
   - `sha1` lists accepted hashes.
   - `checkedByApp` means the game checks the file itself.
+
+A folder that is not a store install, such as an arcade dump, is a `pc-install` input without `stores`.
 
 ### Steps
 
@@ -79,6 +84,7 @@ An input may name a PC tool in `preparedWith`. qgp then links to the tool and te
 | `launch` | Starts the main app and waits (`waitSeconds`, default 10). It then force-stops the app, unless `stop` is false. `why` says what the launch is for. |
 | `push` | Pushes an input's files. Each `map` entry takes `from` and sends it `to` a path under `/sdcard/`. `from` is a glob below the input's root, or one of its `names`. Without `from`, every file of the input is pushed. A `to` that ends in `/` is a folder; any other `to` is the file's new path. |
 | `verify` | Checks over adb that the listed files exist. |
+| `shell` | Runs one command with `adb shell`; `args` holds the command and its arguments. Used for `chmod`, `content call`, `am force-stop` and marker files. `why` is required. |
 | `tell` | Shows the user what to do in the headset. |
 
 ### Checks beyond the schema
@@ -86,7 +92,8 @@ An input may name a PC tool in `preparedWith`. qgp then links to the tool and te
 `src/recipes.mjs` in the payload tool also checks:
 
 - the file name matches the slug;
-- `tag` and `asset` are valid regular expressions;
+- `tag`, `asset` and `inZip` are valid regular expressions;
+- `multiple` is used only with `extensions`;
 - input IDs are unique, and every input is pushed;
 - every push names an existing input, and a `from` matches one of that input's `names`;
 - there is an `install-apk` step, and no `grant` or `launch` comes before it.

@@ -4,6 +4,7 @@
   "version": 1,
   "slug": "supertuxkart-vr",
   "status": "draft",
+  "support": "automatic",
   "checkedAgainst": {
     "packageName": "portroyale.online.supertuxkart",
     "version": "v1.0.1"

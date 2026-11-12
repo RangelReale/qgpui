@@ -4,6 +4,7 @@
   "version": 1,
   "slug": "virtua-cop-vr",
   "status": "draft",
+  "support": "automatic",
   "checkedAgainst": {
     "packageName": "io.port0r.virtuacop",
     "version": "vcop-v0.2.4",

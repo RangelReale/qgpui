@@ -4,6 +4,7 @@
   "version": 1,
   "slug": "starship-vr",
   "status": "draft",
+  "support": "guided",
   "checkedAgainst": {
     "packageName": "com.starship.vr",
     "version": "v1.0-beta1",

@@ -74,3 +74,29 @@ test('checkRecipe finds an invalid asset pattern', async () => {
   recipe.apks[0].asset = '(unclosed'
   assert.ok(checkRecipe(recipe)[0].startsWith('/apks/0/asset is not a valid regular expression'))
 })
+
+test('the schema accepts a shell step, an APK in a zip and a multiple-file input', async () => {
+  const validate = await loadSchemaValidator()
+  const recipe = await sample('xelee')
+  recipe.apks[0].inZip = '\\.apk$'
+  recipe.inputs[0].multiple = true
+  recipe.steps.push({ do: 'shell', args: ['chmod', '666', '/sdcard/Download/x'], why: 'test' })
+  assert.deepEqual(validate(recipe), [])
+})
+
+test('the schema requires a support level, and a shell step needs why', async () => {
+  const validate = await loadSchemaValidator()
+  const recipe = await sample('supertuxkart-vr')
+  delete recipe.support
+  recipe.steps.push({ do: 'shell', args: ['true'] })
+  assert.deepEqual(validate(recipe), [
+    "/ must have required property 'support'",
+    "/steps/1 must have required property 'why'"
+  ])
+})
+
+test('checkRecipe finds multiple without extensions', async () => {
+  const recipe = await sample('virtua-cop-vr')
+  recipe.inputs[0].multiple = true
+  assert.deepEqual(checkRecipe(recipe), ['input roms has multiple but no extensions'])
+})
