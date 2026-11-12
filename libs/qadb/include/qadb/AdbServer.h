@@ -14,9 +14,10 @@ namespace qadb {
 class AdbServer
 {
 public:
-    // Looks for adb in, in order: the ADB environment variable, ANDROID_HOME and ANDROID_SDK_ROOT
-    // (platform-tools), PATH, and the Android SDK's default install folder. Returns an empty
-    // string when it finds none.
+    // Looks for adb in, in order: the ADB environment variable, a platform-tools folder next to
+    // the application's executable (a copy shipped with the application), ANDROID_HOME and
+    // ANDROID_SDK_ROOT (platform-tools), PATH, and the Android SDK's default install folder.
+    // Returns an empty string when it finds none.
     static QString findAdb();
 
     // Runs `adb start-server`, which returns once the server is listening. When `server` is not

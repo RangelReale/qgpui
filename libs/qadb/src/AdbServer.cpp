@@ -2,6 +2,7 @@
 
 #include "ReplyAccess.h"
 
+#include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
 #include <QPointer>
@@ -39,6 +40,13 @@ QString AdbServer::findAdb()
     const QString fromEnv = qEnvironmentVariable("ADB");
     if (!fromEnv.isEmpty() && QFileInfo(fromEnv).isExecutable())
         return QDir::toNativeSeparators(fromEnv);
+
+    // A copy shipped with the application.
+    if (QCoreApplication::instance()) {
+        const QString bundled = inPlatformTools(QCoreApplication::applicationDirPath());
+        if (!bundled.isEmpty())
+            return bundled;
+    }
 
     for (const char* variable : {"ANDROID_HOME", "ANDROID_SDK_ROOT"}) {
         const QString path = inPlatformTools(qEnvironmentVariable(variable));

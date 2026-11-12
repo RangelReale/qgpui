@@ -43,3 +43,39 @@ if(WIN32)
                 --no-system-d3d-compiler --no-opengl-sw $<TARGET_FILE:qgp>
         VERBATIM)
 endif()
+
+# Ship adb in platform-tools/ next to the executable, so users need no Android SDK.
+# qadb::AdbServer::findAdb() looks there. QGP_PLATFORM_TOOLS names an unpacked platform-tools
+# folder (the Android SDK's by default); set it to an empty string to ship no adb.
+if(WIN32)
+    file(TO_CMAKE_PATH "$ENV{LOCALAPPDATA}/Android/Sdk/platform-tools" _qgp_default_tools)
+    set(_qgp_adb_files adb.exe AdbWinApi.dll AdbWinUsbApi.dll NOTICE.txt)
+elseif(APPLE)
+    set(_qgp_default_tools "$ENV{HOME}/Library/Android/sdk/platform-tools")
+    set(_qgp_adb_files adb NOTICE.txt)
+else()
+    set(_qgp_default_tools "$ENV{HOME}/Android/Sdk/platform-tools")
+    set(_qgp_adb_files adb NOTICE.txt)
+endif()
+set(QGP_PLATFORM_TOOLS "${_qgp_default_tools}" CACHE PATH
+    "Android platform-tools folder whose adb is copied next to qgp; empty to ship none")
+
+if(QGP_PLATFORM_TOOLS)
+    set(_qgp_adb_paths)
+    foreach(_file IN LISTS _qgp_adb_files)
+        if(NOT EXISTS "${QGP_PLATFORM_TOOLS}/${_file}")
+            message(WARNING "qgp: ${QGP_PLATFORM_TOOLS}/${_file} not found; qgp ships without adb. "
+                            "Set QGP_PLATFORM_TOOLS to an unpacked platform-tools folder.")
+            set(_qgp_adb_paths)
+            break()
+        endif()
+        list(APPEND _qgp_adb_paths "${QGP_PLATFORM_TOOLS}/${_file}")
+    endforeach()
+    if(_qgp_adb_paths)
+        add_custom_command(TARGET qgp POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:qgp>/platform-tools
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${_qgp_adb_paths}
+                    $<TARGET_FILE_DIR:qgp>/platform-tools
+            VERBATIM)
+    endif()
+endif()

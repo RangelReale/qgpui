@@ -52,6 +52,11 @@ library, a payload reader and two developer tools.
   `QADB_LIVE_WRITE=1` to also push and pull a file in `/data/local/tmp`.
 - The adb binary is at `%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe` on the main PC; it is
   not on `PATH`. `qadb::AdbServer::findAdb()` finds it there.
+- The qgp build copies adb (`adb.exe`, `AdbWinApi.dll`, `AdbWinUsbApi.dll`, `NOTICE.txt` on
+  Windows) from `QGP_PLATFORM_TOOLS` (default: the Android SDK's platform-tools) into
+  `platform-tools/` next to `qgp.exe`, so users need no Android SDK. `findAdb()` looks there
+  right after the `ADB` environment variable. CMake warns and ships no adb when the files are
+  missing.
 - Builds use `/W4` (MSVC) or `-Wall -Wextra -Wpedantic`. Keep them free of warnings.
 - moc reads `//` inside a raw string literal as a comment and then misses the class, which shows
   up as unresolved `metaObject` symbols at link time. In test JSON, write URLs as `https:\/\/`.

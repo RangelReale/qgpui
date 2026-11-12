@@ -40,6 +40,8 @@ blocks with a local event loop. It is meant for tools and tests.
 `deviceChanged`. It reconnects on its own when the adb server restarts.
 
 `qadb::AdbServer::findAdb()` looks for the `adb` program and `AdbServer::start()` starts the server.
+An application can ship adb in a `platform-tools` folder next to its executable; `findAdb()`
+looks there right after the `ADB` environment variable.
 
 ## Errors
 
