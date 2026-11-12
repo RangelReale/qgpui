@@ -3,11 +3,13 @@
 #include "CoverCache.h"
 #include "GameFlags.h"
 #include "HeadsetConnection.h"
+#include "SettingsDialog.h"
 
 #include "gamestores/FilesFolder.h"
 #include "gamestores/Finder.h"
 #include "installer/ApkFetcher.h"
 #include "installer/HeadsetRecords.h"
+#include "installer/KeepAwake.h"
 #include "installer/ReleaseLookup.h"
 #include "installer/Runner.h"
 #include "installer/Updates.h"
@@ -571,6 +573,14 @@ void GameDialog::install()
     showInputs(); // Disables the Choose buttons.
     updateButtons();
     log(tr("Installing %1 on %2.").arg(m_game.title, m_serial));
+    if (SettingsDialog::keepAwakeWhileInstalling()) {
+        m_keepAwake = new installer::KeepAwake(m_headset->client(), m_serial, this);
+        connect(m_keepAwake, &installer::KeepAwake::failed, this, [this](const QString& errorMessage) {
+            log(tr("Could not keep the headset's screen on: %1").arg(errorMessage));
+        });
+        m_keepAwake->start();
+        log(tr("Keeping the headset's screen on until the install ends."));
+    }
     fetchApk(0);
 }
 
@@ -744,6 +754,8 @@ void GameDialog::finishInstall(bool success, const QString& message)
         m_runner->disconnect(this);
         m_runner->deleteLater();
     }
+    // Hands the screen back to the proximity sensor.
+    delete m_keepAwake;
     m_tellArea->hide();
     m_progress->setRange(0, 1);
     m_progress->setValue(success ? 1 : 0);

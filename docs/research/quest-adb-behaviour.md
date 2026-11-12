@@ -41,3 +41,12 @@ The app must create its own `files` folder first, which is why recipes launch th
 ## Identity
 
 Over Wi-Fi the adb serial is `IP:port`. The same headset appeared twice, on port 5555 and on its wireless-debugging port. `getprop ro.serialno` returned the same hardware serial on both. See [decision 0004](../decisions/0004-headset-identity.md).
+
+## Keeping the screen on
+
+Measured 2026-11-12 on a Quest 3 (Horizon OS, Android 14), first from the android-dev-settings app and then from adb.
+
+- The proximity sensor puts the headset to sleep about 20 seconds after it is taken off. Neither `settings put global stay_on_while_plugged_in 7` nor a screen wake lock prevents this.
+- The broadcast `am broadcast -a com.oculus.vrpowermanager.prox_close` makes the headset act as if it is worn. It needs no permission; from `adb shell` it answers `Broadcast completed: result=0`.
+- `am broadcast -a com.oculus.vrpowermanager.automation_disable` hands control back to the sensor.
+- Meta Quest Developer Hub sends the same broadcast. Its override lapses about 10 minutes after it stops renewing it, so a caller renews it well within that.

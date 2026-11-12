@@ -51,7 +51,8 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   newest release without downloading it, one GitHub request per repository, kept for an hour. Install records live on each
   headset in `/sdcard/qgp/installs.json`; `InstallRecords` is the PC's cache of them (keyed by the
   headset's `ro.serialno`, then the package), and `HeadsetRecordSync` keeps the two in step.
-  Its runner and sync tests use qadb's `FakeAdbServer`.
+  `KeepAwake` keeps a Quest's screen on with the proximity-sensor broadcast (decision 0012).
+  Its runner, sync and keep-awake tests use qadb's `FakeAdbServer`.
 - `apps/<name>/`: shipped applications.
 - `apps/qgp/`: the main app, Qt Widgets. The main window shows the catalog's games in a `QListView`
   in icon mode: the cover, with the title below. A toolbar's Order box picks a
@@ -83,7 +84,8 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   (`FilesFolder::inputGuide`), Open Files Folder (creates the game's folder and its
   `qgp - what goes here.txt`), and Install, which fetches the APK, runs `installer::Runner` with
   a progress bar, Continue for tell steps and a log, then records the install with
-  `HeadsetRecordSync`. File > Files Folder changes the files folder (`QSettings`). The icons in `apps/qgp/icons/` are temporary;
+  `HeadsetRecordSync`. File > Files Folder changes the files folder (`QSettings`). File > Settings (`SettingsDialog`)
+  holds the other preferences, such as keeping the headset awake during installs. The icons in `apps/qgp/icons/` are temporary;
   `make-icon.ps1` draws them (Windows PowerShell). `qgp.rc` gives the .exe its icon.
 - `cmake/`: shared CMake functions (`qgp_add_qt_test`).
 - `docs/`: documentation in three folders; `docs/README.md` lists every document.

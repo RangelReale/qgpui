@@ -6,6 +6,7 @@
 #include "GameSortModel.h"
 #include "HeadsetConnection.h"
 #include "HeadsetDialog.h"
+#include "SettingsDialog.h"
 #include "GameFlags.h"
 
 #include "questports/Catalog.h"
@@ -187,6 +188,11 @@ MainWindow::MainWindow(QWidget* parent)
     file->addAction(tr("&Reload"), QKeySequence::Refresh, this, &MainWindow::reloadCatalog);
     file->addSeparator();
     file->addAction(tr("Files &Folder..."), this, &MainWindow::chooseFilesFolder);
+    QAction* settings = file->addAction(tr("&Settings..."), QKeySequence::Preferences, this, [this] {
+        SettingsDialog dialog(this);
+        dialog.exec();
+    });
+    settings->setMenuRole(QAction::PreferencesRole);
     file->addSeparator();
     file->addAction(tr("E&xit"), QKeySequence::Quit, this, &QWidget::close);
 
