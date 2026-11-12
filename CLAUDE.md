@@ -65,11 +65,12 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   records, not on it, or with an update) and Self-contained only (an automatic recipe, no manual
   APK, and every required input and each input group free). A second row holds the site's own
   filters: Runs on (`resolved.headsets`), VR style (`resolved.vrStyle`), No PC needed
-  (`resolved.noPcInstall`) and, behind More filters as on the site, Type, Developer and Status
-  (from the port row); a hidden filter in use opens More filters, and Reset clears every filter.
+  (`resolved.noPcInstall`), Type, Developer and Status (from the port row), and Clear at the
+  right end, which clears every filter.
   `GameFlags` computes the flags; `MainWindow::findHeadsetGames` reads the headset when it changes
   and after an install, and `checkForUpdate` compares each game on it with its APK's newest
-  release (decision 0011); a game with an update gets an Update band on its cover. Each
+  release (decision 0011); a game on the headset gets an Installed tag on its cover, and one with
+  an update an Update band. Each
   box's choice is kept in `QSettings` (`main.cpp` sets the organization name, without which
   QSettings stores nothing on Windows). The game dialog
   links to the game's QuestPorts page, and each `pc-install` input to its Steam and GOG pages

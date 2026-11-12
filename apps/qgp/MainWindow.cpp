@@ -56,7 +56,6 @@ const QString kNoPcNeededSetting = QStringLiteral("filter/noPcNeeded");
 const QString kCategorySetting = QStringLiteral("filter/category");
 const QString kDeveloperSetting = QStringLiteral("filter/developer");
 const QString kStatusSetting = QStringLiteral("filter/status");
-const QString kMoreFiltersSetting = QStringLiteral("filter/more");
 
 // The site's names for its port types, in the order of its Type box.
 const QList<std::pair<QString, const char*>> kCategories = {
@@ -111,14 +110,15 @@ QString orderLabel(questports::GameOrder order)
     return {};
 }
 
-// Adds a label and its box to a toolbar. Returns the toolbar's actions for both.
-QList<QAction*> addBox(QToolBar* toolBar, const QString& text, QComboBox* box)
+// Adds a label and its box to a toolbar.
+void addBox(QToolBar* toolBar, const QString& text, QComboBox* box)
 {
     auto* label = new QLabel(text, toolBar);
     label->setBuddy(box);
     label->setContentsMargins(12, 0, 4, 0);
     box->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    return {toolBar->addWidget(label), toolBar->addWidget(box)};
+    toolBar->addWidget(label);
+    toolBar->addWidget(box);
 }
 
 // Covers are mostly Steam header images (460x215) or 16:9; this fits both without much border.
@@ -330,33 +330,28 @@ void MainWindow::createFilterBar()
     toolBar->addWidget(m_noPcNeeded);
     toolBar->addSeparator();
 
-    // Rarely used, so hidden until asked for, as on the site.
-    m_moreFiltersAction = toolBar->addAction(tr("&More filters"));
-    m_moreFiltersAction->setCheckable(true);
-    m_moreFiltersAction->setToolTip(tr("Filter by type, developer and status"));
-    m_moreFilters << addBox(toolBar, tr("T&ype:"), m_category);
+    addBox(toolBar, tr("T&ype:"), m_category);
     m_category->addItem(tr("All types"), QString());
-    m_moreFilters << addBox(toolBar, tr("&Developer:"), m_developer);
+    addBox(toolBar, tr("&Developer:"), m_developer);
     m_developer->addItem(tr("All developers"), QString());
     // Some names are long; the list still shows them whole.
     m_developer->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
     m_developer->setMinimumContentsLength(20);
-    m_moreFilters << addBox(toolBar, tr("St&atus:"), m_portStatus);
+    addBox(toolBar, tr("St&atus:"), m_portStatus);
     m_portStatus->addItem(tr("All statuses"), QString());
     for (const auto& [id, text] : kStatuses)
         m_portStatus->addItem(tr(text), id);
-    toolBar->addSeparator();
-    m_resetFiltersAction = toolBar->addAction(tr("R&eset"), this, &MainWindow::resetFilters);
-    m_resetFiltersAction->setToolTip(tr("Show every game again"));
+
+    // Pushes Clear to the right end of the bar.
+    auto* stretch = new QWidget(toolBar);
+    stretch->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    toolBar->addWidget(stretch);
+    m_resetFiltersAction = toolBar->addAction(tr("C&lear"), this, &MainWindow::resetFilters);
+    m_resetFiltersAction->setToolTip(tr("Clear every filter and show every game again"));
 
     QSettings settings;
     m_noPcNeeded->setChecked(settings.value(kNoPcNeededSetting, false).toBool());
     m_portStatus->setCurrentIndex(qMax(0, m_portStatus->findData(settings.value(kStatusSetting).toString())));
-    m_moreFiltersAction->setChecked(settings.value(kMoreFiltersSetting, false).toBool());
-    connect(m_moreFiltersAction, &QAction::toggled, this, [this](bool open) {
-        QSettings().setValue(kMoreFiltersSetting, open);
-        updateMoreFilters();
-    });
 }
 
 void MainWindow::fillCatalogBoxes(const questports::Catalog& catalog)
@@ -427,20 +422,6 @@ void MainWindow::resetFilters()
     filterChanged();
 }
 
-void MainWindow::updateMoreFilters()
-{
-    const GameFilter& filter = m_sorted->filter();
-    const int used = int(!filter.category.isEmpty()) + int(!filter.developer.isEmpty()) + int(!filter.status.isEmpty());
-    // A filter in use stays in sight, so that a hidden one cannot empty the list.
-    if (used > 0 && !m_moreFiltersAction->isChecked()) {
-        m_moreFiltersAction->setChecked(true); // Calls this again.
-        return;
-    }
-    m_moreFiltersAction->setText(used > 0 ? tr("&More filters (%1)").arg(used) : tr("&More filters"));
-    for (QAction* action : std::as_const(m_moreFilters))
-        action->setVisible(m_moreFiltersAction->isChecked());
-}
-
 void MainWindow::filterChanged()
 {
     GameFilter filter;
@@ -456,7 +437,6 @@ void MainWindow::filterChanged()
     filter.status = m_portStatus->currentData().toString();
     m_sorted->setFilter(filter);
     m_resetFiltersAction->setEnabled(!(filter == GameFilter{}));
-    updateMoreFilters();
 
     QSettings settings;
     // Boxes the catalog fills must not overwrite the saved choice while they are empty.
