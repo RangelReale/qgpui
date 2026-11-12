@@ -249,6 +249,20 @@ QWidget* MainWindow::buildNetworkBox()
                                  });
                              }),
                       2, 1);
+    // Get IP, Enable TCP/IP and Connect in one step, retrying while adbd restarts.
+    layout->addWidget(button(tr("USB to Wi-Fi"), box,
+                             [this] {
+                                 const QString serial = selectedSerial();
+                                 if (serial.isEmpty())
+                                     return;
+                                 watch(m_client->switchToWifi(serial, quint16(m_port->value())),
+                                       tr("Switch %1 to Wi-Fi").arg(serial), [this](Reply* r) {
+                                           const QString address = r->outputText();
+                                           m_host->setText(address.section(QLatin1Char(':'), 0, 0));
+                                           log(tr("  connected to %1").arg(address));
+                                       });
+                             }),
+                      2, 2);
 
     // Wireless debugging pairing (Android 11 and later).
     m_pairAddress = new QLineEdit;

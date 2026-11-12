@@ -67,6 +67,12 @@ public:
     // Makes adbd listen on a TCP port, for `connectDevice` over Wi-Fi. The device must be
     // reachable by USB or already by network.
     Reply* enableTcpip(const QString& serial, quint16 port = 5555);
+    // Moves a device from USB to Wi-Fi, as `adb tcpip` followed by `adb connect`: reads the
+    // device's IPv4 address on wlan0, runs enableTcpip(), then connects to that address while
+    // adbd restarts, trying again for about 10 seconds. output() holds the new serial, such as
+    // "192.168.1.20:5555". Fails with CommandFailed when the device has no Wi-Fi address or
+    // the connection does not succeed.
+    Reply* switchToWifi(const QString& serial, quint16 port = 5555);
 
     // --- Files ----------------------------------------------------------------------------
 

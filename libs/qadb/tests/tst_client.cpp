@@ -41,9 +41,14 @@ private slots:
         server = std::make_unique<FakeAdbServer>();
         QVERIFY(server->listen());
         server->setDevice(kSerial, {});
-        server->setShellHandler([](const QString&, const QString& command) {
+        server->setShellHandler([](const QString& serial, const QString& command) {
             FakeAdbServer::ShellResult result;
-            if (command == QLatin1String("getprop ro.product.model")) {
+            if (command == QLatin1String("ip -f inet addr show wlan0")) {
+                // A device whose serial starts with "nowifi" has no Wi-Fi address.
+                if (!serial.startsWith(QLatin1String("nowifi")))
+                    result.out = "3: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500\n"
+                                 "    inet 192.168.1.20/24 brd 192.168.1.255 scope global wlan0\n";
+            } else if (command == QLatin1String("getprop ro.product.model")) {
                 result.out = "Quest 3\n";
             } else if (command == QLatin1String("ls /nope")) {
                 result.err = "ls: /nope: No such file or directory\n";
@@ -233,6 +238,28 @@ private slots:
         QVERIFY(reply->waitForFinished(5000));
         QVERIFY(reply->isSuccess());
         QVERIFY(reply->outputText().contains(QLatin1String("5555")));
+    }
+
+    void switchToWifi()
+    {
+        // adbd refuses the first connection while it restarts.
+        server->connectFailures = 1;
+        std::unique_ptr<Reply> reply(client->switchToWifi(kSerial, 5555));
+        QVERIFY(reply->waitForFinished(10000));
+        QVERIFY2(reply->isSuccess(), qPrintable(reply->errorString()));
+        QCOMPARE(reply->outputText(), QStringLiteral("192.168.1.20:5555"));
+        QVERIFY(server->requests.contains(kSerial + QStringLiteral("|tcpip:5555")));
+        QCOMPARE(server->requests.count(QStringLiteral("host:connect:192.168.1.20:5555")), 2);
+    }
+
+    void switchToWifiWithoutWifi()
+    {
+        const QString serial = QStringLiteral("nowifi1");
+        server->setDevice(serial, {});
+        std::unique_ptr<Reply> reply(client->switchToWifi(serial));
+        QVERIFY(reply->waitForFinished(5000));
+        QCOMPARE(reply->error(), Reply::Error::CommandFailed);
+        QVERIFY(!server->requests.contains(serial + QStringLiteral("|tcpip:5555")));
     }
 
     void pushAndPull()

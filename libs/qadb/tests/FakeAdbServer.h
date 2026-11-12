@@ -60,6 +60,8 @@ public:
     QMap<QString, QByteArray> files;
     // Every host and device request, in order ("host:version", "<serial>|shell,v2,raw:ls", ...).
     QStringList requests;
+    // The next this many host:connect requests fail, like a device whose adbd is restarting.
+    int connectFailures = 0;
     // APKs received through `cmd package install -S`, in order.
     QList<QByteArray> installedApks;
 

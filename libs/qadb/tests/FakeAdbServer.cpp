@@ -290,9 +290,13 @@ bool FakeAdbServer::handleHostRequest(Connection* c, const QString& request)
     }
     if (request.startsWith(QLatin1String("host:connect:"))) {
         const QByteArray address = request.mid(13).toUtf8();
+        const bool refused = connectFailures > 0;
+        if (refused)
+            --connectFailures;
         s->write("OKAY"
-                 + hexString(address.startsWith("bad") ? "failed to connect to '" + address + "'"
-                                                       : "connected to " + address));
+                 + hexString(refused || address.startsWith("bad")
+                                 ? "failed to connect to '" + address + "'"
+                                 : "connected to " + address));
         c->closeAfterWrite();
         return false;
     }

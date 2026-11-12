@@ -11,6 +11,7 @@
 #include <QPointer>
 #include <QRegularExpression>
 #include <QSaveFile>
+#include <QTimer>
 
 #include <memory>
 
@@ -668,6 +669,76 @@ Reply* Client::reboot(const QString& serial, const QString& target)
 Reply* Client::enableTcpip(const QString& serial, quint16 port)
 {
     return runStreamService(this, serial, "tcpip:" + QByteArray::number(port));
+}
+
+namespace {
+
+// After `tcpip`, adbd restarts and refuses connections for a moment.
+constexpr int kWifiConnectAttempts = 10;
+constexpr int kWifiConnectRetryMsecs = 1000;
+
+// Connects `reply` to host:port, and tries again after a pause while attempts remain.
+void connectWithRetry(Client* client, Reply* reply, const QString& host, quint16 port, int attemptsLeft)
+{
+    Reply* attempt = client->connectDevice(host, port);
+    attempt->setParent(reply);
+    QPointer<Reply> guard(attempt);
+    RA::setAbortHandler(reply, [guard] {
+        if (guard)
+            guard->abort();
+    });
+    QObject::connect(attempt, &Reply::finished, reply, [=] {
+        attempt->deleteLater();
+        if (reply->isFinished())
+            return;
+        if (attempt->isSuccess()) {
+            RA::setOutput(reply, (host + QLatin1Char(':') + QString::number(port)).toUtf8());
+            RA::finish(reply);
+            return;
+        }
+        if (attemptsLeft <= 1) {
+            RA::fail(reply, attempt->error(), attempt->errorString());
+            return;
+        }
+        RA::setAbortHandler(reply, {});
+        QPointer<Client> self(client);
+        QTimer::singleShot(kWifiConnectRetryMsecs, reply, [=] {
+            if (reply->isFinished())
+                return;
+            if (!self) {
+                RA::fail(reply, Reply::Error::ConnectionFailed, QStringLiteral("The client was deleted"));
+                return;
+            }
+            connectWithRetry(self, reply, host, port, attemptsLeft - 1);
+        });
+    });
+}
+
+} // namespace
+
+Reply* Client::switchToWifi(const QString& serial, quint16 port)
+{
+    auto* reply = RA::create<Reply>(this);
+    detail::runLater(reply, [this, reply, serial, port] {
+        if (reply->isFinished())
+            return;
+        ShellReply* ip = shell(serial, QStringLiteral("ip -f inet addr show wlan0"));
+        ClientOps::chain(reply, ip, [=] {
+            static const QRegularExpression inet(QStringLiteral("inet (\\d+\\.\\d+\\.\\d+\\.\\d+)"));
+            const QRegularExpressionMatch match = inet.match(ip->outputText());
+            if (!match.hasMatch()) {
+                RA::fail(reply, Reply::Error::CommandFailed,
+                         QStringLiteral("The device is not connected to Wi-Fi"));
+                return;
+            }
+            const QString host = match.captured(1);
+            Reply* tcpip = enableTcpip(serial, port);
+            ClientOps::chain(reply, tcpip, [=] {
+                connectWithRetry(this, reply, host, port, kWifiConnectAttempts);
+            });
+        });
+    });
+    return reply;
 }
 
 Reply* Client::push(const QString& serial, const QString& localPath, const QString& remotePath,

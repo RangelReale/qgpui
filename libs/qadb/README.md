@@ -9,7 +9,7 @@ the server.
 | Area | Requests |
 |---|---|
 | Server | version, list devices, live device tracking, kill server, start server |
-| Network | pair with wireless debugging (pairing code), connect and disconnect Wi-Fi devices, enable TCP/IP on a USB device, mDNS services |
+| Network | pair with wireless debugging (pairing code), connect and disconnect Wi-Fi devices, enable TCP/IP on a USB device, switch a USB device to Wi-Fi in one step, mDNS services |
 | Device | shell (with exit code and separate stderr), exec, reboot, features |
 | Files | push (from a file or bytes), pull, stat, list, with progress |
 | Packages | install APK (streamed, or copied then `pm install`), uninstall |
