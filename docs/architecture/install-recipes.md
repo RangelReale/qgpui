@@ -75,6 +75,8 @@ Inputs that share a `group` are alternatives: at least one of them is needed, an
 
 An input may set `free` when anyone can get its files legally at no cost: a free release, a free store copy (Ultima IV on GOG, Daggerfall on Steam) or the port's own download. A game with an `automatic` recipe, whose APKs qgp downloads itself and whose required inputs (and each group) are free, counts as self-contained; the app's Show box can list just those.
 
+**Open question: should qgp download free inputs?** qgp downloads APKs only; the user still fetches every free input. So "self-contained" means "needs nothing the user has to buy", while QuestPorts' `selfContainedSideload` means "needs nothing but the APK", and it is false for all six recipes with free inputs (arx-libertatis-vr, daggerfall-unity-vr, fotg-vr, openmohaa-vr, ultima-4-vr, unreal-gold-vr). Arx Libertatis VR, for example, runs on the free Arx Fatalis demo, but the user must find and unpack it. The QuestPorts payload has no download link for any game's data (checked 2026-11-12), so download URLs would have to go in our recipes. Doing this needs a download source for inputs (URL, unpacking, which files to keep), stable URLs from the original publisher or the port, and a choice of what self-contained means: only inputs that qgp downloads, or every free input. openmohaa-vr's `autoexec.cfg`, in the same GitHub release as the APK, is the easiest case.
+
 An input may name a PC tool in `preparedWith`. qgp then links to the tool and tells the user how to use it. qgp does not run the tool itself.
 
 - **`pc-install`**: a game installed on the PC.
