@@ -77,7 +77,10 @@ private:
     void runSteps();
     void recordInstall();
     void cancel();
-    void finishInstall(bool success, const QString& message);
+    // How an install ended. Warning: the game is installed, but something after it failed.
+    enum class Outcome { Success, Warning, Failure };
+    void finishInstall(Outcome outcome, const QString& message);
+    void showResult(Outcome outcome, const QString& text);
     void log(const QString& text);
     // Asks whether to stop a running install. True when nothing runs any more.
     bool confirmStop();
@@ -100,6 +103,9 @@ private:
     QWidget* m_progressArea;
     QLabel* m_step;
     QProgressBar* m_progress;
+    QWidget* m_resultArea;
+    QLabel* m_resultIcon;
+    QLabel* m_resultText;
     QWidget* m_tellArea;
     QLabel* m_tellText;
     QPlainTextEdit* m_log;
