@@ -2,10 +2,13 @@
 
 #include "CoverCache.h"
 #include "GameListModel.h"
+#include "GameSortModel.h"
 
 #include "questports/Catalog.h"
+#include "questports/GameOrder.h"
 
 #include <QApplication>
+#include <QComboBox>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QKeySequence>
@@ -17,8 +20,26 @@
 #include <QScrollBar>
 #include <QSettings>
 #include <QStatusBar>
+#include <QToolBar>
 
 namespace {
+
+const QString kOrderSetting = QStringLiteral("order");
+
+QString orderLabel(questports::GameOrder order)
+{
+    switch (order) {
+    case questports::GameOrder::Title:
+        return MainWindow::tr("Title");
+    case questports::GameOrder::RecentlyAdded:
+        return MainWindow::tr("Recently added");
+    case questports::GameOrder::RecentlyReleased:
+        return MainWindow::tr("Recently released");
+    case questports::GameOrder::Developer:
+        return MainWindow::tr("Developer");
+    }
+    return {};
+}
 
 // Covers are mostly Steam header images (460x215) or 16:9; this fits both without much border.
 constexpr QSize kCoverSize(300, 140);
@@ -47,12 +68,14 @@ MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , m_covers(new CoverCache(kCoverSize, this))
     , m_model(new GameListModel(m_covers, this))
+    , m_sorted(new GameSortModel(m_model, this))
+    , m_order(new QComboBox(this))
     , m_view(new GameListView(this))
     , m_status(new QLabel(this))
 {
     setWindowTitle(QStringLiteral("qgp"));
 
-    m_view->setModel(m_model);
+    m_view->setModel(m_sorted);
     m_view->setViewMode(QListView::IconMode);
     m_view->setIconSize(kCoverSize);
     m_view->setGridSize(QSize(kCoverSize.width() + kCellPadding,
@@ -73,7 +96,38 @@ MainWindow::MainWindow(QWidget* parent)
     file->addSeparator();
     file->addAction(tr("E&xit"), QKeySequence::Quit, this, &QWidget::close);
 
+    createToolBar();
     statusBar()->addWidget(m_status, 1);
+}
+
+void MainWindow::createToolBar()
+{
+    QToolBar* toolBar = addToolBar(tr("Games"));
+    toolBar->setObjectName(QStringLiteral("gamesToolBar"));
+    toolBar->setMovable(false);
+
+    auto* label = new QLabel(tr("&Order:"), toolBar);
+    label->setBuddy(m_order);
+    label->setContentsMargins(4, 0, 4, 0);
+    toolBar->addWidget(label);
+
+    for (questports::GameOrder order : questports::allGameOrders())
+        m_order->addItem(orderLabel(order), questports::gameOrderKey(order));
+    m_order->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    toolBar->addWidget(m_order);
+
+    const QString saved = QSettings().value(kOrderSetting).toString();
+    m_order->setCurrentIndex(qMax(0, m_order->findData(questports::gameOrderKey(questports::gameOrderFromKey(saved)))));
+    m_sorted->setOrder(questports::gameOrderFromKey(m_order->currentData().toString()));
+    connect(m_order, &QComboBox::currentIndexChanged, this, &MainWindow::orderChanged);
+}
+
+void MainWindow::orderChanged()
+{
+    const QString key = m_order->currentData().toString();
+    m_sorted->setOrder(questports::gameOrderFromKey(key));
+    QSettings().setValue(kOrderSetting, key);
+    m_view->scrollToTop();
 }
 
 bool MainWindow::loadPayload(const QString& path)

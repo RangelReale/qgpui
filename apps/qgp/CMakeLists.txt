@@ -4,6 +4,7 @@ qt_add_executable(qgp WIN32 MACOSX_BUNDLE
     main.cpp
     MainWindow.h MainWindow.cpp
     GameListModel.h GameListModel.cpp
+    GameSortModel.h GameSortModel.cpp
     CoverCache.h CoverCache.cpp
 )
 if(WIN32)

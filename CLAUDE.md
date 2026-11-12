@@ -22,7 +22,8 @@ library, a payload reader and two developer tools.
   `Game`). Needs only Qt Core.
 - `apps/<name>/`: shipped applications.
 - `apps/qgp/`: the main app, Qt Widgets. The main window shows the payload's games in a `QListView`
-  in icon mode: the cover, with the title below. `CoverCache` downloads covers through a
+  in icon mode: the cover, with the title below. A toolbar's Order box picks a
+  `questports::GameOrder`; `GameSortModel` applies it and `QSettings` remembers it. `CoverCache` downloads covers through a
   `QNetworkDiskCache` and fits them into one size. The icons in `apps/qgp/icons/` are temporary;
   `make-icon.ps1` draws them (Windows PowerShell). `qgp.rc` gives the .exe its icon.
 - `cmake/`: shared CMake functions (`qgp_add_qt_test`).

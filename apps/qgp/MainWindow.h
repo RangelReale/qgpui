@@ -4,6 +4,8 @@
 
 class CoverCache;
 class GameListModel;
+class GameSortModel;
+class QComboBox;
 class QLabel;
 class QListView;
 
@@ -22,9 +24,13 @@ public:
 private:
     void openPayload();
     void reloadPayload();
+    void createToolBar();
+    void orderChanged();
 
     CoverCache* m_covers;
     GameListModel* m_model;
+    GameSortModel* m_sorted;
+    QComboBox* m_order;
     QListView* m_view;
     QLabel* m_status;
     QString m_payloadPath;
