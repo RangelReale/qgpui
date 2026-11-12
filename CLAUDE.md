@@ -84,7 +84,9 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   `qgp - what goes here.txt`), and Install, which fetches the APK, runs `installer::Runner` with
   a progress bar, Continue for tell steps and a log, then records the install with
   `HeadsetRecordSync` and shows the result in a coloured banner. Details shows `planInstall`'s commands. File > Files Folder changes the files folder (`QSettings`). The icons in `apps/qgp/icons/` are temporary;
-  `make-icon.ps1` draws them (Windows PowerShell). `qgp.rc` gives the .exe its icon.
+  `make-icon.ps1` draws them (Windows PowerShell). `qgp.rc` gives the .exe its icon. `SingleInstance`
+  keeps one qgp per user: a second start passes its catalog argument to the first, which comes to
+  the front, and quits (decision 0012).
 - `cmake/`: shared CMake functions (`qgp_add_qt_test`).
 - `docs/`: documentation in three folders; `docs/README.md` lists every document.
   - `docs/research/`: what was found out, with the evidence and the date: external systems
