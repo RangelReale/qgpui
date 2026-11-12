@@ -1,6 +1,8 @@
 #include "installer/Updates.h"
 
+#include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QMap>
@@ -113,6 +115,14 @@ bool InstallRecords::save(QString* errorMessage) const
     root.insert(QStringLiteral("format"), QLatin1StringView(kFormat));
     root.insert(QStringLiteral("version"), kVersion);
     root.insert(QStringLiteral("headsets"), headsets);
+
+    // The first save on a PC has no folder yet, such as AppData/Roaming/qgp.
+    const QString folder = QFileInfo(m_path).absolutePath();
+    if (!QDir().mkpath(folder)) {
+        if (errorMessage)
+            *errorMessage = QStringLiteral("Cannot create the folder %1").arg(QDir::toNativeSeparators(folder));
+        return false;
+    }
 
     QSaveFile file(m_path);
     if (!file.open(QIODevice::WriteOnly)) {

@@ -96,6 +96,19 @@ private slots:
         QVERIFY(!edited.find(QStringLiteral("OTHERQUEST"), QStringLiteral("com.bilko.urtquest")));
     }
 
+    // The first save on a PC creates the folder (AppData/Roaming/qgp does not exist yet).
+    void savesIntoAMissingFolder()
+    {
+        QTemporaryDir tmp;
+        QVERIFY(tmp.isValid());
+        const QString path = tmp.filePath(QStringLiteral("qgp/new/installs.json"));
+        InstallRecords records = InstallRecords::load(path);
+        records.set(QStringLiteral("2G0YC5ZG4D040F"), record(QStringLiteral("v1.0.1"), 101));
+        QString error;
+        QVERIFY2(records.save(&error), qPrintable(error));
+        QVERIFY(InstallRecords::load(path).find(QStringLiteral("2G0YC5ZG4D040F"), QStringLiteral("com.bilko.urtquest")));
+    }
+
     void reportsAFileThatIsNotARecordFile()
     {
         QTemporaryDir tmp;

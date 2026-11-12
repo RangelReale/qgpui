@@ -48,7 +48,8 @@ public:
     // Reads the file. A missing file gives an empty set; a file that cannot be parsed gives an
     // empty set and sets *errorMessage when it is given.
     static InstallRecords load(const QString& path, QString* errorMessage = nullptr);
-    // Writes the file atomically. Returns false, and sets *errorMessage, on failure.
+    // Writes the file atomically, creating its folder if needed. Returns false, and sets
+    // *errorMessage, on failure.
     bool save(QString* errorMessage = nullptr) const;
 
     QString path() const { return m_path; }
