@@ -24,6 +24,10 @@ cmake --build --preset windows-debug
 ctest --preset windows-debug
 ```
 
+With [go-task](https://taskfile.dev) installed, `task build`, `task test`, `task run`, `task clean`
+and `task distclean` do the same for the current OS (`task --list` shows all tasks). Add
+`CONFIG=Release` for a Release build.
+
 The app is `build/windows/bin/Debug/qgp.exe` and the debug tool is
 `build/windows/bin/Debug/adbmanager.exe`.
 

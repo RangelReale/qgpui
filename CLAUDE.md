@@ -1,4 +1,4 @@
-# qgp
+﻿# qgp
 
 Tools for Meta Quest headsets over adb: finding headsets, managing connections, installing APKs and
 copying files. C++20, Qt 6, CMake. The main app, `apps/qgp`, is at an early stage. The rest is the `qadb`
@@ -27,7 +27,7 @@ library, a payload reader and two developer tools.
   `QNetworkDiskCache` and fits them into one size. `HeadsetConnection` starts the adb server
   if needed, tracks devices and remembers the current headset (`QSettings`); the toolbar's
   Headset button and the status bar's red/green indicator open `HeadsetDialog`, which lists
-  headsets, searches over mDNS and pairs or connects over Wi-Fi. The icons in `apps/qgp/icons/` are temporary;
+  headsets, searches over mDNS, pairs or connects over Wi-Fi, and switches a USB headset to Wi-Fi. The icons in `apps/qgp/icons/` are temporary;
   `make-icon.ps1` draws them (Windows PowerShell). `qgp.rc` gives the .exe its icon.
 - `cmake/`: shared CMake functions (`qgp_add_qt_test`).
 - `docs/`: research notes, such as where QuestPorts keeps its data.
@@ -42,6 +42,9 @@ library, a payload reader and two developer tools.
   prompt), `macos`.
 - `cmake --preset windows`, then `cmake --build --preset windows-debug` and
   `ctest --preset windows-debug`. Use `windows` instead of `windows-debug` for Release.
+- `Taskfile.yml` (go-task) wraps these: `task build`, `test`, `run`, `adbmanager`, `clean`,
+  `distclean`, `payload`, `payload:test`. It picks the preset from the OS; `CONFIG=Release`
+  switches the configuration.
 - Run tests through CTest, not the executables directly: CTest puts Qt's DLLs on `PATH` and sets
   `QT_QPA_PLATFORM=offscreen`. Tests log in TAP (`-o -,tap`) because Qt Test's plain-text logger
   prints nothing to a pipe on Windows.

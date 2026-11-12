@@ -53,6 +53,7 @@
     { "name": "windows", "configurePreset": "windows", "configuration": "Release", "output": { "outputOnFailure": true } },
     { "name": "windows-debug", "configurePreset": "windows", "configuration": "Debug", "output": { "outputOnFailure": true } },
     { "name": "windows-ninja", "configurePreset": "windows-ninja", "configuration": "Release", "output": { "outputOnFailure": true } },
-    { "name": "macos", "configurePreset": "macos", "configuration": "Release", "output": { "outputOnFailure": true } }
+    { "name": "macos", "configurePreset": "macos", "configuration": "Release", "output": { "outputOnFailure": true } },
+    { "name": "macos-debug", "configurePreset": "macos", "configuration": "Debug", "output": { "outputOnFailure": true } }
   ]
 }

@@ -1,0 +1,105 @@
+# Commands for go-task (https://taskfile.dev). Run `task --list` to see them.
+# Pass CONFIG=Release for a Release build, for example `task build CONFIG=Release`.
+version: '3'
+
+vars:
+  CONFIG: Debug
+  # The configure preset for this OS. Use PRESET=windows-ninja from a developer prompt.
+  PRESET: '{{if eq OS "windows"}}windows{{else if eq OS "darwin"}}macos{{end}}'
+  # Build and test presets: "<preset>-debug" for Debug, "<preset>" for Release.
+  BUILD_PRESET: '{{.PRESET}}{{if eq .CONFIG "Debug"}}-debug{{end}}'
+  BUILD_DIR: build/{{.PRESET}}
+  BIN_DIR: '{{.BUILD_DIR}}/bin/{{.CONFIG}}'
+  PAYLOAD_DIR: tools/questports-payload
+
+tasks:
+  default:
+    cmds:
+      - task --list
+    silent: true
+
+  configure:
+    desc: Configure the CMake build tree
+    cmds:
+      - cmake --preset {{.PRESET}}
+
+  reconfigure:
+    desc: Configure from scratch (needed after changing QT_ROOT)
+    cmds:
+      - cmake --preset {{.PRESET}} --fresh
+
+  build:
+    desc: Build everything (CONFIG=Debug by default)
+    cmds:
+      - task: configure-if-needed
+      - cmake --build --preset {{.BUILD_PRESET}}
+
+  test:
+    desc: Build, then run the tests through CTest
+    deps: [build]
+    cmds:
+      - ctest --preset {{.BUILD_PRESET}} {{.CLI_ARGS}}
+
+  clean:
+    desc: Remove the build outputs of CONFIG, keeping the CMake cache
+    cmds:
+      - task: configure-if-needed
+      - cmake --build --preset {{.BUILD_PRESET}} --target clean
+
+  distclean:
+    desc: Delete this preset's whole build folder
+    cmds:
+      - cmake -E rm -rf {{.BUILD_DIR}}
+
+  rebuild:
+    desc: Clean, then build
+    cmds:
+      - task: clean
+      - task: build
+
+  run:
+    desc: Build and start qgp (arguments after -- go to the app)
+    deps: [build]
+    cmds:
+      - cmd: '"{{.BIN_DIR}}/qgp.exe" {{.CLI_ARGS}}'
+        platforms: [windows]
+      - cmd: open "{{.BIN_DIR}}/qgp.app" --args {{.CLI_ARGS}}
+        platforms: [darwin]
+
+  adbmanager:
+    desc: Build and start the adbmanager debug window
+    deps: [build]
+    cmds:
+      - cmd: '"{{.BIN_DIR}}/adbmanager.exe"'
+        platforms: [windows]
+      - cmd: open "{{.BIN_DIR}}/adbmanager.app"
+        platforms: [darwin]
+
+  payload:install:
+    desc: Install the payload tool's Node packages
+    dir: '{{.PAYLOAD_DIR}}'
+    cmds:
+      - npm install
+    sources: [package.json, package-lock.json]
+    generates: [node_modules/.package-lock.json]
+
+  payload:
+    desc: Build the QuestPorts payload into local/
+    deps: [payload:install]
+    dir: '{{.PAYLOAD_DIR}}'
+    cmds:
+      - npm run build-payload -- {{.CLI_ARGS}}
+
+  payload:test:
+    desc: Run the payload tool's tests
+    deps: [payload:install]
+    dir: '{{.PAYLOAD_DIR}}'
+    cmds:
+      - npm test
+
+  configure-if-needed:
+    internal: true
+    cmds:
+      - task: configure
+    status:
+      - test -f {{.BUILD_DIR}}/CMakeCache.txt
