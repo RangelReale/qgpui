@@ -21,6 +21,7 @@
     {
       "id": "unreal",
       "kind": "pc-install",
+      "free": true,
       "label": "Unreal Gold game folder",
       "help": "Your own Unreal Gold folder, for example from GOG or the free OldUnreal installer.",
       "stores": [{ "store": "gog", "installDir": "Unreal Gold" }],

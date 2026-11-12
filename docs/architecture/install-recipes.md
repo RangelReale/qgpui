@@ -31,7 +31,6 @@ Every game in the payload now has a recipe: 114 `automatic`, 22 `guided` and 9 `
 
 Writing them added `support`, `inZip`, `multiple` and the `shell` step. Known gaps:
 
-- An input cannot say "at least one of these". metal-gear-solid-vr marks all six languages optional.
 - Steps cannot be optional, so an optional marker file (wipeout-pure-vr) is left out.
 - Backup and restore for ports that changed their signing key is described in `tell` steps and notes.
 
@@ -71,6 +70,10 @@ For `github` and `url`, `inZip` says the download is a zip and matches the path 
 ### Inputs
 
 Every input has an `id`, a `label` and an optional `help` text for the user. Users see some IDs as folder names in their files folder ([decision 0009](../decisions/0009-files-folder.md)), so do not rename an input once a recipe is published.
+
+Inputs that share a `group` are alternatives: at least one of them is needed, and each is `required: false` on its own. metal-gear-solid-vr groups its six languages, descent-1-2-vr its two games.
+
+An input may set `free` when anyone can get its files legally at no cost: a free release, a free store copy (Ultima IV on GOG, Daggerfall on Steam) or the port's own download. A game with an `automatic` recipe, whose APKs qgp downloads itself and whose required inputs (and each group) are free, counts as self-contained; the app's Show box can list just those.
 
 An input may name a PC tool in `preparedWith`. qgp then links to the tool and tells the user how to use it. qgp does not run the tool itself.
 

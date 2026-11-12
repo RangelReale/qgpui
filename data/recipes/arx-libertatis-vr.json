@@ -20,6 +20,7 @@
     {
       "id": "arx",
       "kind": "pc-install",
+      "free": true,
       "label": "Arx Fatalis game data",
       "help": "Your installed Arx Fatalis from Steam, GOG or CD. The free demo data also works.",
       "stores": [

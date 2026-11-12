@@ -24,6 +24,7 @@
       "label": "Descent (PC)",
       "help": "Your installed Descent from Steam, GOG or disc. You need Descent, Descent 2, or both.",
       "required": false,
+      "group": "game",
       "stores": [
         {
           "store": "steam"
@@ -43,6 +44,7 @@
       "label": "Descent 2 (PC)",
       "help": "Your installed Descent 2 from Steam, GOG or disc. You need Descent, Descent 2, or both.",
       "required": false,
+      "group": "game",
       "stores": [
         {
           "store": "steam"

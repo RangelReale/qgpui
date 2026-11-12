@@ -38,6 +38,7 @@ struct Input
     QString label;
     QString help;
     bool required = true;
+    QString group; // Inputs with the same group are alternatives: at least one is needed.
     // File inputs.
     QStringList names;
     QStringList extensions;

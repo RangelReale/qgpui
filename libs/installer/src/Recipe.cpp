@@ -62,6 +62,7 @@ bool parseInput(const QJsonObject& o, Input& input, QString* errorMessage)
     input.label = str(o, "label");
     input.help = str(o, "help");
     input.required = o.value(QLatin1StringView("required")).toBool(true);
+    input.group = str(o, "group");
     input.names = strings(o, "names");
     input.extensions = strings(o, "extensions");
     input.multiple = o.value(QLatin1StringView("multiple")).toBool();

@@ -25,6 +25,7 @@
     {
       "id": "arena2",
       "kind": "pc-install",
+      "free": true,
       "label": "Daggerfall arena2 folder",
       "help": "The arena2 folder of the classic DOS Daggerfall, free on Steam and also on GOG. It holds .BSA and .SND files.",
       "stores": [

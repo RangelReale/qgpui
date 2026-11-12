@@ -135,6 +135,15 @@
     "inputLabel": { "description": "Shown to the user.", "type": "string" },
     "inputHelp": { "description": "Shown to the user: what to supply and where to find it.", "type": "string" },
     "inputRequired": { "description": "Default: true.", "type": "boolean" },
+    "inputGroup": {
+      "description": "Inputs with the same group are alternatives: at least one of them is needed. Each is optional (required: false) on its own.",
+      "type": "string",
+      "minLength": 1
+    },
+    "inputFree": {
+      "description": "Anyone can get these files at no cost, legally: a free release, a free store copy or the port's own download. qgp then counts the game as self-contained.",
+      "type": "boolean"
+    },
     "preparedWith": {
       "description": "A tool the user runs on the PC to make this input. qgp links to it; it does not run it.",
       "type": "object",
@@ -157,6 +166,8 @@
         "label": { "$ref": "#/$defs/inputLabel" },
         "help": { "$ref": "#/$defs/inputHelp" },
         "required": { "$ref": "#/$defs/inputRequired" },
+        "free": { "$ref": "#/$defs/inputFree" },
+        "group": { "$ref": "#/$defs/inputGroup" },
         "preparedWith": { "$ref": "#/$defs/preparedWith" },
         "stores": {
           "type": "array",
@@ -195,6 +206,8 @@
         "label": { "$ref": "#/$defs/inputLabel" },
         "help": { "$ref": "#/$defs/inputHelp" },
         "required": { "$ref": "#/$defs/inputRequired" },
+        "free": { "$ref": "#/$defs/inputFree" },
+        "group": { "$ref": "#/$defs/inputGroup" },
         "preparedWith": { "$ref": "#/$defs/preparedWith" },
         "names": {
           "description": "Exact file names, all required. Matched without regard to case.",

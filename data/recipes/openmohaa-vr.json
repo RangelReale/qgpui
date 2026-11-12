@@ -30,6 +30,7 @@
     {
       "id": "config",
       "kind": "file",
+      "free": true,
       "label": "autoexec.cfg from the OpenMoHAA VR release",
       "help": "Download autoexec.cfg from the same GitHub release as the APK (https://github.com/bearstonem/openmohaa-vr/releases). Use the one that matches the installed version.",
       "names": ["autoexec.cfg"]

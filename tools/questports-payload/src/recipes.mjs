@@ -37,6 +37,14 @@ export function checkRecipe(recipe, fileName) {
     if (inputs.has(input.id)) errors.push(`input id ${input.id} is used twice`)
     inputs.set(input.id, input)
     if (input.multiple && !input.extensions) errors.push(`input ${input.id} has multiple but no extensions`)
+    if (input.group && input.required !== false) errors.push(`input ${input.id} is in group ${input.group} but required`)
+  }
+  const groups = new Map()
+  for (const input of inputs.values()) {
+    if (input.group) groups.set(input.group, (groups.get(input.group) ?? 0) + 1)
+  }
+  for (const [group, count] of groups) {
+    if (count < 2) errors.push(`group ${group} has only one input`)
   }
 
   const pushed = new Set()

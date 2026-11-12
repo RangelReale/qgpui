@@ -49,7 +49,7 @@ public:
 
     // The inputs ready for installer::Runner. Missing optional inputs are left out.
     static QHash<QString, installer::InputSource> sources(const QList<ResolvedInput>& inputs);
-    // True when every required input is Found.
+    // True when every required input is Found, and at least one input of each group.
     static bool ready(const QList<ResolvedInput>& inputs);
 
 private:

@@ -183,7 +183,13 @@ QHash<QString, installer::InputSource> InputResolver::sources(const QList<Resolv
 
 bool InputResolver::ready(const QList<ResolvedInput>& inputs)
 {
-    return std::all_of(inputs.cbegin(), inputs.cend(), [](const ResolvedInput& resolved) {
-        return !resolved.input.required || resolved.state == ResolvedInput::State::Found;
-    });
+    QHash<QString, bool> groups; // Group -> one of its inputs is found.
+    for (const ResolvedInput& resolved : inputs) {
+        const bool found = resolved.state == ResolvedInput::State::Found;
+        if (resolved.input.required && !found)
+            return false;
+        if (!resolved.input.group.isEmpty())
+            groups[resolved.input.group] = groups.value(resolved.input.group) || found;
+    }
+    return std::all_of(groups.cbegin(), groups.cend(), [](bool found) { return found; });
 }

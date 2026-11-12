@@ -23,6 +23,7 @@
     {
       "id": "fotg",
       "kind": "pc-install",
+      "free": true,
       "label": "Fate of the Galaxy (Knossos.NET install)",
       "help": "The free Fate of the Galaxy mod, installed on the PC with Knossos.NET. Pick its FotG_R-<version> folder. FreeSpace 2 is not needed.",
       "preparedWith": {

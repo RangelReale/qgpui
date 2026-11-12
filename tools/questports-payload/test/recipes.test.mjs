@@ -100,3 +100,13 @@ test('checkRecipe finds multiple without extensions', async () => {
   recipe.inputs[0].multiple = true
   assert.deepEqual(checkRecipe(recipe), ['input roms has multiple but no extensions'])
 })
+
+test('checkRecipe finds a required input in a group and a group of one', async () => {
+  const recipe = await sample('descent-1-2-vr')
+  recipe.inputs[0].required = true
+  delete recipe.inputs[1].group
+  assert.deepEqual(checkRecipe(recipe), [
+    'input descent1 is in group game but required',
+    'group game has only one input'
+  ])
+})
