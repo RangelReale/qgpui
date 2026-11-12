@@ -24,7 +24,10 @@ library, a payload reader and two developer tools.
 - `apps/qgp/`: the main app, Qt Widgets. The main window shows the payload's games in a `QListView`
   in icon mode: the cover, with the title below. A toolbar's Order box picks a
   `questports::GameOrder`; `GameSortModel` applies it and `QSettings` remembers it. `CoverCache` downloads covers through a
-  `QNetworkDiskCache` and fits them into one size. The icons in `apps/qgp/icons/` are temporary;
+  `QNetworkDiskCache` and fits them into one size. `HeadsetConnection` starts the adb server
+  if needed, tracks devices and remembers the current headset (`QSettings`); the toolbar's
+  Headset button and the status bar's red/green indicator open `HeadsetDialog`, which lists
+  headsets, searches over mDNS and pairs or connects over Wi-Fi. The icons in `apps/qgp/icons/` are temporary;
   `make-icon.ps1` draws them (Windows PowerShell). `qgp.rc` gives the .exe its icon.
 - `cmake/`: shared CMake functions (`qgp_add_qt_test`).
 - `docs/`: research notes, such as where QuestPorts keeps its data.

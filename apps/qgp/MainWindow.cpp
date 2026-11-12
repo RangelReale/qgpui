@@ -3,6 +3,8 @@
 #include "CoverCache.h"
 #include "GameListModel.h"
 #include "GameSortModel.h"
+#include "HeadsetConnection.h"
+#include "HeadsetDialog.h"
 
 #include "questports/Catalog.h"
 #include "questports/GameOrder.h"
@@ -21,6 +23,7 @@
 #include <QSettings>
 #include <QStatusBar>
 #include <QToolBar>
+#include <QToolButton>
 
 namespace {
 
@@ -70,6 +73,8 @@ MainWindow::MainWindow(QWidget* parent)
     , m_order(new QComboBox(this))
     , m_view(new GameListView(this))
     , m_status(new QLabel(this))
+    , m_headset(new HeadsetConnection(this))
+    , m_headsetStatus(new QToolButton(this))
 {
     setWindowTitle(QStringLiteral("qgp"));
 
@@ -96,6 +101,17 @@ MainWindow::MainWindow(QWidget* parent)
 
     createToolBar();
     statusBar()->addWidget(m_status, 1);
+
+    // The headset connection, at the right of the status bar. A click opens the Headset dialog.
+    m_headsetStatus->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    m_headsetStatus->setAutoRaise(true);
+    m_headsetStatus->setIconSize(QSize(12, 12));
+    connect(m_headsetStatus, &QToolButton::clicked, this, &MainWindow::showHeadsetDialog);
+    statusBar()->addPermanentWidget(m_headsetStatus);
+
+    connect(m_headset, &HeadsetConnection::statusChanged, this, &MainWindow::updateHeadsetStatus);
+    updateHeadsetStatus();
+    m_headset->start();
 }
 
 void MainWindow::createToolBar()
@@ -103,6 +119,11 @@ void MainWindow::createToolBar()
     QToolBar* toolBar = addToolBar(tr("Games"));
     toolBar->setObjectName(QStringLiteral("gamesToolBar"));
     toolBar->setMovable(false);
+    toolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+
+    m_headsetAction = toolBar->addAction(tr("&Headset"), this, &MainWindow::showHeadsetDialog);
+    m_headsetAction->setToolTip(tr("Connect a headset"));
+    toolBar->addSeparator();
 
     auto* label = new QLabel(tr("&Order:"), toolBar);
     label->setBuddy(m_order);
@@ -126,6 +147,29 @@ void MainWindow::orderChanged()
     m_sorted->setOrder(questports::gameOrderFromKey(key));
     QSettings().setValue(kOrderSetting, key);
     m_view->scrollToTop();
+}
+
+void MainWindow::showHeadsetDialog()
+{
+    if (!m_headsetDialog)
+        m_headsetDialog = new HeadsetDialog(m_headset, this);
+    m_headsetDialog->show();
+    m_headsetDialog->raise();
+    m_headsetDialog->activateWindow();
+}
+
+void MainWindow::updateHeadsetStatus()
+{
+    const QIcon icon = HeadsetConnection::statusIcon(m_headset->isReady());
+    const QString text = m_headset->statusText();
+    const QString advice = m_headset->statusAdvice();
+    const QString toolTip = advice.isEmpty() ? text : QStringLiteral("%1\n%2").arg(text, advice);
+
+    m_headsetStatus->setIcon(icon);
+    m_headsetStatus->setText(text);
+    m_headsetStatus->setToolTip(toolTip);
+    m_headsetAction->setIcon(icon);
+    m_headsetAction->setToolTip(toolTip);
 }
 
 bool MainWindow::loadPayload(const QString& path)

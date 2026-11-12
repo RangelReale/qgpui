@@ -5,9 +5,13 @@
 class CoverCache;
 class GameListModel;
 class GameSortModel;
+class HeadsetConnection;
+class HeadsetDialog;
+class QAction;
 class QComboBox;
 class QLabel;
 class QListView;
+class QToolButton;
 
 // The main window: every game of the QuestPorts payload as a cover with its title below.
 class MainWindow : public QMainWindow
@@ -26,6 +30,8 @@ private:
     void reloadPayload();
     void createToolBar();
     void orderChanged();
+    void showHeadsetDialog();
+    void updateHeadsetStatus();
 
     CoverCache* m_covers;
     GameListModel* m_model;
@@ -33,5 +39,9 @@ private:
     QComboBox* m_order;
     QListView* m_view;
     QLabel* m_status;
+    HeadsetConnection* m_headset;
+    HeadsetDialog* m_headsetDialog = nullptr;
+    QAction* m_headsetAction = nullptr;
+    QToolButton* m_headsetStatus;
     QString m_payloadPath;
 };
