@@ -1,0 +1,21 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "supertuxkart-vr",
+  "status": "draft",
+  "checkedAgainst": {
+    "packageName": "portroyale.online.supertuxkart",
+    "version": "v1.0.1"
+  },
+  "requirements": { "freeSpaceMB": 1000 },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "SgtBilko76/SuperTuxKart-VR",
+      "asset": "^SuperTuxKart-VR-.*\\.apk$"
+    }
+  ],
+  "inputs": [],
+  "steps": [{ "do": "install-apk" }]
+}

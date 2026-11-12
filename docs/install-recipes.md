@@ -1,0 +1,92 @@
+# Install recipes
+
+An install recipe tells qgp how to install one QuestPorts game on a headset. It holds only what the QuestPorts payload lacks:
+
+- where the APK comes from;
+- which files the user supplies;
+- the steps to run, in order.
+
+The payload already says where files end up. [`install-processes.md`](install-processes.md) explains why it is not enough on its own.
+
+Recipes are written by hand and committed, one file per game:
+
+- `data/recipes/<slug>.json`: the recipes. The file name is the game's slug.
+- `data/recipe.schema.json`: the JSON Schema they follow (draft 2020-12). Editors that read `$schema` check a recipe while you write it.
+
+`tools/questports-payload` checks every recipe with `npm test`. A later merge command will join the recipes with the payload into one catalog file for qgp. It will also report games that have no recipe and recipes whose payload values have changed.
+
+## Status
+
+The format is a first draft (`version: 1`), written from five sample games:
+
+| Recipe | Kind |
+|---|---|
+| `quakequest` | Copy from a PC install into a fixed folder tree |
+| `xelee` | A disc image, imported in the app |
+| `starship-vr` | A file the user makes with a PC tool, pushed into `Android/data` |
+| `virtua-cop-vr` | Arcade ROM sets, kept zipped |
+| `supertuxkart-vr` | The APK only |
+
+New step kinds and fields will be added as more games get recipes. Planned additions include `shell` (for `chmod`), config edits, and backup and restore for ports that changed their signing key.
+
+## Fields
+
+| Field | Meaning |
+|---|---|
+| `format`, `version` | Always `qgp-install-recipe` and `1`. |
+| `slug` | The game's slug. It must match the file name. |
+| `status` | `draft` means written from the guide. `reviewed` means checked by a person. `tested` means installed on a real headset. |
+| `checkedAgainst` | The payload's `packageName`, `latest_version` and `targetPath` at the time the recipe was written. The merge tool warns when they change. |
+| `packageName` | Optional. Overrides the payload's package name when the payload is wrong. |
+| `requirements.freeSpaceMB` | Free space the headset needs. |
+| `apks` | Where the APKs come from. The first one is the game's main app. |
+| `inputs` | Files the user supplies. |
+| `steps` | What qgp does, in order. |
+| `notes` | For maintainers. Not shown to users. |
+
+### APK sources
+
+- **`github`**: qgp takes the newest release of `repo` whose tag matches `tag`, then the asset whose name matches `asset`. Pre-releases count only with `prerelease: true`. Both patterns are needed in practice:
+  - Some repositories hold several games. port0r, for example, uses the tag `^vcop-v` for Cop VR.
+  - Some repositories publish only pre-releases, so GitHub has no "latest" release. xelee and Starship-VR are examples.
+  - Some releases carry Pico, PCVR or plain Android builds next to the Quest APK.
+- **`url`**: a fixed download URL.
+- **`manual`**: the user downloads the APK from `page`, for example itch.io or Patreon, and picks the file. qgp checks the file name against `asset`.
+
+### Inputs
+
+Every input has an `id`, a `label` and an optional `help` text for the user.
+
+An input may name a PC tool in `preparedWith`. qgp then links to the tool and tells the user how to use it. qgp does not run the tool itself.
+
+- **`pc-install`**: a game installed on the PC.
+  - `stores` lists where qgp looks: the store, its app ID and the usual install folder name. If qgp finds nothing, the user picks the folder.
+  - `root` is the folder inside the install that the paths are relative to. For Quake it is `id1`.
+  - `detect` lists files that must exist below `root` for the folder to count as the right one.
+- **`file`**: one or more files the user picks.
+  - `names` lists exact file names that are all required. `extensions` accepts one file of any name. An input needs at least one of the two.
+  - `keepArchived` means zips are pushed as they are, never unpacked.
+  - `disc` checks a GameCube or Wii disc header (game ID and revision).
+  - `sha1` lists accepted hashes.
+  - `checkedByApp` means the game checks the file itself.
+
+### Steps
+
+| Step | What qgp does |
+|---|---|
+| `install-apk` | Installs every APK with `adb install -r`, and with `-g` when `grantAll` is set. |
+| `grant` | Grants an app op (`appops set <package> <op> allow`) or a permission (`pm grant`). |
+| `launch` | Starts the main app and waits (`waitSeconds`, default 10). It then force-stops the app, unless `stop` is false. `why` says what the launch is for. |
+| `push` | Pushes an input's files. Each `map` entry takes `from` and sends it `to` a path under `/sdcard/`. `from` is a glob below the input's root, or one of its `names`. Without `from`, every file of the input is pushed. A `to` that ends in `/` is a folder; any other `to` is the file's new path. |
+| `verify` | Checks over adb that the listed files exist. |
+| `tell` | Shows the user what to do in the headset. |
+
+### Checks beyond the schema
+
+`src/recipes.mjs` in the payload tool also checks:
+
+- the file name matches the slug;
+- `tag` and `asset` are valid regular expressions;
+- input IDs are unique, and every input is pushed;
+- every push names an existing input, and a `from` matches one of that input's `names`;
+- there is an `install-apk` step, and no `grant` or `launch` comes before it.

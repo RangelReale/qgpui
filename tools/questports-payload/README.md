@@ -63,6 +63,10 @@ npm test
 The tests use a small fixture repository in `test/fixtures/repo/` and fake HTTP responses. They do
 not contact QuestPorts.
 
+The tests also check every install recipe in `data/recipes/` against `data/recipe.schema.json`,
+with the extra checks in `src/recipes.mjs`. The recipe format is described in
+[`docs/install-recipes.md`](../../docs/install-recipes.md).
+
 ## Payload format
 
 One JSON object, version 1:

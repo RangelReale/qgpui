@@ -25,7 +25,10 @@ checkout, or run `task payload` in the worktree.
 - `tools/questports-payload/`: a Node tool, outside the CMake build, that joins the QuestPorts game
   list (Supabase) with each game's install requirements (TypeScript in the QuestPorts repository)
   into one JSON file. `npm install`, then `npm run build-payload` and `npm test`. See its README
-  for the payload format.
+  for the payload format. `src/recipes.mjs` checks the install recipes.
+- `data/recipes/<slug>.json`: hand-written install recipes, one per game, following
+  `data/recipe.schema.json`. They hold what the payload lacks: the APK source, the user's files and
+  the steps. See `docs/install-recipes.md`.
 - `local/`: ignored by git. Holds uncommitted working files, such as the generated payload and
   current keys or passwords. Never commit its contents.
 - `libs/questports/`: reads the payload that `tools/questports-payload` writes (`Catalog`,

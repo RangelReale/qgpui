@@ -1,0 +1,326 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/RangelReale/qgp/data/recipe.schema.json",
+  "title": "qgp install recipe",
+  "description": "How qgp installs one QuestPorts game. Holds only what the QuestPorts payload lacks. See docs/install-recipes.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["format", "version", "slug", "status", "checkedAgainst", "apks", "inputs", "steps"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "format": { "const": "qgp-install-recipe" },
+    "version": { "const": 1 },
+    "slug": { "$ref": "#/$defs/slug" },
+    "status": {
+      "description": "draft: written from the guide. reviewed: checked by a person. tested: installed on a real headset.",
+      "enum": ["draft", "reviewed", "tested"]
+    },
+    "checkedAgainst": {
+      "description": "Payload values the recipe was written against. The merge tool warns when the payload changes them.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["packageName", "version"],
+      "properties": {
+        "packageName": { "$ref": "#/$defs/packageName" },
+        "version": { "description": "port.latest_version", "type": "string" },
+        "targetPath": { "description": "install.targetPath, if the payload has one.", "type": "string" }
+      }
+    },
+    "packageName": {
+      "description": "Overrides install.packageName when the payload is wrong.",
+      "$ref": "#/$defs/packageName"
+    },
+    "requirements": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "freeSpaceMB": { "description": "Free space needed on the headset, in MB.", "type": "integer", "minimum": 1 }
+      }
+    },
+    "apks": {
+      "description": "Where the APKs come from. The first one is the game's main app.",
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/apk" }
+    },
+    "inputs": {
+      "description": "Files the user supplies.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/input" }
+    },
+    "steps": {
+      "description": "What qgp does, in order.",
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/step" }
+    },
+    "notes": { "description": "For maintainers. Not shown to users.", "type": "string" }
+  },
+  "$defs": {
+    "slug": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "packageName": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*)+$" },
+    "regex": { "description": "An ECMAScript regular expression.", "type": "string", "minLength": 1 },
+    "headsetPath": { "description": "An absolute path on the headset.", "type": "string", "pattern": "^/sdcard/" },
+    "url": { "type": "string", "pattern": "^https://" },
+
+    "apk": {
+      "type": "object",
+      "required": ["source"],
+      "properties": { "source": { "enum": ["github", "url", "manual"] } },
+      "oneOf": [
+        { "$ref": "#/$defs/apkGithub" },
+        { "$ref": "#/$defs/apkUrl" },
+        { "$ref": "#/$defs/apkManual" }
+      ]
+    },
+    "apkGithub": {
+      "description": "The newest release of a GitHub repository whose tag matches `tag`, then its asset that matches `asset`.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "repo", "asset"],
+      "properties": {
+        "source": { "const": "github" },
+        "repo": { "type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$" },
+        "tag": { "description": "Only releases whose tag matches. Default: any tag.", "$ref": "#/$defs/regex" },
+        "prerelease": { "description": "Also consider pre-releases. Default: false.", "type": "boolean" },
+        "asset": { "$ref": "#/$defs/regex" },
+        "packageName": { "$ref": "#/$defs/packageName" }
+      }
+    },
+    "apkUrl": {
+      "description": "A fixed download URL.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "url"],
+      "properties": {
+        "source": { "const": "url" },
+        "url": { "$ref": "#/$defs/url" },
+        "packageName": { "$ref": "#/$defs/packageName" }
+      }
+    },
+    "apkManual": {
+      "description": "The user downloads the APK from a page and picks the file.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "page", "asset"],
+      "properties": {
+        "source": { "const": "manual" },
+        "page": { "$ref": "#/$defs/url" },
+        "asset": { "description": "Matches the file name the user picks.", "$ref": "#/$defs/regex" },
+        "help": { "type": "string" },
+        "packageName": { "$ref": "#/$defs/packageName" }
+      }
+    },
+
+    "input": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": { "kind": { "enum": ["pc-install", "file"] } },
+      "oneOf": [
+        { "$ref": "#/$defs/inputPcInstall" },
+        { "$ref": "#/$defs/inputFile" }
+      ]
+    },
+    "inputLabel": { "description": "Shown to the user.", "type": "string" },
+    "inputHelp": { "description": "Shown to the user: what to supply and where to find it.", "type": "string" },
+    "inputRequired": { "description": "Default: true.", "type": "boolean" },
+    "preparedWith": {
+      "description": "A tool the user runs on the PC to make this input. qgp links to it; it does not run it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tool", "url", "help"],
+      "properties": {
+        "tool": { "type": "string" },
+        "url": { "$ref": "#/$defs/url" },
+        "help": { "type": "string" }
+      }
+    },
+    "inputPcInstall": {
+      "description": "A game installed on the PC. qgp looks for it in each store, or the user picks the folder.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "label", "detect"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "kind": { "const": "pc-install" },
+        "label": { "$ref": "#/$defs/inputLabel" },
+        "help": { "$ref": "#/$defs/inputHelp" },
+        "required": { "$ref": "#/$defs/inputRequired" },
+        "preparedWith": { "$ref": "#/$defs/preparedWith" },
+        "stores": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["store"],
+            "properties": {
+              "store": { "enum": ["steam", "gog", "bethesda", "other"] },
+              "appId": { "description": "Steam app ID or GOG product ID.", "type": "string" },
+              "installDir": { "description": "The install folder's usual name.", "type": "string" }
+            }
+          }
+        },
+        "root": {
+          "description": "Folder inside the install that push paths and detect paths are relative to. If the user picks this folder itself, qgp uses it as is.",
+          "type": "string"
+        },
+        "detect": {
+          "description": "Files, relative to root, that must exist for the folder to count as the right one.",
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "inputFile": {
+      "description": "One or more files the user picks.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "label"],
+      "anyOf": [{ "required": ["names"] }, { "required": ["extensions"] }],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "kind": { "const": "file" },
+        "label": { "$ref": "#/$defs/inputLabel" },
+        "help": { "$ref": "#/$defs/inputHelp" },
+        "required": { "$ref": "#/$defs/inputRequired" },
+        "preparedWith": { "$ref": "#/$defs/preparedWith" },
+        "names": {
+          "description": "Exact file names, all required. Matched without regard to case.",
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" }
+        },
+        "extensions": {
+          "description": "Accepted extensions, with the dot, for one file of any name.",
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "pattern": "^\\.[A-Za-z0-9]+$" }
+        },
+        "keepArchived": { "description": "Zip files are pushed as they are, never unpacked.", "type": "boolean" },
+        "disc": {
+          "description": "Disc header check, for formats whose header qgp can read.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["platform", "gameId"],
+          "properties": {
+            "platform": { "enum": ["gamecube", "wii"] },
+            "gameId": { "type": "string", "pattern": "^[A-Z0-9]{6}$" },
+            "revision": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "sha1": {
+          "description": "Accepted SHA-1 hashes, with a label for each.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["hash", "label"],
+            "properties": {
+              "hash": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+              "label": { "type": "string" }
+            }
+          }
+        },
+        "checkedByApp": { "description": "The game checks the file itself after the push.", "type": "boolean" }
+      }
+    },
+
+    "step": {
+      "type": "object",
+      "required": ["do"],
+      "properties": { "do": { "enum": ["install-apk", "grant", "launch", "push", "verify", "tell"] } },
+      "oneOf": [
+        { "$ref": "#/$defs/stepInstallApk" },
+        { "$ref": "#/$defs/stepGrant" },
+        { "$ref": "#/$defs/stepLaunch" },
+        { "$ref": "#/$defs/stepPush" },
+        { "$ref": "#/$defs/stepVerify" },
+        { "$ref": "#/$defs/stepTell" }
+      ]
+    },
+    "stepInstallApk": {
+      "description": "Install every APK in apks with `adb install -r`.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["do"],
+      "properties": {
+        "do": { "const": "install-apk" },
+        "grantAll": { "description": "Install with -g.", "type": "boolean" }
+      }
+    },
+    "stepGrant": {
+      "description": "Grant a permission over adb, with `appops set` or `pm grant`.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["do"],
+      "oneOf": [{ "required": ["appop"] }, { "required": ["permission"] }],
+      "properties": {
+        "do": { "const": "grant" },
+        "appop": { "type": "string", "pattern": "^[A-Z_]+$" },
+        "permission": { "type": "string", "pattern": "^android\\.permission\\.[A-Z_]+$" },
+        "why": { "type": "string" }
+      }
+    },
+    "stepLaunch": {
+      "description": "Start the main app, wait, and by default stop it again.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["do", "why"],
+      "properties": {
+        "do": { "const": "launch" },
+        "waitSeconds": { "description": "Default: 10.", "type": "integer", "minimum": 1 },
+        "stop": { "description": "Force-stop the app afterwards. Default: true.", "type": "boolean" },
+        "why": { "type": "string" }
+      }
+    },
+    "stepPush": {
+      "description": "Push files of one input. A `to` ending in / is a folder; otherwise it is the file's new path.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["do", "input", "map"],
+      "properties": {
+        "do": { "const": "push" },
+        "input": { "$ref": "#/$defs/id" },
+        "map": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["to"],
+            "properties": {
+              "from": {
+                "description": "A glob relative to the input's root, or a name from the input's names. Omitted: every file of the input.",
+                "type": "string"
+              },
+              "to": { "$ref": "#/$defs/headsetPath" }
+            }
+          }
+        }
+      }
+    },
+    "stepVerify": {
+      "description": "Check over adb that files exist on the headset.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["do", "files"],
+      "properties": {
+        "do": { "const": "verify" },
+        "files": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/headsetPath" } },
+        "why": { "type": "string" }
+      }
+    },
+    "stepTell": {
+      "description": "Show the user something to do in the headset.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["do", "text"],
+      "properties": {
+        "do": { "const": "tell" },
+        "text": { "type": "string" }
+      }
+    }
+  }
+}

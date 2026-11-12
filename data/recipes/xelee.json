@@ -1,0 +1,44 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "xelee",
+  "status": "draft",
+  "checkedAgainst": {
+    "packageName": "dev.melee.game",
+    "version": "v0.4.1-beta",
+    "targetPath": "/sdcard/Download/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "rhythmerc/xelee",
+      "prerelease": true,
+      "asset": "^Xelee-Quest-arm64\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "melee",
+      "kind": "file",
+      "label": "Super Smash Bros. Melee disc image (NTSC-U 1.02)",
+      "help": "Your own disc image of Melee, USA version 1.02, as .iso, .gcm, .ciso or .rvz.",
+      "extensions": [".iso", ".gcm", ".ciso", ".rvz"],
+      "disc": { "platform": "gamecube", "gameId": "GALE01", "revision": 2 },
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "push",
+      "input": "melee",
+      "map": [{ "to": "/sdcard/Download/" }]
+    },
+    {
+      "do": "tell",
+      "text": "Open Xelee from Library > Unknown Sources. Choose the disc image in the file picker and let it verify. The first start builds shaders for a few minutes; press Play to skip it."
+    }
+  ],
+  "notes": "Releases are all pre-releases, so GitHub has no latest release. The same release also has Xelee-Android-arm64.apk, which is not the Quest build. The launcher checks the image against Redump."
+}

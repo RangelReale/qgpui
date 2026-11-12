@@ -1,0 +1,55 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgp-install-recipe",
+  "version": 1,
+  "slug": "quakequest",
+  "status": "draft",
+  "checkedAgainst": {
+    "packageName": "com.drbeef.quakequest",
+    "version": "v1.6.0",
+    "targetPath": "/sdcard/QuakeQuest/"
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "Team-Beef-Studios/QuakeQuest",
+      "asset": "^quakequest-.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "quake",
+      "kind": "pc-install",
+      "label": "Quake (original, not the rerelease)",
+      "help": "Your installed copy of Quake from Steam, GOG or Bethesda. qgp uses the original id1 folder, not rerelease/id1.",
+      "stores": [
+        { "store": "steam", "appId": "2310", "installDir": "Quake" },
+        { "store": "gog", "installDir": "Quake" },
+        { "store": "bethesda", "installDir": "Quake" }
+      ],
+      "root": "id1",
+      "detect": ["pak0.pak", "pak1.pak"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "launch",
+      "why": "The first launch creates /sdcard/QuakeQuest/id1 and copies the shareware pak0.pak, which the push then replaces."
+    },
+    {
+      "do": "push",
+      "input": "quake",
+      "map": [
+        { "from": "pak0.pak", "to": "/sdcard/QuakeQuest/id1/" },
+        { "from": "pak1.pak", "to": "/sdcard/QuakeQuest/id1/" }
+      ]
+    },
+    {
+      "do": "verify",
+      "files": ["/sdcard/QuakeQuest/id1/pak0.pak", "/sdcard/QuakeQuest/id1/pak1.pak"],
+      "why": "pak0.pak alone is the shareware game; pak1.pak shows the full game is there."
+    }
+  ],
+  "notes": "The GOG and Bethesda install folder names are guesses. A shareware pak0.pak and the full one have the same name, so verify must include pak1.pak."
+}
