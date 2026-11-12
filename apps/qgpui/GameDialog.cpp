@@ -702,7 +702,7 @@ void GameDialog::showInstalledBadge(Installed installed)
         setBadge(m_installedBadge, tr("Installed"), tr("QGPUI installed the game on the current headset"), kGreen);
         break;
     case Installed::OutsideQgpui:
-        setBadge(m_installedBadge, tr("Installed outside qgpui"),
+        setBadge(m_installedBadge, tr("Installed outside QGPUI"),
                  tr("The game is on the current headset, but QGPUI did not install it"), kGreen);
         break;
     }

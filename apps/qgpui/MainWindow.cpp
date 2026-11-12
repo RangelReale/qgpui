@@ -287,8 +287,8 @@ void MainWindow::createToolBar()
     addBox(toolBar, tr("&Installed:"), m_onHeadset);
     m_onHeadset->addItem(tr("Any"), int(GameFilter::Headset::Any));
     m_onHeadset->addItem(tr("On my headset"), int(GameFilter::Headset::OnHeadset));
-    m_onHeadset->addItem(tr("Installed by qgpui"), int(GameFilter::Headset::InstalledByQgpui));
-    m_onHeadset->addItem(tr("Installed outside qgpui"), int(GameFilter::Headset::InstalledOutsideQgpui));
+    m_onHeadset->addItem(tr("Installed by QGPUI"), int(GameFilter::Headset::InstalledByQgpui));
+    m_onHeadset->addItem(tr("Installed outside QGPUI"), int(GameFilter::Headset::InstalledOutsideQgpui));
     m_onHeadset->addItem(tr("Not on my headset"), int(GameFilter::Headset::NotOnHeadset));
     m_onHeadset->addItem(tr("Update available"), int(GameFilter::Headset::UpdateAvailable));
     m_onHeadset->setItemData(5, tr("Games on your headset with a newer release than the one installed"), Qt::ToolTipRole);

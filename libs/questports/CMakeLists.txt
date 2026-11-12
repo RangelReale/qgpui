@@ -1,4 +1,4 @@
-# questports: reads the qgpui catalog that tools/questports-payload builds (build-catalog).
+# questports: reads the QGPUI catalog that tools/questports-payload builds (build-catalog).
 qt_add_library(questports STATIC
     include/questports/Catalog.h
     include/questports/GameOrder.h
