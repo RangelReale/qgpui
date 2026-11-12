@@ -26,7 +26,7 @@
       "required": ["packageName", "version"],
       "properties": {
         "packageName": { "$ref": "#/$defs/packageName" },
-        "version": { "description": "port.latest_version", "type": "string" },
+        "version": { "description": "port.latest_version; null when the payload has none.", "type": ["string", "null"] },
         "targetPath": { "description": "install.targetPath, if the payload has one.", "type": "string" }
       }
     },
@@ -79,7 +79,7 @@
       ]
     },
     "apkGithub": {
-      "description": "The newest release of a GitHub repository whose tag matches `tag`, then its asset that matches `asset`.",
+      "description": "The newest release of a GitHub repository whose tag matches `tag` and that has an asset matching `asset`; then that asset.",
       "type": "object",
       "additionalProperties": false,
       "required": ["source", "repo", "asset"],
@@ -318,7 +318,7 @@
             "required": ["to"],
             "properties": {
               "from": {
-                "description": "A glob relative to the input's root, or a name from the input's names. Omitted: every file of the input.",
+                "description": "A glob relative to the input's root, or a name from the input's names. A glob drops the folders before its first wildcard and keeps the rest of each path. Omitted: every file of the input.",
                 "type": "string"
               },
               "to": { "$ref": "#/$defs/headsetPath" }

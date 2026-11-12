@@ -13,7 +13,7 @@ Recipes are written by hand and committed, one file per game:
 - `data/recipes/<slug>.json`: the recipes. The file name is the game's slug.
 - `data/recipe.schema.json`: the JSON Schema they follow (draft 2020-12). Editors that read `$schema` check a recipe while you write it.
 
-`tools/questports-payload` checks every recipe with `npm test`. Its `build-catalog` command (`task catalog`) joins the recipes with the payload into `local/qgp-catalog.json`, the file qgp will read. It also reports recipes without a game and recipes whose payload values have changed. The tool's README describes the command and the catalog format.
+`tools/questports-payload` checks every recipe with `npm test`, or the given files with `npm run check-recipes -- <files>`. Its `build-catalog` command (`task catalog`) joins the recipes with the payload into `local/qgp-catalog.json`, the file qgp will read. It also reports recipes without a game and recipes whose payload values have changed. The tool's README describes the command and the catalog format.
 
 ## Status
 
@@ -27,7 +27,14 @@ The format is a first draft (`version: 1`). It was designed from five sample gam
 | `virtua-cop-vr` | Arcade ROM sets, kept zipped |
 | `supertuxkart-vr` | The APK only |
 
-Writing the other recipes added `support`, `inZip`, `multiple` and the `shell` step. Backup and restore for ports that changed their signing key is still described in `tell` steps and notes.
+Every game in the payload now has a recipe: 114 `automatic`, 22 `guided` and 9 `manual`. All are `draft`: written from the guides and the GitHub releases, checked against the schema, and resolved to a real APK where the source is GitHub, but not installed on a headset. Each recipe's `notes` list what its author was unsure of.
+
+Writing them added `support`, `inZip`, `multiple` and the `shell` step. Known gaps:
+
+- An input cannot say "at least one of these". metal-gear-solid-vr marks all six languages optional.
+- Steps cannot be optional, so an optional marker file (wipeout-pure-vr) is left out.
+- Backup and restore for ports that changed their signing key is described in `tell` steps and notes.
+- Granting All files access with `appops` is not yet tested on a Quest.
 
 ## Fields
 
@@ -47,7 +54,7 @@ Writing the other recipes added `support`, `inZip`, `multiple` and the `shell` s
 
 ### APK sources
 
-- **`github`**: qgp takes the newest release of `repo` whose tag matches `tag`, then the asset whose name matches `asset`. Pre-releases count only with `prerelease: true`. Both patterns are needed in practice:
+- **`github`**: qgp takes the newest release of `repo` whose tag matches `tag` and that has an asset whose name matches `asset`, then that asset. A release without a matching asset is skipped, so a repository whose newest release leaves the game out, or is a PC-only build, still works. Pre-releases count only with `prerelease: true`. Both patterns are needed in practice:
   - Some repositories hold several games. port0r, for example, uses the tag `^vcop-v` for Cop VR.
   - Some repositories publish only pre-releases, so GitHub has no "latest" release. xelee and Starship-VR are examples.
   - Some releases carry Pico, PCVR or plain Android builds next to the Quest APK.
@@ -82,7 +89,7 @@ A folder that is not a store install, such as an arcade dump, is a `pc-install` 
 | `install-apk` | Installs every APK with `adb install -r`, and with `-g` when `grantAll` is set. |
 | `grant` | Grants an app op (`appops set <package> <op> allow`) or a permission (`pm grant`). |
 | `launch` | Starts the main app and waits (`waitSeconds`, default 10). It then force-stops the app, unless `stop` is false. `why` says what the launch is for. |
-| `push` | Pushes an input's files. Each `map` entry takes `from` and sends it `to` a path under `/sdcard/`. `from` is a glob below the input's root, or one of its `names`. Without `from`, every file of the input is pushed. A `to` that ends in `/` is a folder; any other `to` is the file's new path. |
+| `push` | Pushes an input's files. Each `map` entry takes `from` and sends it `to` a path under `/sdcard/`. `from` is a glob below the input's root, or one of its `names`. Without `from`, every file of the input is pushed. A `to` that ends in `/` is a folder; any other `to` is the file's new path. A glob drops the folders before its first wildcard and keeps the rest of each path: `misc/**` to `/sdcard/X/misc/` sends `misc/a/b.txt` to `/sdcard/X/misc/a/b.txt`, and `*.pak` sends files flat. |
 | `verify` | Checks over adb that the listed files exist. |
 | `shell` | Runs one command with `adb shell`; `args` holds the command and its arguments. Used for `chmod`, `content call`, `am force-stop` and marker files. `why` is required. |
 | `tell` | Shows the user what to do in the headset. |

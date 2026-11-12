@@ -11,6 +11,7 @@
   "scripts": {
     "build-payload": "node src/main.mjs",
     "build-catalog": "node src/build-catalog.mjs",
+    "check-recipes": "node src/check-recipes.mjs",
     "test": "node --test \"test/*.test.mjs\""
   },
   "engines": {
