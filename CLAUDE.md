@@ -88,7 +88,7 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   (`FilesFolder::inputGuide`), Open Files Folder (creates the game's folder and its
   `qgp - what goes here.txt`), and Install, which fetches the APK, runs `installer::Runner` with
   a progress bar, Continue for tell steps and a log, then records the install with
-  `HeadsetRecordSync` and shows the result in a coloured banner. Details shows `planInstall`'s commands. File > Files Folder changes the files folder (`QSettings`). File > Settings (`SettingsDialog`)
+  `HeadsetRecordSync` and shows the result in a coloured banner. Details shows the port's `troubleshooting_notes`, when it has any, and `planInstall`'s commands. File > Files Folder changes the files folder (`QSettings`). File > Settings (`SettingsDialog`)
   holds the other preferences, such as keeping the headset awake during installs. The icons in `apps/qgp/icons/` are temporary;
   `make-icon.ps1` draws them (Windows PowerShell). `qgp.rc` gives the .exe its icon. `SingleInstance`
   keeps one qgp per user: a second start passes its catalog argument to the first, which comes to

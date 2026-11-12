@@ -39,6 +39,7 @@
 #include <QPlainTextEdit>
 #include <QProgressBar>
 #include <QPushButton>
+#include <QRegularExpression>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QTime>
@@ -115,6 +116,24 @@ void setBadge(QLabel* badge, const QString& text, const QString& toolTip, const 
     badge->setStyleSheet(QStringLiteral("QLabel { background: rgba(%1, 0.18); border: 1px solid rgba(%1, 0.7);"
                                         " border-radius: 9px; padding: 1px 8px; }")
                              .arg(colour));
+}
+
+// Plain text as HTML, with its web addresses as links. An address ends before closing punctuation,
+// so that "(https://x.test)." links only the address.
+QString linkified(const QString& text)
+{
+    static const QRegularExpression url(QStringLiteral(R"(https?:\/\/[^\s<>()]*[^\s<>().,;:!?'"])"));
+    QString html;
+    qsizetype last = 0;
+    for (auto it = url.globalMatch(text); it.hasNext();) {
+        const QRegularExpressionMatch match = it.next();
+        html += text.mid(last, match.capturedStart() - last).toHtmlEscaped();
+        const QString address = match.captured().toHtmlEscaped();
+        html += QStringLiteral("<a href=\"%1\">%1</a>").arg(address);
+        last = match.capturedEnd();
+    }
+    html += text.mid(last).toHtmlEscaped();
+    return html.replace(u'\n', QStringLiteral("<br>"));
 }
 
 QString native(const QString& path)
@@ -306,7 +325,7 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     connect(m_installButton, &QPushButton::clicked, this, &GameDialog::install);
     connect(m_cancelButton, &QPushButton::clicked, this, &GameDialog::cancel);
     m_cancelButton->hide();
-    m_detailsButton->setToolTip(tr("Show every command the install runs"));
+    m_detailsButton->setToolTip(tr("Show the port's troubleshooting notes and every command the install runs"));
     connect(m_detailsButton, &QPushButton::clicked, this, &GameDialog::showInstallDetails);
     auto* installRow = new QHBoxLayout;
     installRow->addWidget(m_installButton);
@@ -708,38 +727,62 @@ void GameDialog::updateButtons()
     m_installButton->setEnabled(!m_running && hint.isEmpty());
     m_installButton->setVisible(!m_running);
     m_cancelButton->setVisible(m_running);
-    m_detailsButton->setEnabled(m_recipe.has_value());
+    m_detailsButton->setEnabled(m_recipe.has_value() || !troubleshootingNotes().isEmpty());
     m_installHint->setText(m_running ? QString() : hint);
+}
+
+QString GameDialog::troubleshootingNotes() const
+{
+    return m_game.port.value(QLatin1StringView("troubleshooting_notes")).toString().trimmed();
 }
 
 void GameDialog::showInstallDetails()
 {
-    if (!m_recipe)
+    const QString notes = troubleshootingNotes();
+    if (!m_recipe && notes.isEmpty())
         return;
-    installer::InstallPlan plan = installer::planInstall(*m_recipe, {}, InputResolver::sources(m_inputs));
-    plan.steps.append({tr("Record the install"),
-                       {tr("Write the release and version to /sdcard/qgp/installs.json on the headset.")}});
-    const QString text = plan.toText();
 
     auto* dialog = new QDialog(this);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->setWindowTitle(tr("How qgp installs %1").arg(m_game.title));
-    auto* intro = new QLabel(tr("The install runs these steps in order, with the files as they are found now. "
-                                "Lines that start with adb are the commands as the adb tool would take them; "
-                                "qgp sends them to the adb server itself."),
-                             dialog);
-    intro->setWordWrap(true);
-    auto* view = new QPlainTextEdit(text, dialog);
-    view->setReadOnly(true);
-    view->setLineWrapMode(QPlainTextEdit::NoWrap);
-    view->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
-    auto* buttons = new QDialogButtonBox(QDialogButtonBox::Close, dialog);
-    QPushButton* copy = buttons->addButton(tr("&Copy"), QDialogButtonBox::ActionRole);
-    connect(copy, &QPushButton::clicked, dialog, [text] { QApplication::clipboard()->setText(text); });
-    connect(buttons, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
     auto* layout = new QVBoxLayout(dialog);
-    layout->addWidget(intro);
-    layout->addWidget(view, 1);
+    auto* buttons = new QDialogButtonBox(QDialogButtonBox::Close, dialog);
+    connect(buttons, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
+
+    // QuestPorts' troubleshooting notes for the port, above the steps.
+    if (!notes.isEmpty()) {
+        auto* box = new QGroupBox(tr("Troubleshooting"), dialog);
+        auto* label = new QLabel(linkified(notes), box);
+        label->setTextFormat(Qt::RichText);
+        label->setWordWrap(true);
+        label->setOpenExternalLinks(true);
+        label->setTextInteractionFlags(Qt::TextBrowserInteraction);
+        auto* boxLayout = new QVBoxLayout(box);
+        boxLayout->addWidget(label);
+        layout->addWidget(box);
+    }
+
+    if (m_recipe) {
+        installer::InstallPlan plan = installer::planInstall(*m_recipe, {}, InputResolver::sources(m_inputs));
+        plan.steps.append({tr("Record the install"),
+                           {tr("Write the release and version to /sdcard/qgp/installs.json on the headset.")}});
+        const QString text = plan.toText();
+        auto* intro = new QLabel(tr("The install runs these steps in order, with the files as they are found now. "
+                                    "Lines that start with adb are the commands as the adb tool would take them; "
+                                    "qgp sends them to the adb server itself."),
+                                 dialog);
+        intro->setWordWrap(true);
+        auto* view = new QPlainTextEdit(text, dialog);
+        view->setReadOnly(true);
+        view->setLineWrapMode(QPlainTextEdit::NoWrap);
+        view->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
+        QPushButton* copy = buttons->addButton(tr("&Copy"), QDialogButtonBox::ActionRole);
+        connect(copy, &QPushButton::clicked, dialog, [text] { QApplication::clipboard()->setText(text); });
+        layout->addWidget(intro);
+        layout->addWidget(view, 1);
+    } else {
+        layout->addStretch();
+    }
     layout->addWidget(buttons);
     dialog->resize(900, 600);
     dialog->show();
