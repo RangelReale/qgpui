@@ -160,6 +160,44 @@ private slots:
         QCOMPARE(reply->error(), Reply::Error::CommandFailed);
     }
 
+    void devicePackagesStorageAndSerial()
+    {
+        REQUIRE_DEVICE();
+        std::unique_ptr<PackagesReply> packages(client.packages(serial));
+        QVERIFY(packages->waitForFinished(30000));
+        QVERIFY2(packages->isSuccess(), qPrintable(packages->errorString()));
+        qInfo("%lld third-party packages", qlonglong(packages->packages().size()));
+        QVERIFY(!packages->packages().isEmpty());
+
+        // The first package's details agree with the list.
+        const PackageInfo first = packages->packages().first();
+        std::unique_ptr<PackageInfoReply> info(client.packageInfo(serial, first.packageName));
+        QVERIFY(info->waitForFinished(30000));
+        QVERIFY(info->isInstalled());
+        qInfo("%s versionCode %lld versionName %s, updated %s", qPrintable(first.packageName),
+              qlonglong(info->info().versionCode), qPrintable(info->info().versionName),
+              qPrintable(info->info().lastUpdateTime.toString(Qt::ISODate)));
+        QCOMPARE(info->info().versionCode, first.versionCode);
+
+        std::unique_ptr<PackageInfoReply> missing(client.packageInfo(serial, QStringLiteral("com.qadb.does.not.exist")));
+        QVERIFY(missing->waitForFinished(30000));
+        QVERIFY(missing->isSuccess());
+        QVERIFY(!missing->isInstalled());
+
+        std::unique_ptr<StorageReply> storage(client.storage(serial));
+        QVERIFY(storage->waitForFinished(30000));
+        QVERIFY2(storage->isSuccess(), qPrintable(storage->errorString()));
+        qInfo("storage: %lld MB free of %lld MB", qlonglong(storage->info().freeBytes >> 20),
+              qlonglong(storage->info().totalBytes >> 20));
+        QVERIFY(storage->info().freeBytes > 0);
+        QVERIFY(storage->info().totalBytes >= storage->info().freeBytes);
+
+        std::unique_ptr<Reply> hardware(client.getProperty(serial, QStringLiteral("ro.serialno")));
+        QVERIFY(hardware->waitForFinished(30000));
+        qInfo("ro.serialno: %s", qPrintable(hardware->outputText()));
+        QVERIFY(!hardware->outputText().isEmpty());
+    }
+
     void deviceWrite()
     {
         REQUIRE_DEVICE();

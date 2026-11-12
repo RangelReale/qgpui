@@ -148,6 +148,48 @@ private:
     RemoteFileInfo m_info;
 };
 
+// The installed packages, from `pm list packages --show-versioncode`.
+class PackagesReply : public Reply
+{
+    Q_OBJECT
+public:
+    QList<PackageInfo> packages() const { return m_packages; }
+
+private:
+    friend struct detail::ReplyAccess;
+    using Reply::Reply;
+    QList<PackageInfo> m_packages;
+};
+
+// One package, from `dumpsys package`. A package that is not installed is not an error:
+// isInstalled() is false.
+class PackageInfoReply : public Reply
+{
+    Q_OBJECT
+public:
+    bool isInstalled() const { return m_installed; }
+    PackageInfo info() const { return m_info; }
+
+private:
+    friend struct detail::ReplyAccess;
+    using Reply::Reply;
+    bool m_installed = false;
+    PackageInfo m_info;
+};
+
+// A file system's size, from `stat -f`.
+class StorageReply : public Reply
+{
+    Q_OBJECT
+public:
+    StorageInfo info() const { return m_info; }
+
+private:
+    friend struct detail::ReplyAccess;
+    using Reply::Reply;
+    StorageInfo m_info;
+};
+
 // The sync LIST request. The "." and ".." entries are left out.
 class ListReply : public Reply
 {

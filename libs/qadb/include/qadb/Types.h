@@ -83,6 +83,25 @@ struct RemoteFileInfo
     bool isSymLink() const { return (mode & 0170000) == 0120000; }
 };
 
+// An installed package. versionCode is -1 when unknown.
+struct PackageInfo
+{
+    QString packageName;
+    qint64 versionCode = -1;
+    QString versionName;       // Only from packageInfo(), not from packages().
+    QDateTime firstInstallTime; // Only from packageInfo().
+    QDateTime lastUpdateTime;   // Only from packageInfo().
+
+    friend bool operator==(const PackageInfo&, const PackageInfo&) = default;
+};
+
+// The size of a file system on the device, as `stat -f` reports it.
+struct StorageInfo
+{
+    qint64 totalBytes = 0;
+    qint64 freeBytes = 0; // Available to apps.
+};
+
 struct InstallOptions
 {
     bool replace = true;            // -r: reinstall, keeping the app's data.

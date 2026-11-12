@@ -12,7 +12,8 @@ the server.
 | Network | pair with wireless debugging (pairing code), connect and disconnect Wi-Fi devices, enable TCP/IP on a USB device, switch a USB device to Wi-Fi in one step, mDNS services |
 | Device | shell (with exit code and separate stderr), exec, reboot, features |
 | Files | push (from a file or bytes), pull, stat, list, with progress |
-| Packages | install APK (streamed, or copied then `pm install`), uninstall |
+| Packages | install APK (streamed, or copied then `pm install`), uninstall, list installed packages with versionCode, one package's version and install times |
+| Device state | free space (`stat -f`), system properties such as the hardware serial `ro.serialno` |
 
 ## Use
 

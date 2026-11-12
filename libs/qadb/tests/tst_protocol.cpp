@@ -101,6 +101,66 @@ private slots:
         QCOMPARE(protocol::readLittleEndian32("\x01\x02\0\0"), 0x0201u);
         QCOMPARE(protocol::shellPacket(protocol::ShellCloseStdin), QByteArray("\x04\0\0\0\0", 5));
     }
+
+    void parsePackageList()
+    {
+        const auto packages = protocol::parsePackageList("package:com.bilko.urtquest versionCode:101\r\n"
+                                                         "package:com.drbeef.lambda1vr versionCode:29\n"
+                                                         "package:com.no.version\n"
+                                                         "\n");
+        QCOMPARE(packages.size(), 3);
+        QCOMPARE(packages[0].packageName, QStringLiteral("com.bilko.urtquest"));
+        QCOMPARE(packages[0].versionCode, 101);
+        QCOMPARE(packages[1].versionCode, 29);
+        QCOMPARE(packages[2].packageName, QStringLiteral("com.no.version"));
+        QCOMPARE(packages[2].versionCode, -1);
+        QVERIFY(protocol::parsePackageList("").isEmpty());
+    }
+
+    void parsePackageDump()
+    {
+        // Cut from a Quest 3's `dumpsys package com.bilko.urtquest`.
+        const QByteArray dump = "Key Set Manager:\n"
+                                "  [com.bilko.urtquest]\n"
+                                "      Signing KeySets: 61\n"
+                                "\n"
+                                "Packages:\n"
+                                "  Package [com.bilko.urtquest] (cf029d2):\n"
+                                "    appId=10301\n"
+                                "    versionCode=101 minSdk=25 targetSdk=34\n"
+                                "    versionName=1.0.1\n"
+                                "    lastUpdateTime=2026-11-12 17:11:11\n"
+                                "    User 0: ceDataInode=1 installed=true hidden=false\n"
+                                "      firstInstallTime=2026-11-12 17:11:11\n"
+                                "  Package [com.other] (abc):\n"
+                                "    versionCode=7 minSdk=1 targetSdk=1\n"
+                                "\n"
+                                "Queries:\n"
+                                "  versionCode=999\n";
+        const auto info = protocol::parsePackageDump(QStringLiteral("com.bilko.urtquest"), dump);
+        QVERIFY(info);
+        QCOMPARE(info->versionCode, 101);
+        QCOMPARE(info->versionName, QStringLiteral("1.0.1"));
+        QCOMPARE(info->lastUpdateTime, QDateTime(QDate(2026, 11, 12), QTime(17, 11, 11)));
+        QCOMPARE(info->firstInstallTime, QDateTime(QDate(2026, 11, 12), QTime(17, 11, 11)));
+
+        const auto other = protocol::parsePackageDump(QStringLiteral("com.other"), dump);
+        QVERIFY(other);
+        QCOMPARE(other->versionCode, 7); // Not the 999 under Queries.
+
+        QVERIFY(!protocol::parsePackageDump(QStringLiteral("com.example.notinstalled"),
+                                            "Unable to find package: com.example.notinstalled\n"));
+    }
+
+    void parseStatFs()
+    {
+        const auto info = protocol::parseStatFs("4096 117550775 15477877\n");
+        QVERIFY(info);
+        QCOMPARE(info->totalBytes, qint64(4096) * 117550775);
+        QCOMPARE(info->freeBytes, qint64(4096) * 15477877);
+        QVERIFY(!protocol::parseStatFs("stat: /nope: No such file or directory"));
+        QVERIFY(!protocol::parseStatFs(""));
+    }
 };
 
 QTEST_GUILESS_MAIN(TestProtocol)

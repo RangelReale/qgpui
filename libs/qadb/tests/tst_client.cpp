@@ -59,6 +59,20 @@ private slots:
                 result.out = command.endsWith(QLatin1String("missing.app"))
                                  ? "Failure [DELETE_FAILED_INTERNAL_ERROR]\n"
                                  : "Success\n";
+            } else if (command == QLatin1String("pm list packages -3 --show-versioncode")) {
+                result.out = "package:com.bilko.urtquest versionCode:101\npackage:com.drbeef.lambda1vr versionCode:29\n";
+            } else if (command == QLatin1String("dumpsys package com.bilko.urtquest")) {
+                result.out = "Packages:\n  Package [com.bilko.urtquest] (cf029d2):\n"
+                             "    versionCode=101 minSdk=25 targetSdk=34\n    versionName=1.0.1\n";
+            } else if (command.startsWith(QLatin1String("dumpsys package "))) {
+                result.out = "Unable to find package: " + command.mid(16).toUtf8() + '\n';
+            } else if (command == QLatin1String("stat -f -c '%S %b %a' /sdcard")) {
+                result.out = "4096 117550775 15477877\n";
+            } else if (command.startsWith(QLatin1String("stat -f"))) {
+                result.err = "stat: /nope: No such file or directory\n";
+                result.exitCode = 1;
+            } else if (command == QLatin1String("getprop ro.serialno")) {
+                result.out = "2G0YC5ZG4D040F\n";
             } else if (command.startsWith(QLatin1String("echo "))) {
                 result.out = command.mid(5).toUtf8() + '\n';
             }
@@ -214,6 +228,67 @@ private slots:
         QCOMPARE(reply->output(), QByteArray("Quest 3\n"));
         QVERIFY(!reply->hasExitCode());
         QVERIFY(server->requests.contains(kSerial + QStringLiteral("|shell:getprop ro.product.model")));
+    }
+
+    void installedPackages()
+    {
+        std::unique_ptr<PackagesReply> list(client->packages(kSerial));
+        QVERIFY(list->waitForFinished(5000));
+        QVERIFY2(list->isSuccess(), qPrintable(list->errorString()));
+        QCOMPARE(list->packages().size(), 2);
+        QCOMPARE(list->packages().at(0).versionCode, 101);
+
+        std::unique_ptr<PackageInfoReply> info(client->packageInfo(kSerial, QStringLiteral("com.bilko.urtquest")));
+        QVERIFY(info->waitForFinished(5000));
+        QVERIFY(info->isSuccess());
+        QVERIFY(info->isInstalled());
+        QCOMPARE(info->info().versionName, QStringLiteral("1.0.1"));
+
+        // Not installed is an answer, not an error.
+        std::unique_ptr<PackageInfoReply> missing(client->packageInfo(kSerial, QStringLiteral("com.example.none")));
+        QVERIFY(missing->waitForFinished(5000));
+        QVERIFY(missing->isSuccess());
+        QVERIFY(!missing->isInstalled());
+        QCOMPARE(missing->info().packageName, QStringLiteral("com.example.none"));
+    }
+
+    void storageAndProperties()
+    {
+        std::unique_ptr<StorageReply> storage(client->storage(kSerial));
+        QVERIFY(storage->waitForFinished(5000));
+        QVERIFY2(storage->isSuccess(), qPrintable(storage->errorString()));
+        QCOMPARE(storage->info().freeBytes, qint64(4096) * 15477877);
+
+        std::unique_ptr<StorageReply> bad(client->storage(kSerial, QStringLiteral("/nope")));
+        QVERIFY(bad->waitForFinished(5000));
+        QCOMPARE(bad->error(), Reply::Error::CommandFailed);
+        QVERIFY(bad->errorString().contains(QLatin1String("No such file")));
+
+        std::unique_ptr<Reply> serial(client->getProperty(kSerial, QStringLiteral("ro.serialno")));
+        QVERIFY(serial->waitForFinished(5000));
+        QCOMPARE(serial->outputText(), QStringLiteral("2G0YC5ZG4D040F"));
+    }
+
+    // With no headset, every device query fails as an ordinary reply.
+    void deviceQueriesFailSoftlyWithoutADevice()
+    {
+        const QString none = QStringLiteral("no-such-headset");
+        std::unique_ptr<Reply> replies[] = {
+            std::unique_ptr<Reply>(client->packages(none)),
+            std::unique_ptr<Reply>(client->packageInfo(none, QStringLiteral("com.a"))),
+            std::unique_ptr<Reply>(client->storage(none)),
+            std::unique_ptr<Reply>(client->getProperty(none, QStringLiteral("ro.serialno"))),
+        };
+        for (auto& reply : replies) {
+            QVERIFY(reply->waitForFinished(5000));
+            QCOMPARE(reply->error(), Reply::Error::ServerError);
+        }
+
+        // And with no adb server at all.
+        Client offline(ServerAddress{QStringLiteral("127.0.0.1"), 1});
+        std::unique_ptr<StorageReply> storage(offline.storage(kSerial));
+        QVERIFY(storage->waitForFinished(5000));
+        QCOMPARE(storage->error(), Reply::Error::ConnectionFailed);
     }
 
     void unknownDevice()

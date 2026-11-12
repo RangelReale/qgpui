@@ -95,6 +95,21 @@ public:
     Reply* install(const QString& serial, const QString& apkPath,
                    const InstallOptions& options = {});
     Reply* uninstall(const QString& serial, const QString& packageName, bool keepData = false);
+    // The installed packages with their versionCode (`pm list packages --show-versioncode`).
+    // thirdPartyOnly leaves out system packages (-3).
+    PackagesReply* packages(const QString& serial, bool thirdPartyOnly = true);
+    // One package's versionCode, versionName and install times (`dumpsys package`). A package
+    // that is not installed is not an error: isInstalled() is false.
+    PackageInfoReply* packageInfo(const QString& serial, const QString& packageName);
+
+    // --- Device state ---------------------------------------------------------------------
+
+    // The size and free space of the file system holding `path` (`stat -f`). /sdcard and the
+    // apps' data share one file system on a Quest.
+    StorageReply* storage(const QString& serial, const QString& path = QStringLiteral("/sdcard"));
+    // A system property (`getprop`). output() holds the value, empty when unset. The headset's
+    // hardware serial, ro.serialno, stays the same over USB and Wi-Fi, unlike the adb serial.
+    Reply* getProperty(const QString& serial, const QString& name);
 
 private:
     friend struct ClientOps;

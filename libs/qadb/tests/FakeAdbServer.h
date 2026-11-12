@@ -62,7 +62,9 @@ public:
     QStringList requests;
     // The next this many host:connect requests fail, like a device whose adbd is restarting.
     int connectFailures = 0;
-    // APKs received through `cmd package install -S`, in order.
+    // APKs received through `cmd package install -S`, in order. An APK whose content starts with
+    // "BAD" fails with INSTALL_FAILED_INVALID_APK; one that starts with "FAIL:<code>" fails with
+    // "Failure [<code>]".
     QList<QByteArray> installedApks;
 
 private:

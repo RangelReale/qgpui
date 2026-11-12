@@ -109,6 +109,87 @@ QStringList parseFeatures(const QByteArray& payload)
     return features;
 }
 
+QList<PackageInfo> parsePackageList(const QByteArray& output)
+{
+    static const QRegularExpression line(QStringLiteral("^package:(\\S+)(?:\\s+versionCode:(\\d+))?"));
+    QList<PackageInfo> packages;
+    for (const QByteArray& raw : output.split('\n')) {
+        const auto match = line.match(QString::fromUtf8(raw.trimmed()));
+        if (!match.hasMatch())
+            continue;
+        PackageInfo info;
+        info.packageName = match.captured(1);
+        if (match.hasCaptured(2))
+            info.versionCode = match.captured(2).toLongLong();
+        packages.append(info);
+    }
+    return packages;
+}
+
+std::optional<PackageInfo> parsePackageDump(const QString& packageName, const QByteArray& output)
+{
+    const QString header = QStringLiteral("Package [%1]").arg(packageName);
+    const QStringList lines = QString::fromUtf8(output).split(u'\n');
+    qsizetype start = -1;
+    for (qsizetype i = 0; i < lines.size(); ++i) {
+        if (lines.at(i).trimmed().startsWith(header)) {
+            start = i;
+            break;
+        }
+    }
+    if (start < 0)
+        return std::nullopt;
+
+    static const QRegularExpression versionCode(QStringLiteral("\\bversionCode=(\\d+)"));
+    static const QRegularExpression versionName(QStringLiteral("^versionName=(.*)$"));
+    static const QRegularExpression time(QStringLiteral("^(firstInstallTime|lastUpdateTime)=(.+)$"));
+    PackageInfo info;
+    info.packageName = packageName;
+    // The section's lines are indented deeper than its header ("  Package [...]"); it ends at the
+    // next line indented as little as the header, such as the next package or "Queries:".
+    auto indentOf = [](const QString& line) {
+        qsizetype n = 0;
+        while (n < line.size() && line.at(n) == u' ')
+            ++n;
+        return n;
+    };
+    const qsizetype headerIndent = indentOf(lines.at(start));
+    for (qsizetype i = start + 1; i < lines.size(); ++i) {
+        const QString& raw = lines.at(i);
+        const QString text = raw.trimmed();
+        if (text.isEmpty())
+            continue;
+        if (indentOf(raw) <= headerIndent)
+            break;
+        if (auto m = versionCode.match(text); m.hasMatch() && info.versionCode < 0)
+            info.versionCode = m.captured(1).toLongLong();
+        else if (auto n = versionName.match(text); n.hasMatch() && info.versionName.isEmpty())
+            info.versionName = n.captured(1).trimmed();
+        else if (auto t = time.match(text); t.hasMatch()) {
+            const QDateTime when = QDateTime::fromString(t.captured(2).trimmed(), QStringLiteral("yyyy-MM-dd HH:mm:ss"));
+            if (t.captured(1) == QLatin1StringView("firstInstallTime") && !info.firstInstallTime.isValid())
+                info.firstInstallTime = when;
+            else if (t.captured(1) == QLatin1StringView("lastUpdateTime") && !info.lastUpdateTime.isValid())
+                info.lastUpdateTime = when;
+        }
+    }
+    return info;
+}
+
+std::optional<StorageInfo> parseStatFs(const QByteArray& output)
+{
+    const QList<QByteArray> parts = output.simplified().split(' ');
+    if (parts.size() < 3)
+        return std::nullopt;
+    bool okSize = false, okTotal = false, okFree = false;
+    const qint64 blockSize = parts.at(0).toLongLong(&okSize);
+    const qint64 total = parts.at(1).toLongLong(&okTotal);
+    const qint64 available = parts.at(2).toLongLong(&okFree);
+    if (!okSize || !okTotal || !okFree || blockSize <= 0)
+        return std::nullopt;
+    return StorageInfo{blockSize * total, blockSize * available};
+}
+
 QString shellQuote(const QString& argument)
 {
     static const QRegularExpression plain(QStringLiteral("^[A-Za-z0-9_@%+=:,./-]+$"));

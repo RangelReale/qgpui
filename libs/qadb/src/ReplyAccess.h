@@ -77,6 +77,16 @@ struct ReplyAccess
         reply->m_exitCode = exitCode;
     }
     static void setInfo(StatReply* reply, const RemoteFileInfo& info) { reply->m_info = info; }
+    static void setPackages(PackagesReply* reply, const QList<PackageInfo>& packages)
+    {
+        reply->m_packages = packages;
+    }
+    static void setPackageInfo(PackageInfoReply* reply, bool installed, const PackageInfo& info)
+    {
+        reply->m_installed = installed;
+        reply->m_info = info;
+    }
+    static void setStorage(StorageReply* reply, const StorageInfo& info) { reply->m_info = info; }
     static void setEntries(ListReply* reply, const QList<RemoteFileInfo>& entries)
     {
         reply->m_entries = entries;

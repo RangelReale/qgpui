@@ -203,9 +203,11 @@ void FakeAdbServer::process(Connection* c)
             if (c->installRemaining > 0)
                 return;
             installedApks << c->installData;
-            c->socket->write(c->installData.startsWith("BAD")
-                                 ? "Failure [INSTALL_FAILED_INVALID_APK]\n"
-                                 : "Success\n");
+            if (c->installData.startsWith("FAIL:")) // "FAIL:<code>" answers "Failure [<code>]".
+                c->socket->write("Failure [" + c->installData.mid(5).trimmed() + "]\n");
+            else
+                c->socket->write(c->installData.startsWith("BAD") ? "Failure [INSTALL_FAILED_INVALID_APK]\n"
+                                                                  : "Success\n");
             c->closeAfterWrite();
             return;
         }

@@ -986,4 +986,85 @@ Reply* Client::uninstall(const QString& serial, const QString& packageName, bool
     return reply;
 }
 
+PackagesReply* Client::packages(const QString& serial, bool thirdPartyOnly)
+{
+    auto* reply = RA::create<PackagesReply>(this);
+    detail::runLater(reply, [this, reply, serial, thirdPartyOnly] {
+        if (reply->isFinished())
+            return;
+        QStringList arguments{QStringLiteral("pm"), QStringLiteral("list"), QStringLiteral("packages")};
+        if (thirdPartyOnly)
+            arguments << QStringLiteral("-3");
+        arguments << QStringLiteral("--show-versioncode");
+        ShellReply* pm = shell(serial, arguments);
+        ClientOps::chain(reply, pm, [=] {
+            RA::setOutput(reply, pm->output());
+            if (pm->hasExitCode() && pm->exitCode() != 0) {
+                RA::fail(reply, Reply::Error::CommandFailed,
+                         QStringLiteral("pm list packages failed: %1").arg(QString::fromUtf8(pm->standardError()).trimmed()));
+                return;
+            }
+            RA::setPackages(reply, protocol::parsePackageList(pm->output()));
+            RA::finish(reply);
+        });
+    });
+    return reply;
+}
+
+PackageInfoReply* Client::packageInfo(const QString& serial, const QString& packageName)
+{
+    auto* reply = RA::create<PackageInfoReply>(this);
+    detail::runLater(reply, [this, reply, serial, packageName] {
+        if (reply->isFinished())
+            return;
+        ShellReply* dump = shell(serial, QStringList{QStringLiteral("dumpsys"), QStringLiteral("package"), packageName});
+        ClientOps::chain(reply, dump, [=] {
+            RA::setOutput(reply, dump->output());
+            const auto info = protocol::parsePackageDump(packageName, dump->output());
+            RA::setPackageInfo(reply, info.has_value(), info.value_or(PackageInfo{packageName}));
+            RA::finish(reply);
+        });
+    });
+    return reply;
+}
+
+StorageReply* Client::storage(const QString& serial, const QString& path)
+{
+    auto* reply = RA::create<StorageReply>(this);
+    detail::runLater(reply, [this, reply, serial, path] {
+        if (reply->isFinished())
+            return;
+        ShellReply* stat = shell(serial, QStringList{QStringLiteral("stat"), QStringLiteral("-f"), QStringLiteral("-c"),
+                                                     QStringLiteral("%S %b %a"), path});
+        ClientOps::chain(reply, stat, [=] {
+            RA::setOutput(reply, stat->output());
+            const auto info = protocol::parseStatFs(stat->output());
+            if (!info || (stat->hasExitCode() && stat->exitCode() != 0)) {
+                RA::fail(reply, Reply::Error::CommandFailed,
+                         QStringLiteral("Cannot read the free space of %1: %2")
+                             .arg(path, QString::fromUtf8(stat->output() + stat->standardError()).trimmed()));
+                return;
+            }
+            RA::setStorage(reply, *info);
+            RA::finish(reply);
+        });
+    });
+    return reply;
+}
+
+Reply* Client::getProperty(const QString& serial, const QString& name)
+{
+    auto* reply = RA::create<Reply>(this);
+    detail::runLater(reply, [this, reply, serial, name] {
+        if (reply->isFinished())
+            return;
+        ShellReply* prop = shell(serial, QStringList{QStringLiteral("getprop"), name});
+        ClientOps::chain(reply, prop, [=] {
+            RA::setOutput(reply, prop->output().trimmed());
+            RA::finish(reply);
+        });
+    });
+    return reply;
+}
+
 } // namespace qadb

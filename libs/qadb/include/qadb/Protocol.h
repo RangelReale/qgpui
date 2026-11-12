@@ -7,6 +7,8 @@
 #include <QString>
 #include <QStringList>
 
+#include <optional>
+
 // Encoders and parsers for the adb wire format. Client and DeviceTracker use them; they are public
 // so that tests and tools can use them too.
 namespace qadb::protocol {
@@ -26,6 +28,18 @@ QList<MdnsService> parseMdnsServices(const QByteArray& payload);
 
 // Parses the comma-separated payload of <host-prefix>:features.
 QStringList parseFeatures(const QByteArray& payload);
+
+// Parses `pm list packages --show-versioncode`: lines such as
+// "package:com.example.game versionCode:101". Lines without "package:" are skipped.
+QList<PackageInfo> parsePackageList(const QByteArray& output);
+
+// Parses `dumpsys package <name>` for that package: versionCode, versionName, firstInstallTime
+// and lastUpdateTime of its first "Package [<name>]" section. Returns nothing when the output has
+// no such section, which is what dumpsys prints for a package that is not installed.
+std::optional<PackageInfo> parsePackageDump(const QString& packageName, const QByteArray& output);
+
+// Parses `stat -f -c '%S %b %a'`: block size, total blocks, blocks available to apps.
+std::optional<StorageInfo> parseStatFs(const QByteArray& output);
 
 // Quotes one argument for the device's shell (mksh). Plain words are returned as they are.
 QString shellQuote(const QString& argument);
