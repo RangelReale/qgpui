@@ -95,9 +95,9 @@ QVariant GameListModel::data(const QModelIndex& index, int role) const
         const GameFlags flags = this->flags(index.row());
         QStringList lines{game.title};
         if (flags & GameFlag::InstalledByQgpui)
-            lines.append(tr("On your headset, installed by qgpui"));
+            lines.append(tr("On your headset, installed by QGPUI"));
         else if (flags & GameFlag::InstalledOutsideQgpui)
-            lines.append(tr("On your headset, installed outside qgpui"));
+            lines.append(tr("On your headset, installed outside QGPUI"));
         if (flags & GameFlag::UpdateAvailable)
             lines.append(tr("An update is available"));
         if (flags & GameFlag::InSteamLibrary)

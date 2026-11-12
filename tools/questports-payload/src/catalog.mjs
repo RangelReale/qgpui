@@ -5,7 +5,7 @@ import { PAYLOAD_FORMAT, PAYLOAD_VERSION } from './payload.mjs'
 export const CATALOG_FORMAT = 'qgpui-catalog'
 export const CATALOG_VERSION = 1
 
-// Recipe keys that only matter in the recipe file, not to qgpui.
+// Recipe keys that only matter in the recipe file, not to QGPUI.
 const RECIPE_FILE_KEYS = ['$schema', 'format', 'version', 'slug', 'checkedAgainst', 'notes']
 
 // Drift in these fields can make a recipe install to the wrong place or the wrong app.

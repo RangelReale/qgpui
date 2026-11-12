@@ -18,7 +18,7 @@
 
 namespace {
 
-// One name per user, so that two users on one PC each get their own qgpui. Windows named pipes are
+// One name per user, so that two users on one PC each get their own QGPUI. Windows named pipes are
 // visible to every user, hence the user name in it; hashing keeps it free of odd characters.
 QString instanceName()
 {
