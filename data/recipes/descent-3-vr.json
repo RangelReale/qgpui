@@ -94,5 +94,12 @@
       "text": "Uninstalling Descent 3 deletes its game data folder. Keep a copy of your game files."
     }
   ],
+  "otherWays": [
+    {
+      "label": "stage_gamedata.sh",
+      "url": "https://github.com/SgtBilko76/Descent3-VR/blob/HEAD/quest/tools/stage_gamedata.sh",
+      "help": "For the original CDs instead of an installed game. This script from the port's repository extracts the data from the disc images and pushes it to the headset."
+    }
+  ],
   "notes": "The .pld files are optional in the guide. Original CDs need quest/tools/stage_gamedata.sh from the repository, which is not modelled. The guide does not launch first (it runs mkdir -p); the launch is there because the target is in Android/data. Releases are all pre-releases."
 }

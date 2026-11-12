@@ -29,5 +29,12 @@
       "text": "Do not uninstall the app or clear its data. That deletes the stored disc image and your saves."
     }
   ],
+  "otherWays": [
+    {
+      "label": "Animal Crossing VR Quest package",
+      "url": "https://github.com/LiquidAzir/animal-crossing-vr/releases/latest",
+      "help": "Extract AnimalCrossing-Quest-<version>.zip and run Install-Quest.cmd on Windows. It installs the game and imports your disc image. qgp needs it for the disc image too."
+    }
+  ],
   "notes": "The disc image goes into app-private storage through Install-Quest.cmd or device_data.py (both in the Quest zip); the guide says not to copy it into Android/data by hand, so qgp cannot push it. qgp could later run device_data.py itself. The disc is GAFE01 revision 0."
 }

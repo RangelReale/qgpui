@@ -31,5 +31,12 @@
       "text": "Open Vice City VR from Library > Unknown Sources. To update later, run UPDATE.bat."
     }
   ],
+  "otherWays": [
+    {
+      "label": "Vice City VR build kit",
+      "url": "https://github.com/dubrovskiy-yevhen-stakelogic/vice-city-vr-quest",
+      "help": "No APK is published. The kit builds it from your own PC copy, installs it and copies the game files to the headset. qgp only installs an APK you have already built."
+    }
+  ],
   "notes": "The payload's latest_version is null, but the schema needs a string, so checkedAgainst.version is empty and build-catalog will report drift. The wizard downloads JDK 21, the Android SDK tools and the reVC source. The payload says to launch once before copying and to check models/gta3.img and TEXT/american.gxt in files/gamedata/; the wizard does the copy. The repository has no releases."
 }

@@ -23,8 +23,8 @@
     {
       "id": "cooked",
       "kind": "pc-install",
-      "label": "Cooked Super Mario Galaxy data",
-      "help": "The cooked folder made on a PC from your own Super Mario Galaxy disc (European RMGP01 or US RMGE01).",
+      "label": "Super Mario Galaxy, converted for GalaxyQuest",
+      "help": "A folder named cooked, which the GalaxyQuest converter makes on your PC from your own Super Mario Galaxy disc (European RMGP01 or US RMGE01). qgp cannot read the disc image itself.",
       "detect": [
         "sys/fst.bin"
       ],
@@ -51,6 +51,13 @@
     {
       "do": "tell",
       "text": "Open GalaxyQuest from Library > Unknown Sources. On the setup screen, pick the cooked folder in Download."
+    }
+  ],
+  "otherWays": [
+    {
+      "label": "GalaxyQuest Windows installer",
+      "url": "https://github.com/bigmak94/GalaxyQuest/releases/latest",
+      "help": "Download GalaxyQuest-Installer-windows-x86_64.exe and point it to your Super Mario Galaxy ISO or RVZ. It converts the disc, installs the game and copies the data to the headset, so you need no cooked folder."
     }
   ],
   "notes": "This follows the guide's \"without adb\" route: copy the cooked folder to Download and pick it in the app. tools/push_data.py instead unpacks it into Android/data/com.galaxy.quest/files/game/, which the payload checks for sys/fst.bin. Uncertain: whether the cooked folder itself contains sys/fst.bin. The Windows installer in the release does every step itself. The guide installs with adb install --no-incremental -r."
