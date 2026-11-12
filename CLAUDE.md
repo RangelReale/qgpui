@@ -4,6 +4,16 @@ Tools for Meta Quest headsets over adb: finding headsets, managing connections, 
 copying files. C++20, Qt 6, CMake. The main app, `apps/qgp`, is at an early stage. The rest is the `qadb`
 library, a payload reader and two developer tools.
 
+## Worktrees
+
+Agents work in a git worktree in this repository, never in the main checkout. Call `EnterWorktree`
+before the first edit; it creates the feature branch and its checkout under `.claude/worktrees/`
+(ignored by git). Leave the worktree with `ExitWorktree` when the work is merged or abandoned.
+
+A new worktree has no `build/` and no `local/`. Configure it with `cmake --preset windows` before
+building. To run qgp against the payload, copy `local/questports-payload.json` from the main
+checkout, or run `task payload` in the worktree.
+
 ## Layout
 
 - `libs/<name>/`: one folder per library, with `include/<name>/` (public headers), `src/`
