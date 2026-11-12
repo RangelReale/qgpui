@@ -35,8 +35,6 @@ QString orderLabel(questports::GameOrder order)
         return MainWindow::tr("Recently added");
     case questports::GameOrder::RecentlyReleased:
         return MainWindow::tr("Recently released");
-    case questports::GameOrder::Developer:
-        return MainWindow::tr("Developer");
     }
     return {};
 }

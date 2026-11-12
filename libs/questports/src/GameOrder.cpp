@@ -18,7 +18,7 @@ int compareNewestFirst(const QDateTime& a, const QDateTime& b)
 
 QList<GameOrder> allGameOrders()
 {
-    return {GameOrder::Title, GameOrder::RecentlyAdded, GameOrder::RecentlyReleased, GameOrder::Developer};
+    return {GameOrder::Title, GameOrder::RecentlyAdded, GameOrder::RecentlyReleased};
 }
 
 QString gameOrderKey(GameOrder order)
@@ -30,8 +30,6 @@ QString gameOrderKey(GameOrder order)
         return QStringLiteral("recently-added");
     case GameOrder::RecentlyReleased:
         return QStringLiteral("recently-released");
-    case GameOrder::Developer:
-        return QStringLiteral("developer");
     }
     return QStringLiteral("title");
 }
@@ -75,9 +73,6 @@ bool GameComparator::lessThan(const Game& a, const Game& b) const
         break;
     case GameOrder::RecentlyReleased:
         result = compareNewestFirst(a.releasedAt, b.releasedAt);
-        break;
-    case GameOrder::Developer:
-        result = compareText(a.developer, b.developer);
         break;
     }
     if (result == 0)

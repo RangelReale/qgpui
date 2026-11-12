@@ -13,7 +13,6 @@ enum class GameOrder {
     Title,             // A to Z.
     RecentlyAdded,     // Newest addition to QuestPorts first.
     RecentlyReleased,  // Newest GitHub release first; games without one last.
-    Developer,         // Developer A to Z, then title.
 };
 
 // Every order, in the order a menu should list them.

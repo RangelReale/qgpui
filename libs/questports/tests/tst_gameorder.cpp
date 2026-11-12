@@ -78,20 +78,13 @@ private slots:
                               QStringLiteral("none-b")}));
     }
 
-    void developerThenTitle()
-    {
-        const QList<Game> games{game(QStringLiteral("b2"), QStringLiteral("Two"), QStringLiteral("bassquake")),
-                                game(QStringLiteral("a"), QStringLiteral("Zed"), QStringLiteral("Alpha")),
-                                game(QStringLiteral("b1"), QStringLiteral("One"), QStringLiteral("Bassquake"))};
-        QCOMPARE(sortedSlugs(games, GameOrder::Developer),
-                 (QStringList{QStringLiteral("a"), QStringLiteral("b1"), QStringLiteral("b2")}));
-    }
-
     void keysRoundTrip()
     {
         for (GameOrder order : allGameOrders())
             QCOMPARE(gameOrderFromKey(gameOrderKey(order)), order);
-        QCOMPARE(gameOrderFromKey(QStringLiteral("nonsense"), GameOrder::Developer), GameOrder::Developer);
+        QCOMPARE(gameOrderFromKey(QStringLiteral("nonsense"), GameOrder::RecentlyAdded), GameOrder::RecentlyAdded);
+        // A setting saved by a build that still had the Developer order.
+        QCOMPARE(gameOrderFromKey(QStringLiteral("developer")), GameOrder::Title);
     }
 };
 
