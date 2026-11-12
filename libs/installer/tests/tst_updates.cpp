@@ -76,14 +76,14 @@ private slots:
         QString error;
         InstallRecords records = InstallRecords::load(path, &error); // No file yet: empty, no error.
         QVERIFY(error.isEmpty());
-        QVERIFY(!records.find(QStringLiteral("2G0YC5ZG4D040F"), QStringLiteral("com.bilko.urtquest")));
-        records.set(QStringLiteral("2G0YC5ZG4D040F"), record(QStringLiteral("v1.0.1"), 101));
+        QVERIFY(!records.find(QStringLiteral("2G0YC00000000B"), QStringLiteral("com.bilko.urtquest")));
+        records.set(QStringLiteral("2G0YC00000000B"), record(QStringLiteral("v1.0.1"), 101));
         records.set(QStringLiteral("OTHERQUEST"), record(QStringLiteral("v1.0.0"), 100));
         QVERIFY2(records.save(&error), qPrintable(error));
 
         const InstallRecords loaded = InstallRecords::load(path, &error);
         QVERIFY(error.isEmpty());
-        const auto mine = loaded.find(QStringLiteral("2G0YC5ZG4D040F"), QStringLiteral("com.bilko.urtquest"));
+        const auto mine = loaded.find(QStringLiteral("2G0YC00000000B"), QStringLiteral("com.bilko.urtquest"));
         QVERIFY(mine);
         QCOMPARE(mine->slug, QStringLiteral("urbanterror-vr"));
         QCOMPARE(mine->releaseTag, QStringLiteral("v1.0.1"));
@@ -103,10 +103,10 @@ private slots:
         QVERIFY(tmp.isValid());
         const QString path = tmp.filePath(QStringLiteral("qgpui/new/installs.json"));
         InstallRecords records = InstallRecords::load(path);
-        records.set(QStringLiteral("2G0YC5ZG4D040F"), record(QStringLiteral("v1.0.1"), 101));
+        records.set(QStringLiteral("2G0YC00000000B"), record(QStringLiteral("v1.0.1"), 101));
         QString error;
         QVERIFY2(records.save(&error), qPrintable(error));
-        QVERIFY(InstallRecords::load(path).find(QStringLiteral("2G0YC5ZG4D040F"), QStringLiteral("com.bilko.urtquest")));
+        QVERIFY(InstallRecords::load(path).find(QStringLiteral("2G0YC00000000B"), QStringLiteral("com.bilko.urtquest")));
     }
 
     void reportsAFileThatIsNotARecordFile()

@@ -37,7 +37,7 @@ private slots:
         // An ordinary literal, not a raw string: moc reads // inside a raw string as a comment.
         const auto vdf = parseVdf("// a comment\n"
                                   "root {\n"
-                                  "    \"path\" \"C:\\\\Jogos\\\\Steam\"   // trailing comment\n"
+                                  "    \"path\" \"C:\\\\Games\\\\Steam\"   // trailing comment\n"
                                   "    \"quote\" \"say \\\"hi\\\"\\tnow\"\n"
                                   "    bare value\n"
                                   "    \"win\" \"1\" [$WIN32]\n"
@@ -47,7 +47,7 @@ private slots:
                                   &error);
         QVERIFY2(vdf, qPrintable(error));
         const VdfObject root = vdfObject(*vdf, {QStringLiteral("root")});
-        QCOMPARE(root.value(QStringLiteral("path")).toString(), QStringLiteral("C:\\Jogos\\Steam"));
+        QCOMPARE(root.value(QStringLiteral("path")).toString(), QStringLiteral("C:\\Games\\Steam"));
         QCOMPARE(root.value(QStringLiteral("quote")).toString(), QStringLiteral("say \"hi\"\tnow"));
         QCOMPARE(root.value(QStringLiteral("bare")).toString(), QStringLiteral("value"));
         QCOMPARE(root.value(QStringLiteral("win")).toString(), QStringLiteral("1"));

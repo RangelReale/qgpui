@@ -11,7 +11,7 @@
 using namespace installer;
 
 namespace {
-const QString kSerial = QStringLiteral("192.168.68.57:5555");
+const QString kSerial = QStringLiteral("192.168.1.20:5555");
 } // namespace
 
 class TestKeepAwake : public QObject

@@ -13,7 +13,7 @@ using namespace qadb;
 
 namespace {
 
-const QString kSerial = QStringLiteral("2G0YC1ZF8B0SPR");
+const QString kSerial = QStringLiteral("2G0YC00000000A");
 
 QByteArray pattern(qsizetype size)
 {
@@ -72,7 +72,7 @@ private slots:
                 result.err = "stat: /nope: No such file or directory\n";
                 result.exitCode = 1;
             } else if (command == QLatin1String("getprop ro.serialno")) {
-                result.out = "2G0YC5ZG4D040F\n";
+                result.out = "2G0YC00000000B\n";
             } else if (command.startsWith(QLatin1String("echo "))) {
                 result.out = command.mid(5).toUtf8() + '\n';
             }
@@ -266,7 +266,7 @@ private slots:
 
         std::unique_ptr<Reply> serial(client->getProperty(kSerial, QStringLiteral("ro.serialno")));
         QVERIFY(serial->waitForFinished(5000));
-        QCOMPARE(serial->outputText(), QStringLiteral("2G0YC5ZG4D040F"));
+        QCOMPARE(serial->outputText(), QStringLiteral("2G0YC00000000B"));
     }
 
     // With no headset, every device query fails as an ordinary reply.
