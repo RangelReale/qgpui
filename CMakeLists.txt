@@ -21,12 +21,13 @@ endif()
 
 option(QGP_BUILD_TESTS "Build the tests" ON)
 option(QGP_BUILD_TOOLS "Build the developer tools in tools/" ON)
+option(QGP_BUILD_APPS "Build the applications in apps/" ON)
 
 find_package(Qt6 6.8 REQUIRED COMPONENTS Core Network)
 if(QGP_BUILD_TESTS)
     find_package(Qt6 6.8 REQUIRED COMPONENTS Test)
 endif()
-if(QGP_BUILD_TOOLS)
+if(QGP_BUILD_TOOLS OR QGP_BUILD_APPS)
     find_package(Qt6 6.8 REQUIRED COMPONENTS Widgets)
 endif()
 qt_standard_project_setup()
@@ -44,6 +45,10 @@ if(QGP_BUILD_TESTS)
 endif()
 
 add_subdirectory(libs)
+
+if(QGP_BUILD_APPS)
+    add_subdirectory(apps)
+endif()
 
 if(QGP_BUILD_TOOLS)
     add_subdirectory(tools)

@@ -1,8 +1,8 @@
 # qgp
 
 Tools for Meta Quest headsets over adb: finding headsets, managing connections, installing APKs and
-copying files. C++20, Qt 6, CMake. The main app does not exist yet; the work so far is the `qadb`
-library and a debug tool.
+copying files. C++20, Qt 6, CMake. The main app, `apps/qgp`, is at an early stage. The rest is the `qadb`
+library, a payload reader and two developer tools.
 
 ## Layout
 
@@ -18,7 +18,13 @@ library and a debug tool.
   for the payload format.
 - `local/`: ignored by git. Holds uncommitted working files, such as the generated payload and
   current keys or passwords. Never commit its contents.
-- `apps/<name>/`: shipped applications, when there are any.
+- `libs/questports/`: reads the payload that `tools/questports-payload` writes (`Catalog`,
+  `Game`). Needs only Qt Core.
+- `apps/<name>/`: shipped applications.
+- `apps/qgp/`: the main app, Qt Widgets. The main window shows the payload's games in a `QListView`
+  in icon mode: the cover, with the title below. `CoverCache` downloads covers through a
+  `QNetworkDiskCache` and fits them into one size. The icons in `apps/qgp/icons/` are temporary;
+  `make-icon.ps1` draws them (Windows PowerShell). `qgp.rc` gives the .exe its icon.
 - `cmake/`: shared CMake functions (`qgp_add_qt_test`).
 - `docs/`: research notes, such as where QuestPorts keeps its data.
 
@@ -43,6 +49,8 @@ library and a debug tool.
 - The adb binary is at `%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe` on the main PC; it is
   not on `PATH`. `qadb::AdbServer::findAdb()` finds it there.
 - Builds use `/W4` (MSVC) or `-Wall -Wextra -Wpedantic`. Keep them free of warnings.
+- moc reads `//` inside a raw string literal as a comment and then misses the class, which shows
+  up as unresolved `metaObject` symbols at link time. In test JSON, write URLs as `https://`.
 
 ## qadb design notes
 

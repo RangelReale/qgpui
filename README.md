@@ -3,7 +3,10 @@
 Tools for Meta Quest headsets over adb: finding headsets, managing connections, installing APKs and
 copying files.
 
+- [`apps/qgp`](apps/qgp): the main application. For now it shows the QuestPorts games as a grid of
+  covers.
 - [`libs/qadb`](libs/qadb/README.md): a Qt 6 client library for the adb server.
+- [`libs/questports`](libs/questports): reads the QuestPorts payload.
 - [`tools/adbmanager`](tools/adbmanager): a debug window for trying qadb on a real headset.
 - [`tools/questports-payload`](tools/questports-payload/README.md): builds one JSON file with the
   QuestPorts game list and each game's install requirements (Node).
@@ -21,4 +24,10 @@ cmake --build --preset windows-debug
 ctest --preset windows-debug
 ```
 
-The debug tool is `build/windows/bin/Debug/adbmanager.exe`.
+The app is `build/windows/bin/Debug/qgp.exe` and the debug tool is
+`build/windows/bin/Debug/adbmanager.exe`.
+
+The app reads the payload that `tools/questports-payload` builds. It takes the file from its command
+line, or else the file opened last, or else `questports-payload.json` in its data folder
+(`%APPDATA%\qgp` on Windows). Development builds also look in `local/` in the repository, where the
+tool writes it by default.
