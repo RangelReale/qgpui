@@ -1,6 +1,6 @@
 # 0006: Detect updates from install records, then from versions
 
-- Status: accepted
+- Status: accepted; where the records are stored is replaced by [decision 0008](0008-install-records-on-the-headset.md)
 - Date: 2026-11-12
 
 ## Context

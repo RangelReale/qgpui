@@ -1,5 +1,7 @@
 #include "installer/ApkFetcher.h"
+#include "installer/HeadsetRecords.h"
 #include "installer/Runner.h"
+#include "installer/Updates.h"
 
 #include <qadb/Client.h>
 #include <qadb/Reply.h>
@@ -48,8 +50,12 @@ private slots:
 
         ApkFetcher fetcher(QDir::current().filePath(QStringLiteral("apk-cache")));
         QSignalSpy fetched(&fetcher, &ApkFetcher::finished);
-        connect(&fetcher, &ApkFetcher::resolved, this, [](const QString& tag, const QString& name) {
+        QString releaseTag;
+        QString asset;
+        connect(&fetcher, &ApkFetcher::resolved, this, [&](const QString& tag, const QString& name) {
             qInfo().noquote() << "release" << tag << "asset" << name;
+            releaseTag = tag;
+            asset = name;
         });
         fetcher.fetch(recipe->apks.first());
         QVERIFY(fetched.wait(15 * 60 * 1000));
@@ -86,6 +92,32 @@ private slots:
             qInfo().noquote() << "appops:" << op->outputText().trimmed();
             QVERIFY(op->outputText().contains(QStringLiteral(": allow")));
         }
+
+        // Record the install on the headset and in a PC cache in the build folder.
+        auto* hardware = client.getProperty(m_serial, QStringLiteral("ro.serialno"));
+        QVERIFY(hardware->waitForFinished());
+        auto* info = client.packageInfo(m_serial, recipe->packageName);
+        QVERIFY(info->waitForFinished());
+        QVERIFY(info->isInstalled());
+        InstallRecord record;
+        record.packageName = recipe->packageName;
+        record.slug = m_slug;
+        record.releaseTag = releaseTag;
+        record.asset = asset;
+        record.versionCode = info->info().versionCode;
+        record.versionName = info->info().versionName;
+        record.installedAt = QDateTime::currentDateTimeUtc();
+        InstallRecords cache = InstallRecords::load(QDir::current().filePath(QStringLiteral("install-records.json")));
+        HeadsetRecordSync sync(&client, m_serial, hardware->outputText(), &cache);
+        QSignalSpy synced(&sync, &HeadsetRecordSync::finished);
+        sync.run(record);
+        QVERIFY(synced.wait(30000));
+        QVERIFY2(synced.at(0).at(0).toBool(), qPrintable(synced.at(0).at(1).toString()));
+        qInfo().noquote() << "recorded on" << hardware->outputText() << "-" << sync.records().size() << "record(s) on the headset";
+
+        // What the update check says now: the release just installed is up to date.
+        const auto status = updateStatus(info->info(), cache.find(hardware->outputText(), recipe->packageName), releaseTag);
+        QCOMPARE(status, UpdateStatus::UpToDate);
     }
 };
 

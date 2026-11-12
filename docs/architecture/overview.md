@@ -33,7 +33,7 @@ data/recipes/<slug>.json (qgp's own, hand-written) ─────────�
 2. `gamestores::GameFinder` looks for the PC files that `pc-install` inputs need; the user picks the rest (ROMs, disc images).
 3. `installer::ApkFetcher` picks the GitHub release ([decision 0002](../decisions/0002-picking-the-apk-release.md)) and downloads the APK into a cache.
 4. `installer::Runner` runs the steps through `qadb`: installs, grants, launches, pushes ([decision 0003](../decisions/0003-pushes-into-android-data.md)), verifies, and pauses for steps the user does in the headset.
-5. The app records what it installed, keyed by the headset's hardware serial ([decisions 0004](../decisions/0004-headset-identity.md) and [0006](../decisions/0006-update-detection.md)).
+5. The app records what it installed in `/sdcard/qgp/installs.json` on the headset, with a copy on the PC keyed by the headset's hardware serial for when no headset is connected ([decisions 0004](../decisions/0004-headset-identity.md), [0006](../decisions/0006-update-detection.md) and [0008](../decisions/0008-install-records-on-the-headset.md)).
 
 ## Without a headset
 

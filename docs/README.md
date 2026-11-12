@@ -19,7 +19,7 @@ How qgp is built now. These documents change with the code.
 
 ## [`decisions/`](decisions)
 
-Why qgp is built this way. One numbered record per decision, with its context and consequences. A record is not edited once accepted; a new record replaces it and says so.
+Why qgp is built this way. One numbered record per decision, with its context and consequences. A record is not edited once accepted; a new record replaces it and says so, and only the old record's status line changes to point to the new one.
 
 | # | Decision |
 |---|---|
@@ -30,3 +30,4 @@ Why qgp is built this way. One numbered record per decision, with its context an
 | [0005](decisions/0005-works-without-a-headset.md) | qgp works without a headset |
 | [0006](decisions/0006-update-detection.md) | Detect updates from install records, then from versions |
 | [0007](decisions/0007-finding-pc-installs.md) | Find PC installs by ID, folder name, then content |
+| [0008](decisions/0008-install-records-on-the-headset.md) | Keep install records on the headset (replaces the storage part of 0006) |

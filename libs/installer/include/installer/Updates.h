@@ -53,6 +53,7 @@ public:
 
     QString path() const { return m_path; }
     std::optional<InstallRecord> find(const QString& hardwareSerial, const QString& packageName) const;
+    QList<InstallRecord> records(const QString& hardwareSerial) const;
     void set(const QString& hardwareSerial, const InstallRecord& record);
     void remove(const QString& hardwareSerial, const QString& packageName);
 
@@ -60,6 +61,24 @@ private:
     QString m_path;
     QHash<QString, QHash<QString, InstallRecord>> m_records;
 };
+
+// --- Records on the headset -------------------------------------------------------------------
+
+// The file on each headset that lists what qgp installed there. It is the source of truth; the
+// PC's InstallRecords are a cache of it for when no headset is connected.
+inline constexpr auto kHeadsetRecordsPath = "/sdcard/qgp/installs.json";
+
+// The headset file's content: {"format":"qgp-headset-installs","version":1,"serial":...,
+// "packages":{<package>: <record>}}.
+QByteArray headsetRecordsJson(const QString& hardwareSerial, const QList<InstallRecord>& records);
+
+// Reads the headset file. Returns nothing, and sets *errorMessage when it is given, when the
+// content is not such a file.
+std::optional<QList<InstallRecord>> parseHeadsetRecords(const QByteArray& json, QString* errorMessage = nullptr);
+
+// Joins two sets of records for one headset: one record per package, the one installed last
+// when both have it. Sorted by package name.
+QList<InstallRecord> mergeRecords(const QList<InstallRecord>& a, const QList<InstallRecord>& b);
 
 // --- Update status ----------------------------------------------------------------------------
 

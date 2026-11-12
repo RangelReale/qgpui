@@ -30,6 +30,10 @@ The app must create its own `files` folder first, which is why recipes launch th
 - `dumpsys package <name>` holds, in the package's `Package [<name>]` section, `versionCode=`, `versionName=` and `lastUpdateTime=` four spaces in, and `firstInstallTime=` deeper, under `User 0:`. For a package that is not installed it prints `Unable to find package: <name>`.
 - The headset's versionName often matches the release tag without its `v` (`1.0.1` for `v1.0.1`), but tags such as `vcop-v0.2.4`, `b003` or `n64` do not map to versions reliably. See [decision 0006](../decisions/0006-update-detection.md).
 
+## A file of qgp's own
+
+`adb push` of `/sdcard/qgp/installs.json` creates the `qgp` folder itself; the file lands as ordinary shared storage (`-rw-rw----`, owner 10080, group 1023, as for every file outside `Android/data`). Reinstalling an app with `install -r` left its data in `/sdcard` untouched. See [decision 0008](../decisions/0008-install-records-on-the-headset.md).
+
 ## Storage
 
 `stat -f -c '%S %b %a' /sdcard` prints the block size, total blocks and blocks free for apps: `4096 117550775 15477877`, about 59 GB free of 448 GiB. `df` agrees, and shows that `/sdcard` and `Android/data` share one partition.

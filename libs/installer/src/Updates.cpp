@@ -3,6 +3,7 @@
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QMap>
 #include <QRegularExpression>
 #include <QSaveFile>
 
@@ -137,6 +138,53 @@ std::optional<InstallRecord> InstallRecords::find(const QString& hardwareSerial,
     if (record == headset->cend())
         return std::nullopt;
     return *record;
+}
+
+QList<InstallRecord> InstallRecords::records(const QString& hardwareSerial) const
+{
+    return m_records.value(hardwareSerial).values();
+}
+
+QByteArray headsetRecordsJson(const QString& hardwareSerial, const QList<InstallRecord>& records)
+{
+    QJsonObject packages;
+    for (const InstallRecord& r : records)
+        packages.insert(r.packageName, toJson(r));
+    QJsonObject root;
+    root.insert(QStringLiteral("format"), QStringLiteral("qgp-headset-installs"));
+    root.insert(QStringLiteral("version"), kVersion);
+    root.insert(QStringLiteral("serial"), hardwareSerial);
+    root.insert(QStringLiteral("packages"), packages);
+    return QJsonDocument(root).toJson();
+}
+
+std::optional<QList<InstallRecord>> parseHeadsetRecords(const QByteArray& json, QString* errorMessage)
+{
+    const QJsonObject root = QJsonDocument::fromJson(json).object();
+    if (root.value(QLatin1StringView("format")).toString() != QLatin1StringView("qgp-headset-installs")) {
+        if (errorMessage)
+            *errorMessage = QStringLiteral("%1 on the headset is not a qgp install list.")
+                                .arg(QLatin1StringView(kHeadsetRecordsPath));
+        return std::nullopt;
+    }
+    QList<InstallRecord> records;
+    const QJsonObject packages = root.value(QLatin1StringView("packages")).toObject();
+    for (auto p = packages.begin(); p != packages.end(); ++p)
+        records.append(fromJson(p.key(), p.value().toObject()));
+    return records;
+}
+
+QList<InstallRecord> mergeRecords(const QList<InstallRecord>& a, const QList<InstallRecord>& b)
+{
+    QMap<QString, InstallRecord> merged;
+    for (const QList<InstallRecord>* side : {&a, &b}) {
+        for (const InstallRecord& r : *side) {
+            const auto it = merged.constFind(r.packageName);
+            if (it == merged.cend() || it->installedAt < r.installedAt)
+                merged.insert(r.packageName, r);
+        }
+    }
+    return merged.values();
 }
 
 void InstallRecords::set(const QString& hardwareSerial, const InstallRecord& record)

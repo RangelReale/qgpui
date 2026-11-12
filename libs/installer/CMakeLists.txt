@@ -1,11 +1,13 @@
 # installer: runs install recipes on a headset: fetches APKs, plans the copies and runs the steps.
 qt_add_library(installer STATIC
     include/installer/ApkFetcher.h
+    include/installer/HeadsetRecords.h
     include/installer/PushPlan.h
     include/installer/Recipe.h
     include/installer/Runner.h
     include/installer/Updates.h
     src/ApkFetcher.cpp
+    src/HeadsetRecords.cpp
     src/PushPlan.cpp
     src/Recipe.cpp
     src/Runner.cpp

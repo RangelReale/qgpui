@@ -46,9 +46,10 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   steps on a device through qadb. Below `Android/data` and `Android/obb` it creates folders with
   `mkdir` and `chmod 2777` before pushing (decision 0003). It checks
   `freeSpaceMB` first, keeps a newer build on the headset, and explains a changed signing key.
-  `Updates.h` compares versions, keeps `InstallRecords` (a JSON file keyed by the headset's
-  `ro.serialno`, then the package) and decides an `UpdateStatus`. Its runner test uses qadb's
-  `FakeAdbServer`.
+  `Updates.h` compares versions and decides an `UpdateStatus`. Install records live on each
+  headset in `/sdcard/qgp/installs.json`; `InstallRecords` is the PC's cache of them (keyed by the
+  headset's `ro.serialno`, then the package), and `HeadsetRecordSync` keeps the two in step.
+  Its runner and sync tests use qadb's `FakeAdbServer`.
 - `apps/<name>/`: shipped applications.
 - `apps/qgp/`: the main app, Qt Widgets. The main window shows the catalog's games in a `QListView`
   in icon mode: the cover, with the title below. A toolbar's Order box picks a
@@ -66,7 +67,7 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
     step with the code.
   - `docs/decisions/`: one numbered record per decision (`NNNN-short-name.md`: status, date,
     context, decision, consequences). Do not edit an accepted record; write a new one that
-    replaces it and says so.
+    replaces it and says so, and change only the old record's status line to point to it.
 
 ## Documentation
 
