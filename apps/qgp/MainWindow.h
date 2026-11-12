@@ -40,6 +40,8 @@ private:
     void orderChanged();
     void showChanged();
     void findLibraries();
+    // Reads the current headset's packages and install records, and marks the games on it.
+    void findHeadsetGames();
     void showHeadsetDialog();
     void updateHeadsetStatus();
     void chooseFilesFolder();
@@ -54,6 +56,8 @@ private:
     GameSortModel* m_sorted;
     QComboBox* m_order;
     QComboBox* m_show;
+    int m_headsetQuery = 0; // Counts headset queries, so that an older answer is dropped.
+    QString m_headsetQuerySerial;
     QListView* m_view;
     QLabel* m_status;
     HeadsetConnection* m_headset;

@@ -29,11 +29,11 @@ bool GameSortModel::lessThan(const QModelIndex& left, const QModelIndex& right) 
     return m_comparator.lessThan(m_source->game(left.row()), m_source->game(right.row()));
 }
 
-void GameSortModel::setStoreFilter(StoreFlags filter)
+void GameSortModel::setFilter(GameFlags filter)
 {
-    if (filter == m_storeFilter)
+    if (filter == m_filter)
         return;
-    m_storeFilter = filter;
+    m_filter = filter;
     refilter();
 }
 
@@ -45,5 +45,5 @@ void GameSortModel::refilter()
 
 bool GameSortModel::filterAcceptsRow(int sourceRow, const QModelIndex&) const
 {
-    return !m_storeFilter || (m_source->stores(sourceRow) & m_storeFilter);
+    return !m_filter || (m_source->flags(sourceRow) & m_filter);
 }

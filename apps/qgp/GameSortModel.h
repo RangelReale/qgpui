@@ -1,6 +1,6 @@
 #pragma once
 
-#include "StoreAvailability.h"
+#include "GameFlags.h"
 
 #include "questports/GameOrder.h"
 
@@ -9,7 +9,7 @@
 class GameListModel;
 
 // Shows a GameListModel in one of the questports::GameOrder orders, optionally only the games
-// with a given store flag.
+// with a given flag.
 class GameSortModel : public QSortFilterProxyModel
 {
     Q_OBJECT
@@ -21,8 +21,8 @@ public:
     void setOrder(questports::GameOrder order);
 
     // Shows only games with this flag; no flag shows every game.
-    StoreFlags storeFilter() const { return m_storeFilter; }
-    void setStoreFilter(StoreFlags filter);
+    GameFlags filter() const { return m_filter; }
+    void setFilter(GameFlags filter);
     // Applies the filter again, after the source's store flags changed.
     void refilter();
 
@@ -34,5 +34,5 @@ private:
     GameListModel* m_source;
     questports::GameOrder m_order = questports::GameOrder::Title;
     questports::GameComparator m_comparator{m_order};
-    StoreFlags m_storeFilter;
+    GameFlags m_filter;
 };

@@ -14,10 +14,10 @@ void GameListModel::setGames(QList<questports::Game> games)
     beginResetModel();
     m_games = std::move(games);
     m_rowsByCover.clear();
-    m_stores.clear();
+    m_selling.clear();
     for (int row = 0; row < m_games.size(); ++row) {
         m_rowsByCover.insert(m_games[row].coverUrl, row);
-        m_stores.append(storesSelling(m_games[row]));
+        m_selling.append(storesSelling(m_games[row]));
     }
     endResetModel();
 }
@@ -36,16 +36,20 @@ QVariant GameListModel::data(const QModelIndex& index, int role) const
     case Qt::DisplayRole:
         return game.title;
     case Qt::ToolTipRole: {
-        const StoreFlags stores = m_stores[index.row()];
+        const GameFlags flags = this->flags(index.row());
         QStringList lines{game.title};
-        if (stores & StoreFlag::InSteamLibrary)
+        if (flags & GameFlag::InstalledByQgp)
+            lines.append(tr("On your headset, installed by qgp"));
+        else if (flags & GameFlag::InstalledOutsideQgp)
+            lines.append(tr("On your headset, installed outside qgp"));
+        if (flags & GameFlag::InSteamLibrary)
             lines.append(tr("In your Steam library"));
-        if (stores & StoreFlag::InGogLibrary)
+        if (flags & GameFlag::InGogLibrary)
             lines.append(tr("In your GOG library"));
         return lines.join(u'\n');
     }
-    case StoresRole:
-        return int(m_stores[index.row()].toInt());
+    case FlagsRole:
+        return flags(index.row()).toInt();
     case Qt::DecorationRole:
         return m_covers->cover(game.coverUrl);
     case SlugRole:
@@ -55,12 +59,28 @@ QVariant GameListModel::data(const QModelIndex& index, int role) const
     }
 }
 
-void GameListModel::setLibraries(const QHash<QString, StoreFlags>& holding)
+GameFlags GameListModel::flags(int row) const
 {
-    for (int row = 0; row < m_games.size(); ++row)
-        m_stores[row] = storesSelling(m_games[row]) | holding.value(m_games[row].slug);
+    const QString& slug = m_games.at(row).slug;
+    return m_selling.at(row) | m_holding.value(slug) | m_onHeadset.value(slug);
+}
+
+void GameListModel::setLibraries(const QHash<QString, GameFlags>& holding)
+{
+    m_holding = holding;
+    flagsChanged();
+}
+
+void GameListModel::setHeadset(const QHash<QString, GameFlags>& onHeadset)
+{
+    m_onHeadset = onHeadset;
+    flagsChanged();
+}
+
+void GameListModel::flagsChanged()
+{
     if (!m_games.isEmpty())
-        emit dataChanged(index(0), index(int(m_games.size()) - 1), {StoresRole, Qt::ToolTipRole});
+        emit dataChanged(index(0), index(int(m_games.size()) - 1), {FlagsRole, Qt::ToolTipRole});
 }
 
 void GameListModel::coverReady(const QUrl& url)

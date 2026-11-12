@@ -56,7 +56,10 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   in icon mode: the cover, with the title below. A toolbar's Order box picks a
   `questports::GameOrder`; `GameSortModel` applies it and `QSettings` remembers it. The Show box filters by
   store: sold on Steam or GOG (the recipe's `stores`), or in the Steam or GOG library of this PC
-  (`GameFinder`, run when the catalog loads); `StoreAvailability` computes both. The game dialog
+  (`GameFinder`, run when the catalog loads), or on the current headset: any game whose package
+  is installed, or only those installed outside qgp (no entry in the headset's install records).
+  `GameFlags` computes these; `MainWindow::findHeadsetGames` reads the headset when it changes
+  and after an install. The game dialog
   links each `pc-install` input to its Steam and GOG pages (GOG through its product API). `CoverCache` downloads covers through a
   `QNetworkDiskCache` and fits them into one size. `HeadsetConnection` starts the adb server
   if needed, tracks devices and remembers the current headset (`QSettings`); the toolbar's

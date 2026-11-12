@@ -1,6 +1,6 @@
 #pragma once
 
-#include "StoreAvailability.h"
+#include "GameFlags.h"
 
 #include "questports/Catalog.h"
 
@@ -19,17 +19,19 @@ class GameListModel : public QAbstractListModel
 public:
     enum Role {
         SlugRole = Qt::UserRole,
-        StoresRole, // StoreFlags, as int.
+        FlagsRole, // GameFlags, as int.
     };
 
     explicit GameListModel(CoverCache* covers, QObject* parent = nullptr);
 
     void setGames(QList<questports::Game> games);
     const questports::Game& game(int row) const { return m_games.at(row); }
-    StoreFlags stores(int row) const { return m_stores.at(row); }
+    GameFlags flags(int row) const;
     // Sets what this PC's Steam and GOG libraries hold, by slug, next to what the recipes say
     // the stores sell.
-    void setLibraries(const QHash<QString, StoreFlags>& holding);
+    void setLibraries(const QHash<QString, GameFlags>& holding);
+    // Sets which games are on the current headset, by slug. Empty when there is no headset.
+    void setHeadset(const QHash<QString, GameFlags>& onHeadset);
 
     int rowCount(const QModelIndex& parent = {}) const override;
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
@@ -39,6 +41,10 @@ private:
 
     CoverCache* m_covers;
     QList<questports::Game> m_games;
-    QList<StoreFlags> m_stores;
+    void flagsChanged();
+
+    QList<GameFlags> m_selling; // By row.
+    QHash<QString, GameFlags> m_holding;
+    QHash<QString, GameFlags> m_onHeadset;
     QMultiHash<QUrl, int> m_rowsByCover;
 };

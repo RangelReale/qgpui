@@ -1,7 +1,7 @@
 #pragma once
 
 #include "InputResolver.h"
-#include "StoreAvailability.h"
+#include "GameFlags.h"
 
 #include "installer/Recipe.h"
 #include "questports/Catalog.h"
@@ -44,6 +44,10 @@ public:
     // The user's files folder: the setting, or <Documents>/qgp/files.
     static QString filesRoot();
     static void setFilesRoot(const QString& folder);
+
+signals:
+    // An install ended, whether or not it succeeded: what is on the headset may have changed.
+    void installFinished();
 
 protected:
     void closeEvent(QCloseEvent* event) override;

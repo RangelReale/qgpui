@@ -1,6 +1,7 @@
 #include "GameDialog.h"
 
 #include "CoverCache.h"
+#include "GameFlags.h"
 #include "HeadsetConnection.h"
 
 #include "gamestores/FilesFolder.h"
@@ -116,14 +117,8 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     setWindowTitle(m_game.title);
     setAttribute(Qt::WA_DeleteOnClose);
 
-    if (m_game.hasRecipe()) {
-        QString package = m_game.install.value(QLatin1StringView("packageName")).toString();
-        if (package.isEmpty()) {
-            package = m_game.recipe.value(QLatin1StringView("checkedAgainst")).toObject()
-                          .value(QLatin1StringView("packageName")).toString();
-        }
-        m_recipe = installer::parseRecipe(m_game.recipe, package, &m_recipeError);
-    }
+    if (m_game.hasRecipe())
+        m_recipe = installer::parseRecipe(m_game.recipe, gamePackageName(m_game), &m_recipeError);
 
     // Header: the cover, then the title and what qgp knows about the game.
     m_cover->setPixmap(m_covers->cover(m_game.coverUrl));
@@ -433,23 +428,42 @@ void GameDialog::showHeadsetState()
     }
     const QString name = m_headset->currentDevice() ? HeadsetConnection::displayName(*m_headset->currentDevice())
                                                     : tr("the headset");
-    if (!m_recipe) {
+    const QString package = m_recipe ? m_recipe->packageName : gamePackageName(m_game);
+    if (package.isEmpty()) {
         m_headsetState->setText(tr("Headset: %1").arg(m_headset->statusText()));
         return;
     }
     m_headsetState->setText(tr("Checking %1...").arg(name));
-    auto* reply = m_headset->client()->packageInfo(m_headset->currentSerial(), m_recipe->packageName);
-    connect(reply, &qadb::Reply::finished, this, [this, reply, name] {
+    qadb::Client* client = m_headset->client();
+    const QString serial = m_headset->currentSerial();
+    auto* reply = client->packageInfo(serial, package);
+    connect(reply, &qadb::Reply::finished, this, [this, client, serial, reply, name, package] {
         reply->deleteLater();
-        if (!reply->isSuccess())
+        if (!reply->isSuccess()) {
             m_headsetState->setText(tr("Cannot read %1: %2").arg(name, reply->errorString()));
-        else if (!reply->isInstalled())
+            return;
+        }
+        if (!reply->isInstalled()) {
             m_headsetState->setText(tr("Not installed on %1.").arg(name));
-        else
-            m_headsetState->setText(tr("Installed on %1: version %2.")
-                                        .arg(name, reply->info().versionName.isEmpty()
-                                                       ? QString::number(reply->info().versionCode)
-                                                       : reply->info().versionName));
+            return;
+        }
+        const QString version = reply->info().versionName.isEmpty() ? QString::number(reply->info().versionCode)
+                                                                    : reply->info().versionName;
+        // Whether qgp installed it: the headset's install records say.
+        auto* records = client->shell(serial, QStringList{QStringLiteral("cat"), QLatin1StringView(installer::kHeadsetRecordsPath)});
+        connect(records, &qadb::Reply::finished, this, [this, records, name, package, version] {
+            records->deleteLater();
+            bool byQgp = false;
+            if (records->isSuccess()) {
+                if (const auto list = installer::parseHeadsetRecords(records->output())) {
+                    byQgp = std::any_of(list->cbegin(), list->cend(), [&](const installer::InstallRecord& record) {
+                        return record.packageName == package;
+                    });
+                }
+            }
+            m_headsetState->setText(byQgp ? tr("Installed on %1 by qgp: version %2.").arg(name, version)
+                                          : tr("Installed on %1 outside qgp: version %2.").arg(name, version));
+        });
     });
 }
 
@@ -670,6 +684,7 @@ void GameDialog::finishInstall(bool success, const QString& message)
     showInputs();
     updateButtons();
     showHeadsetState();
+    emit installFinished();
 }
 
 void GameDialog::log(const QString& text)

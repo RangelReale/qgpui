@@ -5,6 +5,7 @@
 #include <QFlags>
 #include <QJsonObject>
 #include <QList>
+#include <QSet>
 #include <QString>
 #include <QUrl>
 
@@ -12,21 +13,31 @@ namespace gamestores {
 class GameFinder;
 }
 
-// How a game's recipe relates to Steam and GOG: which stores sell the PC game it needs, and which
-// of them have it on this PC.
-enum class StoreFlag {
+// What qgp knows about a game beyond the catalog: which stores sell the PC game its recipe needs,
+// which of them have it on this PC, and whether the game is on the current headset.
+enum class GameFlag {
     SoldOnSteam = 0x1,   // A pc-install input lists Steam in its stores.
     SoldOnGog = 0x2,     // ... lists GOG.
     InSteamLibrary = 0x4, // The input was found in a Steam install on this PC.
     InGogLibrary = 0x8,   // ... in a GOG install, or GOG Galaxy lists it as owned.
+    OnHeadset = 0x10,     // The game's package is installed on the current headset.
+    InstalledByQgp = 0x20,      // ... and the headset's install records list it.
+    InstalledOutsideQgp = 0x40, // ... and they do not: it was installed some other way.
 };
-Q_DECLARE_FLAGS(StoreFlags, StoreFlag)
-Q_DECLARE_OPERATORS_FOR_FLAGS(StoreFlags)
+Q_DECLARE_FLAGS(GameFlags, GameFlag)
+Q_DECLARE_OPERATORS_FOR_FLAGS(GameFlags)
+
+// The game's package: the recipe's override, else the payload's, else the one the recipe was
+// written against. Empty when none is known.
+QString gamePackageName(const questports::Game& game);
 
 // SoldOnSteam and SoldOnGog, from the recipe alone.
-StoreFlags storesSelling(const questports::Game& game);
+GameFlags storesSelling(const questports::Game& game);
 // InSteamLibrary and InGogLibrary, from the stores of this PC.
-StoreFlags storesHolding(const questports::Game& game, const gamestores::GameFinder& finder);
+GameFlags storesHolding(const questports::Game& game, const gamestores::GameFinder& finder);
+// OnHeadset with InstalledByQgp or InstalledOutsideQgp, from the headset's third-party packages and
+// the packages its install records list. No flags when the game's package is not installed.
+GameFlags headsetFlags(const questports::Game& game, const QSet<QString>& installed, const QSet<QString>& recorded);
 
 // A store page of one stores entry of a pc-install input.
 struct StorePage

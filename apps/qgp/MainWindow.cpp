@@ -6,11 +6,14 @@
 #include "GameSortModel.h"
 #include "HeadsetConnection.h"
 #include "HeadsetDialog.h"
-#include "StoreAvailability.h"
+#include "GameFlags.h"
 
 #include "questports/Catalog.h"
 #include "questports/GameOrder.h"
 #include "gamestores/Finder.h"
+#include "installer/Updates.h"
+#include "qadb/Client.h"
+#include "qadb/Reply.h"
 
 
 #include <QApplication>
@@ -134,6 +137,12 @@ MainWindow::MainWindow(QWidget* parent)
     statusBar()->addPermanentWidget(m_headsetStatus);
 
     connect(m_headset, &HeadsetConnection::statusChanged, this, &MainWindow::updateHeadsetStatus);
+    connect(m_headset, &HeadsetConnection::statusChanged, this, [this] {
+        // Only a change of headset or readiness needs a new look at its packages.
+        const QString serial = m_headset->isReady() ? m_headset->currentSerial() : QString();
+        if (serial != m_headsetQuerySerial)
+            findHeadsetGames();
+    });
     updateHeadsetStatus();
     m_headset->start();
 }
@@ -168,27 +177,31 @@ void MainWindow::createToolBar()
     showLabel->setBuddy(m_show);
     showLabel->setContentsMargins(12, 0, 4, 0);
     toolBar->addWidget(showLabel);
-    // The item data is the StoreFlag to require; 0 shows every game.
+    // The item data is the GameFlag to require; 0 shows every game.
     m_show->addItem(tr("All games"), 0);
-    m_show->addItem(tr("Sold on Steam"), int(StoreFlag::SoldOnSteam));
-    m_show->addItem(tr("Sold on GOG"), int(StoreFlag::SoldOnGog));
-    m_show->addItem(tr("In my Steam library"), int(StoreFlag::InSteamLibrary));
-    m_show->addItem(tr("In my GOG library"), int(StoreFlag::InGogLibrary));
+    m_show->addItem(tr("Sold on Steam"), int(GameFlag::SoldOnSteam));
+    m_show->addItem(tr("Sold on GOG"), int(GameFlag::SoldOnGog));
+    m_show->addItem(tr("In my Steam library"), int(GameFlag::InSteamLibrary));
+    m_show->addItem(tr("In my GOG library"), int(GameFlag::InGogLibrary));
+    m_show->addItem(tr("On my headset"), int(GameFlag::OnHeadset));
+    m_show->addItem(tr("Installed outside qgp"), int(GameFlag::InstalledOutsideQgp));
     m_show->setItemData(1, tr("Games that need a PC game sold on Steam"), Qt::ToolTipRole);
     m_show->setItemData(2, tr("Games that need a PC game sold on GOG"), Qt::ToolTipRole);
     m_show->setItemData(3, tr("Games whose PC game is installed through Steam on this PC"), Qt::ToolTipRole);
     m_show->setItemData(4, tr("Games whose PC game is installed through GOG, or owned in GOG Galaxy"), Qt::ToolTipRole);
+    m_show->setItemData(5, tr("Games installed on the current headset"), Qt::ToolTipRole);
+    m_show->setItemData(6, tr("Games on the current headset that qgp did not install"), Qt::ToolTipRole);
     m_show->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     toolBar->addWidget(m_show);
     m_show->setCurrentIndex(qMax(0, m_show->findData(QSettings().value(kShowSetting, 0).toInt())));
-    m_sorted->setStoreFilter(StoreFlags::fromInt(m_show->currentData().toInt()));
+    m_sorted->setFilter(GameFlags::fromInt(m_show->currentData().toInt()));
     connect(m_show, &QComboBox::currentIndexChanged, this, &MainWindow::showChanged);
 }
 
 void MainWindow::showChanged()
 {
     const int flag = m_show->currentData().toInt();
-    m_sorted->setStoreFilter(StoreFlags::fromInt(flag));
+    m_sorted->setFilter(GameFlags::fromInt(flag));
     QSettings().setValue(kShowSetting, flag);
     m_view->scrollToTop();
 }
@@ -198,14 +211,60 @@ void MainWindow::findLibraries()
 {
     QStringList warnings;
     const gamestores::GameFinder finder = gamestores::GameFinder::forThisPc(&warnings);
-    QHash<QString, StoreFlags> holding;
+    QHash<QString, GameFlags> holding;
     for (int row = 0; row < m_model->rowCount(); ++row) {
         const questports::Game& game = m_model->game(row);
-        if (const StoreFlags flags = storesHolding(game, finder))
+        if (const GameFlags flags = storesHolding(game, finder))
             holding.insert(game.slug, flags);
     }
     m_model->setLibraries(holding);
     m_sorted->refilter();
+}
+
+void MainWindow::findHeadsetGames()
+{
+    const int query = ++m_headsetQuery;
+    if (!m_headset->isReady()) {
+        m_headsetQuerySerial.clear();
+        m_model->setHeadset({});
+        m_sorted->refilter();
+        return;
+    }
+    const QString serial = m_headset->currentSerial();
+    m_headsetQuerySerial = serial;
+    qadb::Client* client = m_headset->client();
+    auto* packages = client->packages(serial);
+    connect(packages, &qadb::Reply::finished, this, [this, client, packages, serial, query] {
+        packages->deleteLater();
+        if (query != m_headsetQuery || !packages->isSuccess())
+            return;
+        QSet<QString> installed;
+        for (const qadb::PackageInfo& package : packages->packages())
+            installed.insert(package.packageName);
+
+        auto* records = client->shell(serial, QStringList{QStringLiteral("cat"), QLatin1StringView(installer::kHeadsetRecordsPath)});
+        connect(records, &qadb::Reply::finished, this, [this, records, installed, query] {
+            records->deleteLater();
+            if (query != m_headsetQuery)
+                return;
+            // No file, or one that cannot be read: nothing was recorded.
+            QSet<QString> recorded;
+            if (records->isSuccess()) {
+                if (const auto list = installer::parseHeadsetRecords(records->output())) {
+                    for (const installer::InstallRecord& record : *list)
+                        recorded.insert(record.packageName);
+                }
+            }
+            QHash<QString, GameFlags> onHeadset;
+            for (int row = 0; row < m_model->rowCount(); ++row) {
+                const questports::Game& game = m_model->game(row);
+                if (const GameFlags flags = headsetFlags(game, installed, recorded))
+                    onHeadset.insert(game.slug, flags);
+            }
+            m_model->setHeadset(onHeadset);
+            m_sorted->refilter();
+        });
+    });
 }
 
 void MainWindow::orderChanged()
@@ -252,6 +311,7 @@ bool MainWindow::loadCatalog(const QString& path)
 
     m_model->setGames(catalog->games);
     findLibraries();
+    findHeadsetGames();
     QSettings().setValue(QStringLiteral("catalogPath"), QFileInfo(path).absoluteFilePath());
     const qsizetype count = catalog->games.size();
     const auto recipes = std::count_if(catalog->games.cbegin(), catalog->games.cend(),
@@ -316,6 +376,7 @@ void MainWindow::openGameAt(const QModelIndex& index)
     QPointer<GameDialog>& dialog = m_gameDialogs[game.slug];
     if (!dialog) {
         dialog = new GameDialog(game, m_headset, m_covers, this);
+        connect(dialog, &GameDialog::installFinished, this, &MainWindow::findHeadsetGames);
         dialog->show();
     }
     dialog->raise();

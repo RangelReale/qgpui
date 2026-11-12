@@ -1,4 +1,4 @@
-#include "StoreAvailability.h"
+#include "GameFlags.h"
 
 #include "gamestores/Finder.h"
 
@@ -20,32 +20,52 @@ QList<QJsonObject> pcInstallInputs(const questports::Game& game)
 
 } // namespace
 
-StoreFlags storesSelling(const questports::Game& game)
+QString gamePackageName(const questports::Game& game)
 {
-    StoreFlags flags;
+    QString package = game.recipe.value(QLatin1StringView("packageName")).toString();
+    if (package.isEmpty())
+        package = game.install.value(QLatin1StringView("packageName")).toString();
+    if (package.isEmpty()) {
+        package = game.recipe.value(QLatin1StringView("checkedAgainst")).toObject()
+                      .value(QLatin1StringView("packageName")).toString();
+    }
+    return package;
+}
+
+GameFlags headsetFlags(const questports::Game& game, const QSet<QString>& installed, const QSet<QString>& recorded)
+{
+    const QString package = gamePackageName(game);
+    if (package.isEmpty() || !installed.contains(package))
+        return {};
+    return GameFlag::OnHeadset | (recorded.contains(package) ? GameFlag::InstalledByQgp : GameFlag::InstalledOutsideQgp);
+}
+
+GameFlags storesSelling(const questports::Game& game)
+{
+    GameFlags flags;
     for (const QJsonObject& input : pcInstallInputs(game)) {
         for (const QJsonValue& value : input.value(QLatin1StringView("stores")).toArray()) {
             const QString store = value.toObject().value(QLatin1StringView("store")).toString();
             if (store == QLatin1StringView("steam"))
-                flags |= StoreFlag::SoldOnSteam;
+                flags |= GameFlag::SoldOnSteam;
             else if (store == QLatin1StringView("gog"))
-                flags |= StoreFlag::SoldOnGog;
+                flags |= GameFlag::SoldOnGog;
         }
     }
     return flags;
 }
 
-StoreFlags storesHolding(const questports::Game& game, const gamestores::GameFinder& finder)
+GameFlags storesHolding(const questports::Game& game, const gamestores::GameFinder& finder)
 {
-    StoreFlags flags;
+    GameFlags flags;
     for (const QJsonObject& input : pcInstallInputs(game)) {
         for (const gamestores::Location& location : finder.find(input)) {
             if (location.status == gamestores::Location::Status::Incomplete)
                 continue;
             if (location.store == QLatin1StringView("steam"))
-                flags |= StoreFlag::InSteamLibrary;
+                flags |= GameFlag::InSteamLibrary;
             else if (location.store == QLatin1StringView("gog"))
-                flags |= StoreFlag::InGogLibrary;
+                flags |= GameFlag::InGogLibrary;
         }
     }
     return flags;
