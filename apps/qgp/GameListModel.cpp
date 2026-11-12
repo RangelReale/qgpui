@@ -23,6 +23,27 @@ void markUpdate(QPixmap& cover)
     painter.drawText(band, Qt::AlignCenter, GameListModel::tr("Update"));
 }
 
+// Draws a rounded tag in the cover's top-left corner. Further tags would go below it.
+void markTag(QPixmap& cover, const QString& text, const QColor& color)
+{
+    if (cover.isNull())
+        return;
+    QPainter painter(&cover);
+    painter.setRenderHint(QPainter::Antialiasing);
+    QFont font = painter.font();
+    font.setBold(true);
+    painter.setFont(font);
+    const QFontMetricsF metrics(font);
+    const qreal height = metrics.height() * 1.3;
+    const qreal margin = 6;
+    const QRectF pill(margin, margin, metrics.horizontalAdvance(text) + height, height);
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(color);
+    painter.drawRoundedRect(pill, height / 2, height / 2);
+    painter.setPen(Qt::white);
+    painter.drawText(pill, Qt::AlignCenter, text);
+}
+
 } // namespace
 
 GameListModel::GameListModel(CoverCache* covers, QObject* parent)
@@ -77,7 +98,10 @@ QVariant GameListModel::data(const QModelIndex& index, int role) const
         return flags(index.row()).toInt();
     case Qt::DecorationRole: {
         QPixmap cover = m_covers->cover(game.coverUrl);
-        if (flags(index.row()) & GameFlag::UpdateAvailable)
+        const GameFlags flags = this->flags(index.row());
+        if (flags & (GameFlag::InstalledByQgp | GameFlag::InstalledOutsideQgp))
+            markTag(cover, tr("Installed"), QColor(46, 125, 50, 235));
+        if (flags & GameFlag::UpdateAvailable)
             markUpdate(cover);
         return cover;
     }

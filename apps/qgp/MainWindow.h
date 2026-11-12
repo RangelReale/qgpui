@@ -46,14 +46,12 @@ private:
     void openCatalog();
     void reloadCatalog();
     void createToolBar();
-    // The second row: the site's filters, with Type, Developer and Status behind More filters.
+    // The second row: the site's filters, and Clear at the right end.
     void createFilterBar();
     void orderChanged();
     void filterChanged();
     // Clears every filter. The order stays.
     void resetFilters();
-    // Shows or hides the boxes behind More filters, and counts the ones in use on its button.
-    void updateMoreFilters();
     // Fills the boxes whose choices come from the catalog, with the number of games of each.
     void fillCatalogBoxes(const questports::Catalog& catalog);
     void findLibraries();
@@ -87,8 +85,6 @@ private:
     QComboBox* m_category;
     QComboBox* m_developer;
     QComboBox* m_portStatus;
-    QAction* m_moreFiltersAction = nullptr;
-    QList<QAction*> m_moreFilters; // The toolbar actions of the boxes behind More filters.
     QAction* m_resetFiltersAction = nullptr;
     int m_headsetQuery = 0; // Counts headset queries, so that an older answer is dropped.
     QString m_headsetQuerySerial;
