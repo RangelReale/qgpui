@@ -32,6 +32,7 @@
           "appId": "1207659047"
         }
       ],
+      "root": "CARMA",
       "detect": [
         "DATA/GENERAL.TXT"
       ]
@@ -62,5 +63,5 @@
       ]
     }
   ],
-  "notes": "The guide says later tags can be PC-only (b004 is PCVRCarnage.zip, pico-test is a Pico build); qgp skips releases without a matching asset and picks b003. The legacy path /sdcard/questcarnage/DATA also works. Steam app ID and install folder names are not given. File name case on CD installs may differ."
+  "notes": "The guide says later tags can be PC-only (b004 is PCVRCarnage.zip, pico-test is a Pico build); qgp skips releases without a matching asset and picks b003. The legacy path /sdcard/questcarnage/DATA also works. Steam app ID and install folder names are not given. File name case on CD installs may differ. The GOG Max Pack keeps the game in CARMA/ (and the Splat Pack in CARSPLAT/), so root is CARMA; qgp falls back to the install folder itself where CARMA/ does not exist."
 }
