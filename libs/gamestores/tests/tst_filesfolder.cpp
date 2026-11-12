@@ -160,14 +160,59 @@ private slots:
         QVERIFY(FilesFolder::inputsNeedingFolders(inputs(naomiInputs)).isEmpty());
         QVERIFY(FilesFolder::inputsNeedingFolders(inputs(quakeInputs)).isEmpty());
 
-        QVERIFY(folder.create(QStringLiteral("mgs"), inputs(languageInputs)));
+        const QString mgs = QStringLiteral("Metal Gear Solid VR");
+        QVERIFY(folder.create(QStringLiteral("mgs"), mgs, inputs(languageInputs)));
         QVERIFY(QFileInfo(path(QStringLiteral("files/mgs/english"))).isDir());
         QVERIFY(QFileInfo(path(QStringLiteral("files/mgs/spanish"))).isDir());
-        QVERIFY(folder.create(QStringLiteral("mgs"), inputs(languageInputs))); // Already there.
+        QVERIFY(folder.create(QStringLiteral("mgs"), mgs, inputs(languageInputs))); // Already there.
 
-        QVERIFY(folder.create(QStringLiteral("quakequest"), inputs(quakeInputs)));
-        QCOMPARE(QDir(path(QStringLiteral("files/quakequest"))).entryList(QDir::AllEntries | QDir::NoDotAndDotDot),
-                 QStringList());
+        // Every game with inputs gets the guide, even when its files are already there.
+        touch(path(QStringLiteral("files/quakequest/id1/pak0.pak")));
+        touch(path(QStringLiteral("files/quakequest/id1/pak1.pak")));
+        QVERIFY(folder.create(QStringLiteral("quakequest"), QStringLiteral("QuakeQuest"), inputs(quakeInputs)));
+        QCOMPARE(QDir(path(QStringLiteral("files/quakequest"))).entryList(QDir::Files),
+                 QStringList{FilesFolder::kGuideFileName});
+
+        // A game without inputs gets an empty folder.
+        QVERIFY(folder.create(QStringLiteral("apk-only"), QStringLiteral("APK only"), QJsonArray()));
+        QVERIFY(QDir(path(QStringLiteral("files/apk-only"))).isEmpty());
+    }
+
+    void guide()
+    {
+        const FilesFolder folder(root());
+        const QString text = folder.guideText(
+            QStringLiteral("Some Game"),
+            inputs("[{'id':'english','kind':'file','label':'English disc','help':'Your own disc.',"
+                   "'extensions':['.cue','.bin'],'multiple':true},"
+                   "{'id':'spanish','kind':'file','label':'Spanish disc','extensions':['.cue','.bin'],'required':false},"
+                   "{'id':'roms','kind':'file','label':'ROM sets','names':['a.zip','naomi.zip'],'keepArchived':true},"
+                   "{'id':'o2r','kind':'file','label':'Archive','names':['x.o2r'],"
+                   "'preparedWith':{'tool':'Tool','url':'https:\\/\\/example.com'}},"
+                   "{'id':'game','kind':'pc-install','label':'The game','root':'id1','detect':['pak0.pak','pak1.pak']}]"));
+        QVERIFY2(text.startsWith(QStringLiteral("Some Game\n=========\n")), qPrintable(text));
+        QVERIFY2(text.contains(QStringLiteral("1. English disc\n    Your own disc.\n"
+                                              "    Put in the folder \"english\": the files ending in .cue or .bin.\n")),
+                 qPrintable(text));
+        QVERIFY2(text.contains(QStringLiteral("2. Spanish disc (optional)\n"
+                                              "    Put in the folder \"spanish\": one file ending in .cue or .bin.\n")),
+                 qPrintable(text));
+        QVERIFY2(text.contains(QStringLiteral("    Put here: a.zip and naomi.zip.\n    Keep zip files zipped.\n")),
+                 qPrintable(text));
+        QVERIFY2(text.contains(QStringLiteral("    Made with Tool: https://example.com\n")), qPrintable(text));
+        QVERIFY2(text.contains(QStringLiteral("    Put here: the game's folder, or the folder \"id1\" inside it. "
+                                              "qgp recognises it by pak0.pak and pak1.pak.\n")),
+                 qPrintable(text));
+        QVERIFY2(text.contains(QStringLiteral("anywhere in ")), qPrintable(text));
+    }
+
+    // The guide is never one of an input's files.
+    void guideIsNotAFile()
+    {
+        touch(path(QStringLiteral("game/") + FilesFolder::kGuideFileName));
+        const QByteArray txtInputs = "[{'id':'any','kind':'file','extensions':['.txt']}]";
+        QCOMPARE(FilesFolder(root()).find(QStringLiteral("game"), inputs(txtInputs), QStringLiteral("any")).status,
+                 FilesMatch::Status::NotFound);
     }
 
     // An input folder is used alone: files beside it in the game folder do not count.

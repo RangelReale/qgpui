@@ -55,6 +55,7 @@ private slots:
         touch(m_game + QStringLiteral("/misc/a.txt"));
         touch(m_game + QStringLiteral("/misc/deep/b.txt"));
         touch(m_game + QStringLiteral("/data/x.dat"));
+        touch(m_game + QStringLiteral("/qgp - what goes here.txt")); // The files folder's guide: never pushed.
     }
 
     void globsKeepThePathBelowTheirFixedPrefix()

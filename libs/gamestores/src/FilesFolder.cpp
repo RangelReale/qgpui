@@ -4,6 +4,7 @@
 
 #include <QDir>
 #include <QDirIterator>
+#include <QFile>
 #include <QFileInfo>
 #include <QStandardPaths>
 
@@ -50,7 +51,7 @@ QStringList filesBelow(const QString& folder, const QStringList& skip)
     QDirIterator it(folder, QDir::Files | QDir::Hidden, QDirIterator::Subdirectories);
     while (it.hasNext()) {
         const QString path = clean(it.next());
-        if (!isBelowAny(path, skip))
+        if (!isBelowAny(path, skip) && QFileInfo(path).fileName() != FilesFolder::kGuideFileName)
             files.append(path);
     }
     files.sort(Qt::CaseInsensitive);
@@ -238,7 +239,89 @@ QStringList FilesFolder::inputsNeedingFolders(const QJsonArray& inputs)
     return ids;
 }
 
-bool FilesFolder::create(const QString& slug, const QJsonArray& inputs, QString* errorMessage) const
+namespace {
+
+QString joinWith(const QStringList& items, const QString& last)
+{
+    if (items.size() < 2)
+        return items.join(QString());
+    return items.mid(0, items.size() - 1).join(QStringLiteral(", ")) + u' ' + last + u' ' + items.last();
+}
+
+QString indented(const QString& text)
+{
+    return QStringLiteral("    ") + text + u'\n';
+}
+
+} // namespace
+
+QString FilesFolder::guideText(const QString& title, const QJsonArray& inputs) const
+{
+    const QStringList own = inputsNeedingFolders(inputs);
+    bool anyNames = false;
+
+    QString text = title + u'\n' + QString(title.size(), u'=') + QStringLiteral("\n\n");
+    text += QStringLiteral("qgp looks in this folder for the files below when it installs the game. "
+                           "It also looks in the folders inside this one.\n");
+
+    int number = 0;
+    for (const QJsonValue& value : inputs) {
+        const QJsonObject input = value.toObject();
+        const QString id = input.value(QLatin1StringView("id")).toString();
+        const bool optional = !input.value(QLatin1StringView("required")).toBool(true);
+        text += QStringLiteral("\n%1. %2%3\n")
+                    .arg(QString::number(++number), input.value(QLatin1StringView("label")).toString(),
+                         optional ? QStringLiteral(" (optional)") : QString());
+
+        const QString help = input.value(QLatin1StringView("help")).toString();
+        if (!help.isEmpty())
+            text += indented(help);
+
+        const QString where = own.contains(id) ? QStringLiteral("Put in the folder \"%1\"").arg(id)
+                                               : QStringLiteral("Put here");
+        const QStringList names = stringList(input.value(QLatin1StringView("names")));
+        const QStringList extensions = stringList(input.value(QLatin1StringView("extensions")));
+        if (input.value(QLatin1StringView("kind")).toString() == QLatin1StringView("pc-install")) {
+            const QString root = input.value(QLatin1StringView("root")).toString();
+            const QStringList detect = stringList(input.value(QLatin1StringView("detect")));
+            QString line = root.isEmpty()
+                               ? QStringLiteral("%1: the game's folder, or a copy of it").arg(where)
+                               : QStringLiteral("%1: the game's folder, or the folder \"%2\" inside it").arg(where, root);
+            if (!detect.isEmpty())
+                line += QStringLiteral(". qgp recognises it by %1").arg(joinWith(detect, QStringLiteral("and")));
+            text += indented(line + u'.');
+        } else if (!names.isEmpty()) {
+            anyNames = true;
+            text += indented(QStringLiteral("%1: %2.").arg(where, joinWith(names, QStringLiteral("and"))));
+        } else if (!extensions.isEmpty()) {
+            const QString endings = joinWith(extensions, QStringLiteral("or"));
+            text += indented(input.value(QLatin1StringView("multiple")).toBool()
+                                 ? QStringLiteral("%1: the files ending in %2.").arg(where, endings)
+                                 : QStringLiteral("%1: one file ending in %2.").arg(where, endings));
+        }
+
+        if (input.value(QLatin1StringView("keepArchived")).toBool())
+            text += indented(QStringLiteral("Keep zip files zipped."));
+        const QJsonObject tool = input.value(QLatin1StringView("preparedWith")).toObject();
+        if (!tool.isEmpty()) {
+            text += indented(QStringLiteral("Made with %1: %2")
+                                 .arg(tool.value(QLatin1StringView("tool")).toString(),
+                                      tool.value(QLatin1StringView("url")).toString()));
+        }
+    }
+
+    if (anyNames) {
+        text += QStringLiteral("\nqgp also finds files with these exact names anywhere in %1. "
+                               "A file that several games use, such as naomi.zip, is needed only once.\n")
+                    .arg(QDir::toNativeSeparators(m_root));
+    }
+    text += QStringLiteral("\nqgp wrote this file and rewrites it each time you create the folder. "
+                           "qgp ignores it when it looks for files, and never copies it to the headset.\n");
+    return text;
+}
+
+bool FilesFolder::create(const QString& slug, const QString& title, const QJsonArray& inputs,
+                         QString* errorMessage) const
 {
     QStringList folders{gameFolder(slug)};
     for (const QString& id : inputsNeedingFolders(inputs))
@@ -249,6 +332,19 @@ bool FilesFolder::create(const QString& slug, const QJsonArray& inputs, QString*
                 *errorMessage = QStringLiteral("Cannot create the folder %1.").arg(QDir::toNativeSeparators(folder));
             return false;
         }
+    }
+
+    // A game that asks for files always gets the guide, rewritten so it follows the recipe.
+    if (inputs.isEmpty())
+        return true;
+
+    const QString path = gameFolder(slug) + u'/' + kGuideFileName;
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text) ||
+        file.write(guideText(title, inputs).toUtf8()) < 0) {
+        if (errorMessage)
+            *errorMessage = QStringLiteral("Cannot write %1: %2").arg(QDir::toNativeSeparators(path), file.errorString());
+        return false;
     }
     return true;
 }

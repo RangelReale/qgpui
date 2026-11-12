@@ -59,7 +59,8 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   if needed, tracks devices and remembers the current headset (`QSettings`); the toolbar's
   Headset button and the status bar's red/green indicator open `HeadsetDialog`, which lists
   headsets, searches over mDNS, pairs or connects over Wi-Fi, and switches a USB headset to Wi-Fi. Game > Create Files Folder (also the
-  covers' context menu) makes the selected game's folder in the files folder and opens it; File >
+  covers' context menu) makes the selected game's folder in the files folder, writes
+  `qgp - what goes here.txt` there, and opens it; File >
   Files Folder changes where that is (`QSettings`). The icons in `apps/qgp/icons/` are temporary;
   `make-icon.ps1` draws them (Windows PowerShell). `qgp.rc` gives the .exe its icon.
 - `cmake/`: shared CMake functions (`qgp_add_qt_test`).

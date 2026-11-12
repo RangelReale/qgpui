@@ -36,6 +36,8 @@ For a `pc-install` input with `stores`, the files folder is the last place qgp l
 
 The folders are named by slug, not by title. The slug never changes and is safe in a path; titles change and contain characters that Windows does not allow. To keep this easy for the user, the app's Create Files Folder action makes the selected game's folder and opens it in the file manager, so the user never types a slug. It creates input folders only where they are needed: for inputs that share an extension with another input of the game. An empty input folder would otherwise hide files that the user put in the game folder.
 
+The same action writes `qgp - what goes here.txt` into the game folder of every game that asks for files. The guide lists each input with its label and help, where it goes, and what qgp recognises it by. It is rewritten each time, so it follows the recipe. qgp never takes it as an input's file and never pushes it to the headset.
+
 ## Consequences
 
 - Most games need only the game folder. Only the two games with overlapping inputs need input folders, and their recipes' input IDs (`english`, `spanish`, `ssb`, `remix`) become names that users see. Renaming an input ID now breaks users' folders.

@@ -63,8 +63,12 @@ QStringList filesBelow(const QString& folder)
         return files;
     const QDir base(folder);
     QDirIterator it(folder, QDir::Files | QDir::Hidden, QDirIterator::Subdirectories);
-    while (it.hasNext())
-        files.append(base.relativeFilePath(it.next()));
+    while (it.hasNext()) {
+        const QString path = it.next();
+        // The guide that the app writes into the user's files folder (gamestores::FilesFolder).
+        if (it.fileName() != QLatin1StringView("qgp - what goes here.txt"))
+            files.append(base.relativeFilePath(path));
+    }
     files.sort(Qt::CaseInsensitive);
     return files;
 }

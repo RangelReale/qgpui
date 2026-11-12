@@ -2,6 +2,7 @@
 
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QLatin1StringView>
 #include <QString>
 #include <QStringList>
 
@@ -46,9 +47,20 @@ public:
     // another input of the game also accepts, so the game folder cannot tell them apart.
     static QStringList inputsNeedingFolders(const QJsonArray& inputs);
 
+    // The guide's file name. qgp writes it into a game folder and never finds or pushes it as an
+    // input's file; installer::planPush skips the same name.
+    static constexpr QLatin1StringView kGuideFileName{"qgp - what goes here.txt"};
+
+    // A plain-text explanation of what goes into the game's folders: each input with its label,
+    // help, where to put it and what qgp recognises it by.
+    QString guideText(const QString& title, const QJsonArray& inputs) const;
+
     // Creates the game folder and the input folders that inputsNeedingFolders names, if they are
-    // missing. Returns false, and sets *errorMessage when it is given, if a folder cannot be made.
-    bool create(const QString& slug, const QJsonArray& inputs, QString* errorMessage = nullptr) const;
+    // missing. When the game has inputs, it also writes the guide (kGuideFileName) into the game
+    // folder, replacing an older one. Returns false, and sets *errorMessage when it is given, if a
+    // folder or the guide cannot be written.
+    bool create(const QString& slug, const QString& title, const QJsonArray& inputs,
+                QString* errorMessage = nullptr) const;
 
 private:
     QString m_root;

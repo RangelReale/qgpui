@@ -271,7 +271,7 @@ void MainWindow::createFilesFolder()
     const QJsonArray inputs = game->recipe.value(QLatin1StringView("inputs")).toArray();
     const gamestores::FilesFolder files(filesRoot());
     QString error;
-    if (!files.create(game->slug, inputs, &error)) {
+    if (!files.create(game->slug, game->title, inputs, &error)) {
         QMessageBox::warning(this, tr("Create Files Folder"), error);
         return;
     }
