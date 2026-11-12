@@ -50,7 +50,7 @@ library, a payload reader and two developer tools.
   not on `PATH`. `qadb::AdbServer::findAdb()` finds it there.
 - Builds use `/W4` (MSVC) or `-Wall -Wextra -Wpedantic`. Keep them free of warnings.
 - moc reads `//` inside a raw string literal as a comment and then misses the class, which shows
-  up as unresolved `metaObject` symbols at link time. In test JSON, write URLs as `https://`.
+  up as unresolved `metaObject` symbols at link time. In test JSON, write URLs as `https:\/\/`.
 
 ## qadb design notes
 
