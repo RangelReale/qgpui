@@ -22,7 +22,9 @@ export {
   isSelfContainedSideload
 } from '~/data/portPackageMap'
 export { PORT_EXPANSIONS } from '~/data/expansions'
-export { ORIGIN_PLATFORMS, portOriginPlatform } from '~/lib/portOrigin'
+export { ORIGIN_PLATFORMS, VR_STYLES, portOriginPlatform, portVrStyle } from '~/lib/portOrigin'
+export { CATALOG_HEADSETS, normalizeHeadsetList } from '~/lib/headsets'
+export { noPcInstall } from '~/lib/noPcInstall'
 `
 
 const NAMESPACE = 'questports'

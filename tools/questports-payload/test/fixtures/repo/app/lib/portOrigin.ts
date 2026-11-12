@@ -11,3 +11,12 @@ export function portOriginPlatform(port: Pick<Port, 'title'> & { base_game_store
   if (/steam|\bgog\b/.test(text)) return 'pc'
   return null
 }
+
+export const VR_STYLES = [
+  { id: 'motion', label: 'Full VR' },
+  { id: 'seated', label: 'Seated' }
+] as const
+
+export function portVrStyle(port: { has_6dof_controls?: boolean }) {
+  return port.has_6dof_controls ? 'motion' : 'seated'
+}

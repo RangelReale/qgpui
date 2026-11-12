@@ -52,6 +52,8 @@ export function buildCatalog({ payload, recipes, generatedAt }) {
       recipes: { count: recipes.length }
     },
     originPlatforms: payload.originPlatforms ?? [],
+    vrStyles: payload.vrStyles ?? [],
+    headsets: payload.headsets ?? [],
     games,
     unmatched: {
       ...payload.unmatched,

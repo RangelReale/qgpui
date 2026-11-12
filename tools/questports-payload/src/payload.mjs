@@ -41,7 +41,14 @@ export function buildPayload({ ports, install, sources, generatedAt }) {
         selfContainedSideload: install.isSelfContainedSideload(config),
         // Where the game comes from (PC, Arcade, Nintendo 64...), as the site's catalog filter
         // derives it; null when nothing matches.
-        originPlatform: install.portOriginPlatform(port)
+        originPlatform: install.portOriginPlatform(port),
+        // How the game plays in VR, as the site's VR style filter derives it ("motion", "cockpit",
+        // "mixed_reality" or "seated").
+        vrStyle: install.portVrStyle(port),
+        // The headsets the port runs on, as the site's catalog labels ("Quest 3").
+        headsets: install.normalizeHeadsetList(port.supported_hardware),
+        // "yes" when the headset alone can install it (the site's "No PC needed"), "no" or "unknown".
+        noPcInstall: install.noPcInstall(port.slug)
       }
     }
   })
@@ -53,6 +60,10 @@ export function buildPayload({ ports, install, sources, generatedAt }) {
     sources,
     // The site's origin platforms, in its order: { id, label }.
     originPlatforms: install.ORIGIN_PLATFORMS.map(({ id, label }) => ({ id, label })),
+    // The site's VR styles, in its order: { id, label }.
+    vrStyles: install.VR_STYLES.map(({ id, label }) => ({ id, label })),
+    // The site's headset labels, in its order.
+    headsets: [...install.CATALOG_HEADSETS],
     games,
     unmatched: {
       portsWithoutInstall: games.filter(game => game.install === null).map(game => game.slug),

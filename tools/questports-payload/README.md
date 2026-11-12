@@ -117,6 +117,8 @@ One JSON object, version 1:
     // or { "kind": "local", "path": "C:\\src\\questports", "commit": "942cd71..." }
   },
   "originPlatforms": [ { "id": "pc", "label": "PC" }, { "id": "arcade", "label": "Arcade" } /* ... */ ],
+  "vrStyles": [ { "id": "motion", "label": "Full VR (motion controls)" } /* ... */ ],
+  "headsets": [ "Quest 1", "Quest 2", "Quest 3", "Quest 3S", "Quest Pro" ],
   "games": [
     {
       "slug": "avp-vr",
@@ -128,7 +130,10 @@ One JSON object, version 1:
         "workflowType": "pc_assets",
         "requiresExternalFiles": true,
         "selfContainedSideload": false,
-        "originPlatform": "pc"
+        "originPlatform": "pc",
+        "vrStyle": "motion",
+        "headsets": [ "Quest 2", "Quest 3", "Quest 3S", "Quest Pro" ],
+        "noPcInstall": "no"
       }
     }
   ],
@@ -147,9 +152,15 @@ One JSON object, version 1:
   `resolveWorkflowType`, `portRequiresExternalFiles` and `isSelfContainedSideload`. They fill in
   defaults for games whose install config is missing or incomplete. `originPlatform` is where the
   game comes from, as the site's catalog filter derives it (`portOriginPlatform` in
-  `app/lib/portOrigin.ts`), or `null` when nothing matches.
+  `app/lib/portOrigin.ts`), or `null` when nothing matches. The other catalog filters are computed
+  the same way: `vrStyle` (`portVrStyle`), `headsets` (`normalizeHeadsetList` of
+  `supported_hardware`, in `app/lib/headsets.ts`) and `noPcInstall` (`app/lib/noPcInstall.ts`:
+  `yes` when the headset alone can install the game, the site's "No PC needed", else `no` or
+  `unknown`). The type, status and developer filters read `category`, `status` and `developer`
+  from the row.
 - `originPlatforms` lists the site's platforms (`ORIGIN_PLATFORMS`) in its order, with their labels.
-  The catalog copies it.
+  `vrStyles` (`VR_STYLES`) and `headsets` (`CATALOG_HEADSETS`) do the same for the VR style and
+  headset filters. The catalog copies all three.
 - `unmatched` lists slugs found in only one source. A game without an install config is still in
   `games`, with `install` set to `null`. An install config or campaign list without a database row
   is left out of `games`, because the site does not show that game.
