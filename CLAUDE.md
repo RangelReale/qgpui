@@ -58,10 +58,13 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   `QNetworkDiskCache` and fits them into one size. `HeadsetConnection` starts the adb server
   if needed, tracks devices and remembers the current headset (`QSettings`); the toolbar's
   Headset button and the status bar's red/green indicator open `HeadsetDialog`, which lists
-  headsets, searches over mDNS, pairs or connects over Wi-Fi, and switches a USB headset to Wi-Fi. Game > Create Files Folder (also the
-  covers' context menu) makes the selected game's folder in the files folder, writes
-  `qgp - what goes here.txt` there, and opens it; File >
-  Files Folder changes where that is (`QSettings`). The icons in `apps/qgp/icons/` are temporary;
+  headsets, searches over mDNS, pairs or connects over Wi-Fi, and switches a USB headset to Wi-Fi. Opening a game (double-click, Enter,
+  Game > Open, context menu) shows `GameDialog`, where every action on a game starts (decision
+  0010): its inputs as `InputResolver` finds them (Steam and GOG, then the files folder) with a
+  Choose button each, Open Files Folder (creates the game's folder and its
+  `qgp - what goes here.txt`), and Install, which fetches the APK, runs `installer::Runner` with
+  a progress bar, Continue for tell steps and a log, then records the install with
+  `HeadsetRecordSync`. File > Files Folder changes the files folder (`QSettings`). The icons in `apps/qgp/icons/` are temporary;
   `make-icon.ps1` draws them (Windows PowerShell). `qgp.rc` gives the .exe its icon.
 - `cmake/`: shared CMake functions (`qgp_add_qt_test`).
 - `docs/`: documentation in three folders; `docs/README.md` lists every document.

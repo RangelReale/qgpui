@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 
 #include "CoverCache.h"
+#include "GameDialog.h"
 #include "GameListModel.h"
 #include "GameSortModel.h"
 #include "HeadsetConnection.h"
@@ -9,7 +10,6 @@
 #include "questports/Catalog.h"
 #include "questports/GameOrder.h"
 
-#include "gamestores/FilesFolder.h"
 
 #include <QApplication>
 #include <QComboBox>
@@ -36,15 +36,6 @@
 namespace {
 
 const QString kOrderSetting = QStringLiteral("order");
-const QString kFilesFolderSetting = QStringLiteral("filesFolder");
-
-// The user's files folder (decision 0009): the setting, or <Documents>/qgp/files.
-QString filesRoot()
-{
-    const QString saved = QSettings().value(kFilesFolderSetting).toString();
-    return saved.isEmpty() ? gamestores::FilesFolder::defaultRoot() : saved;
-}
-
 QString orderLabel(questports::GameOrder order)
 {
     switch (order) {
@@ -118,10 +109,12 @@ MainWindow::MainWindow(QWidget* parent)
     file->addAction(tr("E&xit"), QKeySequence::Quit, this, &QWidget::close);
 
     QMenu* game = menuBar()->addMenu(tr("&Game"));
-    m_filesFolderAction = game->addAction(tr("Create &Files Folder"), this, &MainWindow::createFilesFolder);
-    m_filesFolderAction->setStatusTip(tr("Create the selected game's folder in the files folder and open it"));
+    m_openGameAction = game->addAction(tr("&Open"), this, &MainWindow::openGame);
+    m_openGameAction->setStatusTip(tr("Open the selected game: its files, its state on the headset, and Install"));
     m_view->setContextMenuPolicy(Qt::ActionsContextMenu);
-    m_view->addAction(m_filesFolderAction);
+    m_view->addAction(m_openGameAction);
+    // Double-click or Enter.
+    connect(m_view, &QListView::activated, this, &MainWindow::openGameAt);
     connect(m_view->selectionModel(), &QItemSelectionModel::currentChanged, this, &MainWindow::updateGameActions);
     connect(m_sorted, &QAbstractItemModel::modelReset, this, &MainWindow::updateGameActions);
     updateGameActions();
@@ -250,37 +243,33 @@ const questports::Game* MainWindow::selectedGame() const
 void MainWindow::updateGameActions()
 {
     const questports::Game* game = selectedGame();
-    const bool hasInputs = game && !game->recipe.value(QLatin1StringView("inputs")).toArray().isEmpty();
-    m_filesFolderAction->setEnabled(hasInputs);
+    m_openGameAction->setEnabled(game != nullptr);
 }
 
 void MainWindow::chooseFilesFolder()
 {
-    const QString folder = QFileDialog::getExistingDirectory(this, tr("Files Folder"), filesRoot());
+    const QString folder = QFileDialog::getExistingDirectory(this, tr("Files Folder"), GameDialog::filesRoot());
     if (folder.isEmpty())
         return;
-    QSettings().setValue(kFilesFolderSetting, QDir::fromNativeSeparators(folder));
+    GameDialog::setFilesRoot(folder);
     m_status->setText(tr("qgp looks for your game files in %1").arg(QDir::toNativeSeparators(folder)));
 }
 
-void MainWindow::createFilesFolder()
+void MainWindow::openGame()
 {
-    const questports::Game* game = selectedGame();
-    if (!game)
-        return;
-    const QJsonArray inputs = game->recipe.value(QLatin1StringView("inputs")).toArray();
-    const gamestores::FilesFolder files(filesRoot());
-    QString error;
-    if (!files.create(game->slug, game->title, inputs, &error)) {
-        QMessageBox::warning(this, tr("Create Files Folder"), error);
-        return;
-    }
+    openGameAt(m_view->selectionModel()->currentIndex());
+}
 
-    const QString folder = files.gameFolder(game->slug);
-    const QStringList own = gamestores::FilesFolder::inputsNeedingFolders(inputs);
-    m_status->setText(own.isEmpty()
-                          ? tr("Put the files for %1 in %2").arg(game->title, QDir::toNativeSeparators(folder))
-                          : tr("Put the files for %1 in %2, each in its own folder: %3")
-                                .arg(game->title, QDir::toNativeSeparators(folder), own.join(QStringLiteral(", "))));
-    QDesktopServices::openUrl(QUrl::fromLocalFile(folder));
+void MainWindow::openGameAt(const QModelIndex& index)
+{
+    if (!index.isValid())
+        return;
+    const questports::Game& game = m_model->game(m_sorted->mapToSource(index).row());
+    QPointer<GameDialog>& dialog = m_gameDialogs[game.slug];
+    if (!dialog) {
+        dialog = new GameDialog(game, m_headset, m_covers, this);
+        dialog->show();
+    }
+    dialog->raise();
+    dialog->activateWindow();
 }

@@ -29,8 +29,8 @@ data/recipes/<slug>.json (qgp's own, hand-written) ─────────�
 
 ## Installing a game
 
-1. The app picks the game's recipe from the catalog.
-2. `gamestores::GameFinder` looks for the PC files that `pc-install` inputs need. `gamestores::FilesFolder` looks for every input's files in the user's files folder, one folder per game slug ([decision 0009](../decisions/0009-files-folder.md)). The user picks what neither finds (ROMs, disc images).
+1. The user opens the game; its game dialog ([decision 0010](../decisions/0010-game-dialog-first.md)) reads the recipe from the catalog.
+2. `gamestores::GameFinder` looks for the PC files that `pc-install` inputs need. `gamestores::FilesFolder` looks for every input's files in the user's files folder, one folder per game slug ([decision 0009](../decisions/0009-files-folder.md)). The user picks what neither finds (ROMs, disc images) in the dialog, which checks the names, endings and `detect` files.
 3. `installer::ApkFetcher` picks the GitHub release ([decision 0002](../decisions/0002-picking-the-apk-release.md)) and downloads the APK into a cache.
 4. `installer::Runner` runs the steps through `qadb`: installs, grants, launches, pushes ([decision 0003](../decisions/0003-pushes-into-android-data.md)), verifies, and pauses for steps the user does in the headset.
 5. The app records what it installed in `/sdcard/qgp/installs.json` on the headset, with a copy on the PC keyed by the headset's hardware serial for when no headset is connected ([decisions 0004](../decisions/0004-headset-identity.md), [0006](../decisions/0006-update-detection.md) and [0008](../decisions/0008-install-records-on-the-headset.md)).

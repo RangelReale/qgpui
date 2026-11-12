@@ -1,8 +1,11 @@
 #pragma once
 
+#include <QHash>
 #include <QMainWindow>
+#include <QPointer>
 
 class CoverCache;
+class GameDialog;
 class GameListModel;
 class GameSortModel;
 class HeadsetConnection;
@@ -12,6 +15,7 @@ struct Game;
 }
 
 class QAction;
+class QModelIndex;
 class QComboBox;
 class QLabel;
 class QListView;
@@ -37,7 +41,8 @@ private:
     void showHeadsetDialog();
     void updateHeadsetStatus();
     void chooseFilesFolder();
-    void createFilesFolder();
+    void openGame();
+    void openGameAt(const QModelIndex& index);
     void updateGameActions();
     // The selected game, or nullptr.
     const questports::Game* selectedGame() const;
@@ -51,7 +56,8 @@ private:
     HeadsetConnection* m_headset;
     HeadsetDialog* m_headsetDialog = nullptr;
     QAction* m_headsetAction = nullptr;
-    QAction* m_filesFolderAction = nullptr;
+    QAction* m_openGameAction = nullptr;
+    QHash<QString, QPointer<GameDialog>> m_gameDialogs;
     QToolButton* m_headsetStatus;
     QString m_catalogPath;
 };

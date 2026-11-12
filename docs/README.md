@@ -32,3 +32,4 @@ Why qgp is built this way. One numbered record per decision, with its context an
 | [0007](decisions/0007-finding-pc-installs.md) | Find PC installs by ID, folder name, then content |
 | [0008](decisions/0008-install-records-on-the-headset.md) | Keep install records on the headset (replaces the storage part of 0006) |
 | [0009](decisions/0009-files-folder.md) | Look for the user's files in one files folder, by game slug |
+| [0010](decisions/0010-game-dialog-first.md) | Every action on a game starts in its game dialog |

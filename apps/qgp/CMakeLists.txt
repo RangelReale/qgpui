@@ -8,6 +8,8 @@ qt_add_executable(qgp WIN32 MACOSX_BUNDLE
     CoverCache.h CoverCache.cpp
     HeadsetConnection.h HeadsetConnection.cpp
     HeadsetDialog.h HeadsetDialog.cpp
+    GameDialog.h GameDialog.cpp
+    InputResolver.h InputResolver.cpp
 )
 if(WIN32)
     target_sources(qgp PRIVATE qgp.rc)
@@ -26,7 +28,7 @@ qt_add_resources(qgp icons
         icons/qgp-256.png
 )
 
-target_link_libraries(qgp PRIVATE qgp::questports qgp::gamestores qgp::qadb Qt6::Widgets Qt6::Network)
+target_link_libraries(qgp PRIVATE qgp::questports qgp::gamestores qgp::installer qgp::qadb Qt6::Widgets Qt6::Network)
 target_compile_definitions(qgp PRIVATE QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 
 # Development builds fall back to the catalog in the repository's local/ folder.
