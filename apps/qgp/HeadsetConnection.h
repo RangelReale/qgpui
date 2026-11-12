@@ -46,7 +46,6 @@ public:
     Q_ENUM(Status)
 
     explicit HeadsetConnection(QObject* parent = nullptr);
-    // Releases a kept-awake headset, waiting a moment for the release to reach it.
     ~HeadsetConnection() override;
 
     // Connects to the adb server, and starts it if needed.
@@ -74,6 +73,9 @@ public:
     // stops being current is released. Off when qgp starts.
     bool keepsAwake() const { return m_keepAwakeWanted; }
     void setKeepAwake(bool on);
+    // True while the button is on but another app on the headset already keeps it awake, so
+    // qgp leaves that app's override alone.
+    bool isKeptAwakeElsewhere() const;
     // A small open eye, for the keep-awake button.
     static QIcon keepAwakeIcon();
 
@@ -106,6 +108,8 @@ signals:
     // that offers pairing, or empty.
     void scanFinished(const QString& message, const QString& pairingAddress);
     void keepAwakeChanged(bool on);
+    // isKeptAwakeElsewhere() may have changed.
+    void keepAwakeStateChanged();
     // A keep-awake broadcast failed on the current headset.
     void keepAwakeFailed(const QString& errorMessage);
 

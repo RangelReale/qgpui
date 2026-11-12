@@ -240,11 +240,13 @@ void MainWindow::createToolBar()
 
     m_keepAwakeAction = toolBar->addAction(HeadsetConnection::keepAwakeIcon(), tr("Keep Awake"));
     m_keepAwakeAction->setCheckable(true);
-    m_keepAwakeAction->setToolTip(tr("Keep the headset's screen on, even when it is taken off, until you turn this off"));
+
     if (auto* button = qobject_cast<QToolButton*>(toolBar->widgetForAction(m_keepAwakeAction)))
         button->setToolButtonStyle(Qt::ToolButtonIconOnly);
     connect(m_keepAwakeAction, &QAction::toggled, m_headset, &HeadsetConnection::setKeepAwake);
     connect(m_headset, &HeadsetConnection::keepAwakeChanged, m_keepAwakeAction, &QAction::setChecked);
+    connect(m_headset, &HeadsetConnection::keepAwakeStateChanged, this, &MainWindow::updateKeepAwakeAction);
+    updateKeepAwakeAction();
     connect(m_headset, &HeadsetConnection::keepAwakeFailed, this, [this](const QString& errorMessage) {
         statusBar()->showMessage(tr("Could not keep the headset's screen on: %1").arg(errorMessage), 10000);
     });
@@ -593,6 +595,19 @@ void MainWindow::showHeadsetDialog()
     m_headsetDialog->show();
     m_headsetDialog->raise();
     m_headsetDialog->activateWindow();
+}
+
+void MainWindow::updateKeepAwakeAction()
+{
+    if (m_headset->isKeptAwakeElsewhere()) {
+        const QString text = tr("Another app on the headset already keeps its screen on. qgp leaves it alone, "
+                                "and takes over if that app stops.");
+        m_keepAwakeAction->setToolTip(text);
+        statusBar()->showMessage(text, 10000);
+    } else {
+        m_keepAwakeAction->setToolTip(tr("Keep the headset's screen on, even when it is taken off, until you turn "
+                                         "this off"));
+    }
 }
 
 void MainWindow::updateHeadsetStatus()

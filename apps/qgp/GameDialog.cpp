@@ -595,8 +595,13 @@ void GameDialog::updateKeepAwake()
         connect(m_keepAwake, &installer::KeepAwake::failed, this, [this](const QString& errorMessage) {
             log(tr("Could not keep the headset's screen on: %1").arg(errorMessage));
         });
+        connect(m_keepAwake, &installer::KeepAwake::stateChanged, this, [this](installer::KeepAwake::State state) {
+            if (state == installer::KeepAwake::State::Holding)
+                log(tr("Keeping the headset's screen on until the install ends."));
+            else if (state == installer::KeepAwake::State::Deferring)
+                log(tr("Another app on the headset already keeps its screen on; qgp leaves it alone."));
+        });
         m_keepAwake->start();
-        log(tr("Keeping the headset's screen on until the install ends."));
     }
 }
 

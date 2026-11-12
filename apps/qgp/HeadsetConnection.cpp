@@ -6,7 +6,6 @@
 #include "qadb/DeviceTracker.h"
 #include "qadb/Reply.h"
 
-#include <QEventLoop>
 #include <QGuiApplication>
 #include <QPainter>
 #include <QPainterPath>
@@ -14,7 +13,6 @@
 #include <QPen>
 #include <QPixmap>
 #include <QSettings>
-#include <QTimer>
 
 #include <algorithm>
 
@@ -26,9 +24,6 @@ const QString kHardwareSetting = QStringLiteral("headset/hardwareSerial");
 
 // How long after pairing or connecting a new headset may take to show up and become current.
 constexpr int kAdoptMsecs = 30000;
-
-// How long qgp waits on exit for the headset to confirm a keep-awake release.
-constexpr int kReleaseWaitMsecs = 2000;
 
 // A serial such as "192.168.1.20:5555", which the server forgets when it restarts.
 bool isAddressSerial(const QString& serial)
@@ -437,18 +432,9 @@ QString HeadsetConnection::stateDescription(const qadb::DeviceInfo& device)
 
 HeadsetConnection::~HeadsetConnection()
 {
-    // The client is deleted with the other children, so release before it goes. The event loop
-    // has ended by now, so run one until the release is answered.
-    if (!m_keepAwake)
-        return;
-    QPointer<qadb::Reply> reply = m_keepAwake->stop();
+    // Before the client goes with the other children. main() has released the headset already
+    // (KeepAwake::releaseAll), so this sends nothing.
     delete m_keepAwake;
-    if (!reply)
-        return;
-    QEventLoop loop;
-    connect(reply, &qadb::Reply::finished, &loop, &QEventLoop::quit);
-    QTimer::singleShot(kReleaseWaitMsecs, &loop, &QEventLoop::quit);
-    loop.exec();
 }
 
 void HeadsetConnection::setKeepAwake(bool on)
@@ -468,8 +454,15 @@ void HeadsetConnection::updateKeepAwake()
     if (wanted && !m_keepAwake) {
         m_keepAwake = new installer::KeepAwake(m_client, m_serial, this);
         connect(m_keepAwake, &installer::KeepAwake::failed, this, &HeadsetConnection::keepAwakeFailed);
+        connect(m_keepAwake, &installer::KeepAwake::stateChanged, this, &HeadsetConnection::keepAwakeStateChanged);
         m_keepAwake->start();
     }
+    emit keepAwakeStateChanged();
+}
+
+bool HeadsetConnection::isKeptAwakeElsewhere() const
+{
+    return m_keepAwake && m_keepAwake->state() == installer::KeepAwake::State::Deferring;
 }
 
 QIcon HeadsetConnection::keepAwakeIcon()

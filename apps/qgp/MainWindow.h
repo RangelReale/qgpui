@@ -65,6 +65,7 @@ private:
                         const QHash<QString, installer::InstallRecord>& recorded, int query);
     void showHeadsetDialog();
     void updateHeadsetStatus();
+    void updateKeepAwakeAction();
     void chooseFilesFolder();
     void openGame();
     void openGameAt(const QModelIndex& index);

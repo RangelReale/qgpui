@@ -1,5 +1,7 @@
 #include "MainWindow.h"
 
+#include "installer/KeepAwake.h"
+
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QDir>
@@ -9,6 +11,9 @@
 #include <QStandardPaths>
 
 namespace {
+
+// How long qgp waits on exit for the headsets to answer the keep-awake releases.
+constexpr int kReleaseWaitMsecs = 2000;
 
 // Where to read the catalog when the command line names none: the file opened last, else
 // qgp-catalog.json in the app's data folder, else (in a development build) the repository's local/
@@ -59,5 +64,9 @@ int main(int argc, char* argv[])
     window.loadCatalog(args.isEmpty() ? defaultCatalogPath() : args.first());
     window.resize(1400, 900);
     window.show();
-    return QApplication::exec();
+    const int result = QApplication::exec();
+    // Hand every kept-awake headset back to its proximity sensor while the windows and the adb
+    // client still exist (decision 0013).
+    installer::KeepAwake::releaseAll(kReleaseWaitMsecs);
+    return result;
 }

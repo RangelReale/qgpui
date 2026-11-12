@@ -51,7 +51,8 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   newest release without downloading it, one GitHub request per repository, kept for an hour. Install records live on each
   headset in `/sdcard/qgp/installs.json`; `InstallRecords` is the PC's cache of them (keyed by the
   headset's `ro.serialno`, then the package), and `HeadsetRecordSync` keeps the two in step.
-  `KeepAwake` keeps a Quest's screen on with the proximity-sensor broadcast (decisions 0012, 0013).
+  `KeepAwake` keeps a Quest's screen on with the proximity-sensor broadcast, leaves an override
+  that another app holds alone, and `main()` releases them all on exit (decisions 0012 to 0014).
   Its runner, sync and keep-awake tests use qadb's `FakeAdbServer`.
 - `apps/<name>/`: shipped applications.
 - `apps/qgp/`: the main app, Qt Widgets. The main window shows the catalog's games in a `QListView`
