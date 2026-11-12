@@ -37,6 +37,8 @@ Writing them added `support`, `inZip`, `multiple` and the `shell` step. Known ga
 
 urbanterror-vr is the first recipe marked `tested`: the installer library's `Runner` installed it on a Quest 3 from its GitHub release, granted All files access with `appops`, and the game played.
 
+ultima-4-vr is the first `tested` recipe with an input. On 2026-11-12 the qgp app's game dialog found Ultima IV in GOG Galaxy by its product ID, at `Ultima 4 - Quest of the Avatar` (the recipe had guessed `Ultima 4`). It installed release 0.2.15 on a Quest 3, pushed the 181 files (13 MB) into `Android/data`, made the `.SAV` files writable with `find ... -exec chmod`, and the game played.
+
 How the runner treats pushes into `Android/data`, and why, is in [decision 0003](../decisions/0003-pushes-into-android-data.md); the measurements behind it are in [How a Quest answers adb](../research/quest-adb-behaviour.md).
 
 ## Fields

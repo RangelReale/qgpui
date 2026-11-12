@@ -3,7 +3,7 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "ultima-4-vr",
-  "status": "draft",
+  "status": "tested",
   "support": "automatic",
   "checkedAgainst": {
     "packageName": "com.SwivelChairGames.ANKHVR",
@@ -27,7 +27,7 @@
         {
           "store": "gog",
           "appId": "1207658962",
-          "installDir": "Ultima 4"
+          "installDir": "Ultima 4 - Quest of the Avatar"
         }
       ],
       "detect": [
@@ -78,5 +78,5 @@
       "text": "Open ANKH-VR from Library > Unknown Sources."
     }
   ],
-  "notes": "The GOG install folder name is a guess. File names are case sensitive on the Quest, so the push must keep their case. The asset is really named ANHK-VR.apk. Releases before 0.2.15 are pre-releases."
+  "notes": "File names are case sensitive on the Quest, so the push must keep their case. The asset is really named ANHK-VR.apk. Releases before 0.2.15 are pre-releases."
 }
