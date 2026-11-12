@@ -73,6 +73,8 @@ private:
     void updateButtons();
 
     void install();
+    // Shows the commands the install will run, in a dialog of their own.
+    void showInstallDetails();
     void fetchApk(int index);
     void runSteps();
     void recordInstall();
@@ -99,6 +101,7 @@ private:
     QGridLayout* m_filesGrid;
     QPushButton* m_installButton;
     QPushButton* m_cancelButton;
+    QPushButton* m_detailsButton;
     QLabel* m_installHint;
     QWidget* m_progressArea;
     QLabel* m_step;

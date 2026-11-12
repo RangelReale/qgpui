@@ -34,6 +34,9 @@ data/recipes/<slug>.json (qgp's own, hand-written) ─────────�
 3. `installer::ApkFetcher` picks the GitHub release ([decision 0002](../decisions/0002-picking-the-apk-release.md)) and downloads the APK into a cache.
 4. `installer::Runner` runs the steps through `qadb`: installs, grants, launches, pushes ([decision 0003](../decisions/0003-pushes-into-android-data.md)), verifies, and pauses for steps the user does in the headset.
 5. The app records what it installed in `/sdcard/qgp/installs.json` on the headset, with a copy on the PC keyed by the headset's hardware serial for when no headset is connected ([decisions 0004](../decisions/0004-headset-identity.md), [0006](../decisions/0006-update-detection.md) and [0008](../decisions/0008-install-records-on-the-headset.md)).
+6. The dialog shows the result in a green, amber or red banner. Amber means the game is installed but its record is not.
+
+Before installing, the dialog's Details button shows every step and command the install runs, with the files as they are found at that moment. `installer::planInstall` builds that list. The Runner builds its grant, launch, force-stop and folder commands with the same functions, so the list matches what runs.
 
 ## Updates
 

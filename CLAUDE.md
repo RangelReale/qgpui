@@ -44,7 +44,7 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
 - `libs/installer/`: runs install recipes. `parseRecipe` reads a catalog recipe into `Recipe`;
   `ApkFetcher` resolves a github source (`pickRelease`) and downloads the APK into a cache;
   `planPush` turns a push step and the user's files into single-file copies; `Runner` runs the
-  steps on a device through qadb. Below `Android/data` and `Android/obb` it creates folders with
+  steps on a device through qadb; `planInstall` lists the commands it will run, for the game dialog's Details. Below `Android/data` and `Android/obb` it creates folders with
   `mkdir` and `chmod 2777` before pushing (decision 0003). It checks
   `freeSpaceMB` first, keeps a newer build on the headset, and explains a changed signing key.
   `Updates.h` compares versions and decides an `UpdateStatus`; `ReleaseLookup` finds a source's
@@ -83,7 +83,7 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   (`FilesFolder::inputGuide`), Open Files Folder (creates the game's folder and its
   `qgp - what goes here.txt`), and Install, which fetches the APK, runs `installer::Runner` with
   a progress bar, Continue for tell steps and a log, then records the install with
-  `HeadsetRecordSync`. File > Files Folder changes the files folder (`QSettings`). The icons in `apps/qgp/icons/` are temporary;
+  `HeadsetRecordSync` and shows the result in a coloured banner. Details shows `planInstall`'s commands. File > Files Folder changes the files folder (`QSettings`). The icons in `apps/qgp/icons/` are temporary;
   `make-icon.ps1` draws them (Windows PowerShell). `qgp.rc` gives the .exe its icon.
 - `cmake/`: shared CMake functions (`qgp_add_qt_test`).
 - `docs/`: documentation in three folders; `docs/README.md` lists every document.
