@@ -34,7 +34,21 @@ Writing them added `support`, `inZip`, `multiple` and the `shell` step. Known ga
 - An input cannot say "at least one of these". metal-gear-solid-vr marks all six languages optional.
 - Steps cannot be optional, so an optional marker file (wipeout-pure-vr) is left out.
 - Backup and restore for ports that changed their signing key is described in `tell` steps and notes.
-- Granting All files access with `appops` is not yet tested on a Quest.
+
+## Tested on a headset
+
+Checked on a Quest 3 with Android 14 (build 52641960034500520) on 2026-11-12, using an installed port (galaxyquest) and test files that were removed afterwards.
+
+- **`grant` with `appops` works.** `appops set <package> MANAGE_EXTERNAL_STORAGE allow` succeeds over adb, and `appops get` then reads `allow`. Android checks this app op when an app asks whether it has All files access, so the recipes' `grant` steps can replace the tap in the headset. The `tell` fallbacks can stay for apps that ask again.
+- **Outside `Android/data`, `adb push` works as usual,** including a whole folder. Files there go through Android's storage layer, which gives apps access.
+- **Inside `/sdcard/Android/data/<package>/`, the rules differ.** The app's own folders belong to the app (`drwxrws---`, owner the app's user). What adb creates belongs to the shell user (2000):
+  - A single file pushed into a folder that exists works, and the file is readable by everyone (`-rw-r--r--`).
+  - A folder that adb creates is `drwxrws---`, so the app cannot enter it.
+  - `adb push` of a whole folder fails (`failed to read copy response: EOF`), and so does a file push that must create more than one folder level (`secure_mkdirs failed: Operation not permitted`).
+  - `adb shell mkdir -p` creates nested folders, and `chmod` on them works.
+  - galaxyquest's own install script leaves its pushed folders `drwxrwxrwx`, and the game runs with them; descent-3's guide uses `chmod 2777` for the same reason.
+
+So the recipe runner must, for every push below `/sdcard/Android/data/`: create the folders with `mkdir -p`, push the files one at a time, and open each folder it created to the app (`chmod 2777`). The `launch` step before such a push stays necessary, because the app must create its own `files` folder.
 
 ## Fields
 
@@ -89,7 +103,7 @@ A folder that is not a store install, such as an arcade dump, is a `pc-install` 
 | `install-apk` | Installs every APK with `adb install -r`, and with `-g` when `grantAll` is set. |
 | `grant` | Grants an app op (`appops set <package> <op> allow`) or a permission (`pm grant`). |
 | `launch` | Starts the main app and waits (`waitSeconds`, default 10). It then force-stops the app, unless `stop` is false. `why` says what the launch is for. |
-| `push` | Pushes an input's files. Each `map` entry takes `from` and sends it `to` a path under `/sdcard/`. `from` is a glob below the input's root, or one of its `names`. Without `from`, every file of the input is pushed. A `to` that ends in `/` is a folder; any other `to` is the file's new path. A glob drops the folders before its first wildcard and keeps the rest of each path: `misc/**` to `/sdcard/X/misc/` sends `misc/a/b.txt` to `/sdcard/X/misc/a/b.txt`, and `*.pak` sends files flat. |
+| `push` | Pushes an input's files. Each `map` entry takes `from` and sends it `to` a path under `/sdcard/`. `from` is a glob below the input's root, or one of its `names`. Without `from`, every file of the input is pushed. A `to` that ends in `/` is a folder; any other `to` is the file's new path. A glob drops the folders before its first wildcard and keeps the rest of each path: `misc/**` to `/sdcard/X/misc/` sends `misc/a/b.txt` to `/sdcard/X/misc/a/b.txt`, and `*.pak` sends files flat. Below `/sdcard/Android/data/`, qgp creates folders with `mkdir -p`, pushes file by file and opens new folders to the app; see [Tested on a headset](#tested-on-a-headset). |
 | `verify` | Checks over adb that the listed files exist. |
 | `shell` | Runs one command with `adb shell`; `args` holds the command and its arguments. Used for `chmod`, `content call`, `am force-stop` and marker files. `why` is required. |
 | `tell` | Shows the user what to do in the headset. |
