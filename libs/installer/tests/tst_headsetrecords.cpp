@@ -12,8 +12,8 @@ using namespace installer;
 
 namespace {
 
-const QString kAdbSerial = QStringLiteral("192.168.68.57:5555");
-const QString kHardware = QStringLiteral("2G0YC5ZG4D040F");
+const QString kAdbSerial = QStringLiteral("192.168.1.20:5555");
+const QString kHardware = QStringLiteral("2G0YC00000000B");
 const QString kPath = QString::fromLatin1(kHeadsetRecordsPath);
 
 InstallRecord record(const QString& package, const QString& tag, int day)

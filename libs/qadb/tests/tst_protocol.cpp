@@ -26,9 +26,9 @@ private slots:
     void parseShortDeviceList()
     {
         const auto devices =
-            protocol::parseDeviceList("2G0YC1ZF8B0SPR\tdevice\n192.168.1.20:5555\toffline\n");
+            protocol::parseDeviceList("2G0YC00000000A\tdevice\n192.168.1.20:5555\toffline\n");
         QCOMPARE(devices.size(), 2);
-        QCOMPARE(devices[0].serial, QStringLiteral("2G0YC1ZF8B0SPR"));
+        QCOMPARE(devices[0].serial, QStringLiteral("2G0YC00000000A"));
         QCOMPARE(devices[0].state, DeviceState::Device);
         QVERIFY(!devices[0].isNetwork());
         QCOMPARE(devices[1].state, DeviceState::Offline);
@@ -38,7 +38,7 @@ private slots:
     void parseLongDeviceList()
     {
         const auto devices = protocol::parseDeviceList(
-            "2G0YC1ZF8B0SPR         device usb:1-4 product:eureka model:Quest_3 device:eureka "
+            "2G0YC00000000A         device usb:1-4 product:eureka model:Quest_3 device:eureka "
             "transport_id:7\n"
             "R3CN90ABCDE            unauthorized usb:1-2 transport_id:8\n");
         QCOMPARE(devices.size(), 2);

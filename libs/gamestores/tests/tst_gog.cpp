@@ -32,7 +32,7 @@ bool makeGalaxyDatabase(const QString& path)
             QStringLiteral("INSERT INTO LibraryReleases VALUES (10, 1, 'gog_1'), (11, 1, 'gog_2'), (12, 1, 'gog_3'), "
                            "(13, 1, 'steam_70')"),
             QStringLiteral("INSERT INTO LicensedReleases VALUES (10, 1), (11, 1), (12, 0), (13, 1)"),
-            QStringLiteral("INSERT INTO InstalledBaseProducts VALUES (1, 'M:/jogos/GalaxyClient/Games/Master of Orion', '52')"),
+            QStringLiteral("INSERT INTO InstalledBaseProducts VALUES (1, 'D:/Games/GalaxyClient/Games/Master of Orion', '52')"),
         };
         for (const QString& statement : statements)
             ok = ok && q.exec(statement);
@@ -66,7 +66,7 @@ private slots:
         QCOMPARE(moo->name, QStringLiteral("Master of Orion Classic"));
         QVERIFY(moo->owned);
         QVERIFY(moo->installed());
-        QCOMPARE(moo->installPath, QStringLiteral("M:/jogos/GalaxyClient/Games/Master of Orion"));
+        QCOMPARE(moo->installPath, QStringLiteral("D:/Games/GalaxyClient/Games/Master of Orion"));
         QCOMPARE(moo->buildId, QStringLiteral("52"));
 
         const auto u4 = gog.game(QStringLiteral("2"));

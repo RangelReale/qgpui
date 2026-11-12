@@ -42,8 +42,8 @@ private slots:
         QTemporaryDir tmp;
         QVERIFY(tmp.isValid());
         const QString root = tmp.filePath(QStringLiteral("Steam"));
-        const QString second = tmp.filePath(QStringLiteral("M/jogos/Steam"));
-        const QString third = tmp.filePath(QStringLiteral("N/jogos/Steam"));
+        const QString second = tmp.filePath(QStringLiteral("D/Games/Steam"));
+        const QString third = tmp.filePath(QStringLiteral("E/Games/Steam"));
         const QString gone = tmp.filePath(QStringLiteral("X/Steam")); // A drive that is not connected.
 
         writeFile(root + QStringLiteral("/steamapps/libraryfolders.vdf"),
