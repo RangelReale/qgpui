@@ -84,6 +84,12 @@ std::optional<Catalog> parseCatalog(const QByteArray& json, QString* errorMessag
                                                .toObject()
                                                .value(QLatin1StringView("generatedAt")));
 
+    for (const QJsonValue& value : root.value(QLatin1StringView("originPlatforms")).toArray()) {
+        const QJsonObject platform = value.toObject();
+        catalog.originPlatforms.append({platform.value(QLatin1StringView("id")).toString(),
+                                        platform.value(QLatin1StringView("label")).toString()});
+    }
+
     const QJsonArray games = gamesValue.toArray();
     catalog.games.reserve(games.size());
     for (qsizetype i = 0; i < games.size(); ++i) {
@@ -95,6 +101,7 @@ std::optional<Catalog> parseCatalog(const QByteArray& json, QString* errorMessag
         game.campaigns = entry.value(QLatin1StringView("campaigns")).toArray();
         game.resolved = entry.value(QLatin1StringView("resolved")).toObject();
         game.recipe = entry.value(QLatin1StringView("recipe")).toObject();
+        game.originPlatform = game.resolved.value(QLatin1StringView("originPlatform")).toString();
         game.drift = driftList(entry.value(QLatin1StringView("drift")).toArray());
         game.title = game.port.value(QLatin1StringView("title")).toString();
         const QString cover = game.port.value(QLatin1StringView("cover_image_url")).toString();

@@ -38,7 +38,10 @@ export function buildPayload({ ports, install, sources, generatedAt }) {
         installType: install.resolveInstallType(port),
         workflowType: install.resolveWorkflowType(port),
         requiresExternalFiles: install.portRequiresExternalFiles(config),
-        selfContainedSideload: install.isSelfContainedSideload(config)
+        selfContainedSideload: install.isSelfContainedSideload(config),
+        // Where the game comes from (PC, Arcade, Nintendo 64...), as the site's catalog filter
+        // derives it; null when nothing matches.
+        originPlatform: install.portOriginPlatform(port)
       }
     }
   })
@@ -48,6 +51,8 @@ export function buildPayload({ ports, install, sources, generatedAt }) {
     version: PAYLOAD_VERSION,
     generatedAt: generatedAt.toISOString(),
     sources,
+    // The site's origin platforms, in its order: { id, label }.
+    originPlatforms: install.ORIGIN_PLATFORMS.map(({ id, label }) => ({ id, label })),
     games,
     unmatched: {
       portsWithoutInstall: games.filter(game => game.install === null).map(game => game.slug),

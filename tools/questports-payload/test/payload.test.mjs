@@ -71,7 +71,7 @@ test('githubSource reads raw files at a commit and maps 404 to missing', async (
 test('buildPayload joins rows with install data by slug', async () => {
   const install = await loadInstallData(localSource(fixtureRepo))
   const ports = [
-    { id: '1', slug: 'game-a', title: 'Game A', category: 'source_port' },
+    { id: '1', slug: 'game-a', title: 'Game A', category: 'source_port', base_game_store: 'Steam or GOG' },
     { id: '2', slug: 'game-direct', title: 'Game Direct', category: 'source_port' },
     { id: '3', slug: 'no-config', title: 'No Config', category: 'emulator' }
   ]
@@ -95,11 +95,17 @@ test('buildPayload joins rows with install data by slug', async () => {
     installType: 'apk_and_assets',
     workflowType: 'pc_assets',
     requiresExternalFiles: true,
-    selfContainedSideload: false
+    selfContainedSideload: false,
+    originPlatform: 'pc'
   })
+  assert.deepEqual(payload.originPlatforms, [
+    { id: 'pc', label: 'PC' },
+    { id: 'arcade', label: 'Arcade' }
+  ])
 
   assert.equal(direct.campaigns, null)
   assert.equal(direct.resolved.selfContainedSideload, true)
+  assert.equal(direct.resolved.originPlatform, null)
 
   assert.equal(noConfig.install, null)
   assert.equal(noConfig.resolved.installType, 'pc_builder_required')

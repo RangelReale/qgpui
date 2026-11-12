@@ -10,6 +10,7 @@ namespace {
 QByteArray catalogJson(const QByteArray& games, const QByteArray& version = "1")
 {
     return R"({"format":"qgp-catalog","version":)" + version +
+           R"(,"originPlatforms":[{"id":"pc","label":"PC"},{"id":"n64","label":"Nintendo 64"}])" +
            R"(,"generatedAt":"2026-11-12T10:00:00.000Z",)"
            R"("sources":{"payload":{"generatedAt":"2026-11-11T12:00:00.000Z"},"recipes":{"count":1}},)"
            R"("games":)" + games + "}";
@@ -31,7 +32,7 @@ private slots:
                                      "developer":"Bassquake","created_at":"2026-10-11T16:35:37.471366+00:00",
                                      "last_github_update":"2026-10-18T16:07:19+00:00"},
              "install":{"packageName":"com.example.avp"},"campaigns":null,
-             "resolved":{"installType":"apk_and_assets"},
+             "resolved":{"installType":"apk_and_assets","originPlatform":"pc"},
              "recipe":{"status":"draft","steps":[{"do":"install-apk"}]},
              "drift":[{"field":"version","recipe":"v1","payload":"v2"},
                       {"field":"targetPath","recipe":null,"payload":"/sdcard/AvP/"}]},
@@ -42,6 +43,9 @@ private slots:
         QCOMPARE(catalog->generatedAt, QDateTime(QDate(2026, 11, 12), QTime(10, 0), QTimeZone::UTC));
         QCOMPARE(catalog->payloadGeneratedAt, QDateTime(QDate(2026, 11, 11), QTime(12, 0), QTimeZone::UTC));
         QCOMPARE(catalog->games.size(), 2);
+        QCOMPARE(catalog->originPlatforms.size(), 2);
+        QCOMPARE(catalog->originPlatforms[1].id, QStringLiteral("n64"));
+        QCOMPARE(catalog->originPlatforms[1].label, QStringLiteral("Nintendo 64"));
 
         const Game& avp = catalog->games[0];
         QCOMPARE(avp.slug, QStringLiteral("avp-vr"));
@@ -54,6 +58,7 @@ private slots:
         QCOMPARE(avp.install.value(QLatin1StringView("packageName")).toString(), QStringLiteral("com.example.avp"));
         QVERIFY(avp.campaigns.isEmpty());
         QCOMPARE(avp.resolved.value(QLatin1StringView("installType")).toString(), QStringLiteral("apk_and_assets"));
+        QCOMPARE(avp.originPlatform, QStringLiteral("pc"));
         QVERIFY(avp.hasRecipe());
         QCOMPARE(avp.recipe.value(QLatin1StringView("status")).toString(), QStringLiteral("draft"));
         QCOMPARE(avp.drift.size(), 2);
@@ -73,6 +78,7 @@ private slots:
         QCOMPARE(bare.campaigns.size(), 1);
         QVERIFY(!bare.hasRecipe());
         QVERIFY(bare.drift.isEmpty());
+        QVERIFY(bare.originPlatform.isEmpty());
     }
 
     void rejectsBadCatalogs_data()

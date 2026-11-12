@@ -22,6 +22,7 @@ export {
   isSelfContainedSideload
 } from '~/data/portPackageMap'
 export { PORT_EXPANSIONS } from '~/data/expansions'
+export { ORIGIN_PLATFORMS, portOriginPlatform } from '~/lib/portOrigin'
 `
 
 const NAMESPACE = 'questports'

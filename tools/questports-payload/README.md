@@ -116,6 +116,7 @@ One JSON object, version 1:
     "repository": { "kind": "github", "repo": "felipevc13/questports", "ref": "main", "commit": "942cd71..." }
     // or { "kind": "local", "path": "C:\\src\\questports", "commit": "942cd71..." }
   },
+  "originPlatforms": [ { "id": "pc", "label": "PC" }, { "id": "arcade", "label": "Arcade" } /* ... */ ],
   "games": [
     {
       "slug": "avp-vr",
@@ -126,7 +127,8 @@ One JSON object, version 1:
         "installType": "apk_and_assets",
         "workflowType": "pc_assets",
         "requiresExternalFiles": true,
-        "selfContainedSideload": false
+        "selfContainedSideload": false,
+        "originPlatform": "pc"
       }
     }
   ],
@@ -143,7 +145,11 @@ One JSON object, version 1:
   listed in the data-sources document.
 - `resolved` holds values computed by the site's own functions: `resolveInstallType`,
   `resolveWorkflowType`, `portRequiresExternalFiles` and `isSelfContainedSideload`. They fill in
-  defaults for games whose install config is missing or incomplete.
+  defaults for games whose install config is missing or incomplete. `originPlatform` is where the
+  game comes from, as the site's catalog filter derives it (`portOriginPlatform` in
+  `app/lib/portOrigin.ts`), or `null` when nothing matches.
+- `originPlatforms` lists the site's platforms (`ORIGIN_PLATFORMS`) in its order, with their labels.
+  The catalog copies it.
 - `unmatched` lists slugs found in only one source. A game without an install config is still in
   `games`, with `install` set to `null`. An install config or campaign list without a database row
   is left out of `games`, because the site does not show that game.

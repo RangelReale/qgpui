@@ -42,6 +42,7 @@ struct Game
     QJsonObject install;  // PORT_PACKAGE_CONFIGS[slug]; empty when the game has none.
     QJsonArray campaigns; // PORT_EXPANSIONS[slug]; empty when the game has none.
     QJsonObject resolved; // Values computed by the site's functions.
+    QString originPlatform; // resolved.originPlatform, such as "pc" or "n64"; empty when unknown.
     QJsonObject recipe;   // qgp's install recipe (data/recipes/<slug>.json); empty when there is none.
     QList<Drift> drift;   // Payload values that changed since the recipe was written.
 
@@ -49,11 +50,19 @@ struct Game
     bool hasRecipe() const { return !recipe.isEmpty(); }
 };
 
+// A source platform of the site's catalog filter ("pc", "PC").
+struct OriginPlatform
+{
+    QString id;
+    QString label;
+};
+
 struct Catalog
 {
     QDateTime generatedAt;        // When the catalog was built.
     QDateTime payloadGeneratedAt; // When the payload it was built from was generated.
     QList<Game> games;            // In payload order: by title, then slug.
+    QList<OriginPlatform> originPlatforms; // In the site's order; empty in older catalogs.
 };
 
 // Reads a catalog. Returns nothing, and sets *errorMessage when it is given, if the data is not a

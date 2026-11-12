@@ -51,6 +51,7 @@ export function buildCatalog({ payload, recipes, generatedAt }) {
       payload: { generatedAt: payload.generatedAt, sources: payload.sources },
       recipes: { count: recipes.length }
     },
+    originPlatforms: payload.originPlatforms ?? [],
     games,
     unmatched: {
       ...payload.unmatched,
