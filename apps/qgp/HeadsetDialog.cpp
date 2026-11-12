@@ -19,6 +19,11 @@ namespace {
 
 constexpr int kStatusIconSize = 16;
 
+#ifdef Q_OS_WIN
+// Meta's USB driver, which Windows needs before adb can see a headset on a cable.
+const QString kDriverUrl = QStringLiteral("https://developers.meta.com/horizon/downloads/package/oculus-adb-drivers/");
+#endif
+
 QPushButton* plainButton(const QString& text, QWidget* parent)
 {
     auto* button = new QPushButton(text, parent);
@@ -110,6 +115,18 @@ HeadsetDialog::HeadsetDialog(HeadsetConnection* connection, QWidget* parent)
     layout->addWidget(m_list, 1);
     layout->addLayout(listButtons);
     layout->addWidget(m_message);
+#ifdef Q_OS_WIN
+    auto* driver = new QLabel(tr("Headset not showing up on a USB cable? <a href=\"%1\">Download the Meta Quest USB "
+                                 "driver</a>, unzip it, right-click <b>android_winusb.inf</b> and choose "
+                                 "<b>Install</b>.")
+                                  .arg(kDriverUrl),
+                              this);
+    driver->setWordWrap(true);
+    driver->setOpenExternalLinks(true);
+    driver->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    driver->setToolTip(kDriverUrl);
+    layout->addWidget(driver);
+#endif
     layout->addSpacing(8);
     layout->addWidget(m_wirelessToggle);
     layout->addWidget(m_wireless);
