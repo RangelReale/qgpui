@@ -1,6 +1,7 @@
 #pragma once
 
 #include "InputResolver.h"
+#include "StoreAvailability.h"
 
 #include "installer/Recipe.h"
 #include "questports/Catalog.h"
@@ -16,6 +17,7 @@ class HeadsetConnection;
 class QGridLayout;
 class QGroupBox;
 class QLabel;
+class QNetworkAccessManager;
 class QPlainTextEdit;
 class QProgressBar;
 class QPushButton;
@@ -52,6 +54,7 @@ private:
     void showInputs();
     void chooseInput(int index);
     void openFilesFolder();
+    void openStorePage(const StorePage& page);
     void showHeadsetState();
     void updateButtons();
 
@@ -93,4 +96,5 @@ private:
     QString m_asset;
     QPointer<installer::ApkFetcher> m_fetcher;
     QPointer<installer::Runner> m_runner;
+    QNetworkAccessManager* m_network = nullptr;
 };

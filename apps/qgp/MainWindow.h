@@ -38,6 +38,8 @@ private:
     void reloadCatalog();
     void createToolBar();
     void orderChanged();
+    void showChanged();
+    void findLibraries();
     void showHeadsetDialog();
     void updateHeadsetStatus();
     void chooseFilesFolder();
@@ -51,6 +53,7 @@ private:
     GameListModel* m_model;
     GameSortModel* m_sorted;
     QComboBox* m_order;
+    QComboBox* m_show;
     QListView* m_view;
     QLabel* m_status;
     HeadsetConnection* m_headset;

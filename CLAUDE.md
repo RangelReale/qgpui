@@ -54,7 +54,10 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
 - `apps/<name>/`: shipped applications.
 - `apps/qgp/`: the main app, Qt Widgets. The main window shows the catalog's games in a `QListView`
   in icon mode: the cover, with the title below. A toolbar's Order box picks a
-  `questports::GameOrder`; `GameSortModel` applies it and `QSettings` remembers it. `CoverCache` downloads covers through a
+  `questports::GameOrder`; `GameSortModel` applies it and `QSettings` remembers it. The Show box filters by
+  store: sold on Steam or GOG (the recipe's `stores`), or in the Steam or GOG library of this PC
+  (`GameFinder`, run when the catalog loads); `StoreAvailability` computes both. The game dialog
+  links each `pc-install` input to its Steam and GOG pages (GOG through its product API). `CoverCache` downloads covers through a
   `QNetworkDiskCache` and fits them into one size. `HeadsetConnection` starts the adb server
   if needed, tracks devices and remembers the current headset (`QSettings`); the toolbar's
   Headset button and the status bar's red/green indicator open `HeadsetDialog`, which lists

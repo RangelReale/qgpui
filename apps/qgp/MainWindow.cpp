@@ -6,9 +6,11 @@
 #include "GameSortModel.h"
 #include "HeadsetConnection.h"
 #include "HeadsetDialog.h"
+#include "StoreAvailability.h"
 
 #include "questports/Catalog.h"
 #include "questports/GameOrder.h"
+#include "gamestores/Finder.h"
 
 
 #include <QApplication>
@@ -36,6 +38,7 @@
 namespace {
 
 const QString kOrderSetting = QStringLiteral("order");
+const QString kShowSetting = QStringLiteral("show");
 QString orderLabel(questports::GameOrder order)
 {
     switch (order) {
@@ -78,6 +81,7 @@ MainWindow::MainWindow(QWidget* parent)
     , m_model(new GameListModel(m_covers, this))
     , m_sorted(new GameSortModel(m_model, this))
     , m_order(new QComboBox(this))
+    , m_show(new QComboBox(this))
     , m_view(new GameListView(this))
     , m_status(new QLabel(this))
     , m_headset(new HeadsetConnection(this))
@@ -159,6 +163,49 @@ void MainWindow::createToolBar()
     m_order->setCurrentIndex(qMax(0, m_order->findData(questports::gameOrderKey(questports::gameOrderFromKey(saved)))));
     m_sorted->setOrder(questports::gameOrderFromKey(m_order->currentData().toString()));
     connect(m_order, &QComboBox::currentIndexChanged, this, &MainWindow::orderChanged);
+
+    auto* showLabel = new QLabel(tr("&Show:"), toolBar);
+    showLabel->setBuddy(m_show);
+    showLabel->setContentsMargins(12, 0, 4, 0);
+    toolBar->addWidget(showLabel);
+    // The item data is the StoreFlag to require; 0 shows every game.
+    m_show->addItem(tr("All games"), 0);
+    m_show->addItem(tr("Sold on Steam"), int(StoreFlag::SoldOnSteam));
+    m_show->addItem(tr("Sold on GOG"), int(StoreFlag::SoldOnGog));
+    m_show->addItem(tr("In my Steam library"), int(StoreFlag::InSteamLibrary));
+    m_show->addItem(tr("In my GOG library"), int(StoreFlag::InGogLibrary));
+    m_show->setItemData(1, tr("Games that need a PC game sold on Steam"), Qt::ToolTipRole);
+    m_show->setItemData(2, tr("Games that need a PC game sold on GOG"), Qt::ToolTipRole);
+    m_show->setItemData(3, tr("Games whose PC game is installed through Steam on this PC"), Qt::ToolTipRole);
+    m_show->setItemData(4, tr("Games whose PC game is installed through GOG, or owned in GOG Galaxy"), Qt::ToolTipRole);
+    m_show->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    toolBar->addWidget(m_show);
+    m_show->setCurrentIndex(qMax(0, m_show->findData(QSettings().value(kShowSetting, 0).toInt())));
+    m_sorted->setStoreFilter(StoreFlags::fromInt(m_show->currentData().toInt()));
+    connect(m_show, &QComboBox::currentIndexChanged, this, &MainWindow::showChanged);
+}
+
+void MainWindow::showChanged()
+{
+    const int flag = m_show->currentData().toInt();
+    m_sorted->setStoreFilter(StoreFlags::fromInt(flag));
+    QSettings().setValue(kShowSetting, flag);
+    m_view->scrollToTop();
+}
+
+// Reads this PC's Steam and GOG libraries and marks the games whose PC game they hold.
+void MainWindow::findLibraries()
+{
+    QStringList warnings;
+    const gamestores::GameFinder finder = gamestores::GameFinder::forThisPc(&warnings);
+    QHash<QString, StoreFlags> holding;
+    for (int row = 0; row < m_model->rowCount(); ++row) {
+        const questports::Game& game = m_model->game(row);
+        if (const StoreFlags flags = storesHolding(game, finder))
+            holding.insert(game.slug, flags);
+    }
+    m_model->setLibraries(holding);
+    m_sorted->refilter();
 }
 
 void MainWindow::orderChanged()
@@ -204,6 +251,7 @@ bool MainWindow::loadCatalog(const QString& path)
     }
 
     m_model->setGames(catalog->games);
+    findLibraries();
     QSettings().setValue(QStringLiteral("catalogPath"), QFileInfo(path).absoluteFilePath());
     const qsizetype count = catalog->games.size();
     const auto recipes = std::count_if(catalog->games.cbegin(), catalog->games.cend(),

@@ -24,7 +24,10 @@
 #include <QHBoxLayout>
 #include <QJsonArray>
 #include <QLabel>
+#include <QJsonDocument>
 #include <QMessageBox>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 #include <QPlainTextEdit>
 #include <QProgressBar>
 #include <QPushButton>
@@ -290,9 +293,25 @@ void GameDialog::showInputs()
                 state = input.required ? tr("Not found.") : tr("Not found; the install goes on without it.");
             break;
         }
-        auto* status = new QLabel(state.toHtmlEscaped(), m_filesBox);
+        // Links to the Steam and GOG pages of the PC game, when the recipe names the stores.
+        const QList<StorePage> pages = storePages(input.json);
+        QStringList links;
+        for (int i = 0; i < pages.size(); ++i) {
+            const QString name = pages[i].store == QLatin1StringView("steam") ? tr("Steam page") : tr("GOG page");
+            links.append(QStringLiteral("<a href=\"%1\">%2</a>").arg(i).arg(name));
+        }
+        QString html = state.toHtmlEscaped();
+        if (!links.isEmpty())
+            html += QStringLiteral("<br>") + links.join(QStringLiteral(" &middot; "));
+        auto* status = new QLabel(html, m_filesBox);
+        status->setTextFormat(Qt::RichText);
         status->setWordWrap(true);
-        status->setTextInteractionFlags(Qt::TextSelectableByMouse);
+        status->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
+        connect(status, &QLabel::linkActivated, this, [this, pages](const QString& link) {
+            const int index = link.toInt();
+            if (index >= 0 && index < pages.size())
+                openStorePage(pages[index]);
+        });
         if (resolved.state != ResolvedInput::State::Found && input.required)
             status->setStyleSheet(QStringLiteral("color: palette(link)"));
         QStringList details;
@@ -377,6 +396,33 @@ void GameDialog::openFilesFolder()
         return;
     }
     QDesktopServices::openUrl(QUrl::fromLocalFile(files.gameFolder(m_game.slug)));
+}
+
+void GameDialog::openStorePage(const StorePage& page)
+{
+    const QUrl lookup = page.gogPageLookup();
+    if (lookup.isEmpty()) {
+        QDesktopServices::openUrl(page.url());
+        return;
+    }
+    // GOG's pages are named by slug, not by product ID: ask GOG's product API for the address,
+    // and search the store when it does not answer.
+    if (!m_network)
+        m_network = new QNetworkAccessManager(this);
+    QNetworkReply* reply = m_network->get(QNetworkRequest(lookup));
+    connect(reply, &QNetworkReply::finished, this, [reply, page] {
+        reply->deleteLater();
+        const QString card = QJsonDocument::fromJson(reply->readAll())
+                                 .object()
+                                 .value(QLatin1StringView("links"))
+                                 .toObject()
+                                 .value(QLatin1StringView("product_card"))
+                                 .toString();
+        const QUrl url(card);
+        QDesktopServices::openUrl(reply->error() == QNetworkReply::NoError && url.isValid() && !card.isEmpty()
+                                      ? url
+                                      : page.url());
+    });
 }
 
 void GameDialog::showHeadsetState()
