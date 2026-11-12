@@ -50,7 +50,7 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
 ## Build and test
 
 - Qt is a prebuilt download in aqtinstall's layout, in the folder named by the `QT_ROOT`
-  environment variable (shared between projects; `F:\Qt` on the main PC), or else `.qt/`. The
+  environment variable (it may be shared between projects), or else `.qt/`. The
   presets set `QGP_QT_SUBDIR` (for example `6.8.3/msvc2022_64`) and `CMakeLists.txt` adds the
   root. CMake caches the Qt it found: configure with `--fresh` after changing `QT_ROOT`.
 - Presets: `windows` (Visual Studio 2022; use it locally), `windows-ninja` (needs a developer
@@ -68,8 +68,10 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
 - `tst_qadb_live` runs against the real adb server and is skipped by default. Set `QADB_LIVE=1`
   for server requests, `QADB_LIVE_SERIAL=<serial>` for read-only device requests, and
   `QADB_LIVE_WRITE=1` to also push and pull a file in `/data/local/tmp`.
-- The adb binary is at `%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe` on the main PC; it is
-  not on `PATH`. `qadb::AdbServer::findAdb()` finds it there.
+- adb may not be on `PATH`. `qadb::AdbServer::findAdb()` also looks in the Android SDK, at
+  `%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe`.
+- `CLAUDE.local.md` (ignored by git), when present, records where this machine keeps Qt, adb and
+  other local checkouts.
 - The qgp build copies adb (`adb.exe`, `AdbWinApi.dll`, `AdbWinUsbApi.dll`, `NOTICE.txt` on
   Windows) from `QGP_PLATFORM_TOOLS` (default: the Android SDK's platform-tools) into
   `platform-tools/` next to `qgp.exe`, so users need no Android SDK. `findAdb()` looks there

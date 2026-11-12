@@ -114,7 +114,7 @@ One JSON object, version 1:
   "sources": {
     "database": { "url": "https://ccjteoxolasldhfgnoyx.supabase.co", "table": "ports", "rows": 145 },
     "repository": { "kind": "github", "repo": "felipevc13/questports", "ref": "main", "commit": "942cd71..." }
-    // or { "kind": "local", "path": "M:\\prog\\src\\questports", "commit": "942cd71..." }
+    // or { "kind": "local", "path": "C:\\src\\questports", "commit": "942cd71..." }
   },
   "games": [
     {

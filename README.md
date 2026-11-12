@@ -16,8 +16,8 @@ copying files.
 ## Build
 
 Requirements: CMake 3.25, Qt 6.8 (Core, Network, Widgets, Test), a C++20 compiler. Set `QT_ROOT` to
-the folder that holds Qt in aqtinstall's layout (for example `QT_ROOT=F:\Qt` with Qt in
-`F:\Qt\6.8.3\msvc2022_64`).
+the folder that holds Qt in aqtinstall's layout (for example `QT_ROOT=C:\Qt` with Qt in
+`C:\Qt\6.8.3\msvc2022_64`).
 
 ```bash
 cmake --preset windows

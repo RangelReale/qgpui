@@ -2,7 +2,7 @@
 
 This document explains where QuestPorts keeps its game catalog and the install data for each game. It also explains how a program can read that data.
 
-The findings come from the live site (`https://questports.com`) and the QuestPorts source repository (`felipevc13/questports`, local checkout at `M:\prog\src\questports`, commit `942cd71`). They were checked on 2026-11-11.
+The findings come from the live site (`https://questports.com`) and the QuestPorts source repository (`felipevc13/questports`, commit `942cd71`). They were checked on 2026-11-11.
 
 ## Summary
 
