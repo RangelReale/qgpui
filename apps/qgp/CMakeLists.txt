@@ -12,6 +12,7 @@ qt_add_executable(qgp WIN32 MACOSX_BUNDLE
     InputResolver.h InputResolver.cpp
     GameFlags.h GameFlags.cpp
     SettingsDialog.h SettingsDialog.cpp
+    SingleInstance.h SingleInstance.cpp
 )
 if(WIN32)
     target_sources(qgp PRIVATE qgp.rc)

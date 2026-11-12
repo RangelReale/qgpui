@@ -1,5 +1,7 @@
 #include "installer/Runner.h"
 
+#include "installer/InstallPlan.h"
+
 #include <qadb/Client.h>
 #include <qadb/Protocol.h>
 #include <qadb/Reply.h>
@@ -186,10 +188,7 @@ void Runner::runInstall(const Step& step, int apkIndex)
 
 void Runner::runGrant(const Step& step)
 {
-    const QStringList command = step.appop.isEmpty()
-        ? QStringList{QStringLiteral("pm"), QStringLiteral("grant"), m_recipe.packageName, step.permission}
-        : QStringList{QStringLiteral("appops"), QStringLiteral("set"), m_recipe.packageName, step.appop,
-                      QStringLiteral("allow")};
+    const QStringList command = grantCommand(m_recipe.packageName, step);
     runShell(command, [this, command](int exitCode, const QString& output) {
         if (exitCode != 0)
             emit message(QStringLiteral("Could not run \"%1\": %2. The app may ask in the headset instead.")
@@ -200,9 +199,7 @@ void Runner::runGrant(const Step& step)
 
 void Runner::runLaunch(const Step& step)
 {
-    const QStringList command{QStringLiteral("monkey"), QStringLiteral("-p"), m_recipe.packageName,
-                              QStringLiteral("-c"), QStringLiteral("android.intent.category.LAUNCHER"),
-                              QStringLiteral("1")};
+    const QStringList command = launchCommand(m_recipe.packageName);
     runShell(command, [this, step](int exitCode, const QString& output) {
         if (exitCode != 0) {
             finish(false, QStringLiteral("Could not start %1: %2").arg(m_recipe.packageName, output));
@@ -216,7 +213,7 @@ void Runner::runLaunch(const Step& step)
                 nextStep();
                 return;
             }
-            runShell({QStringLiteral("am"), QStringLiteral("force-stop"), m_recipe.packageName},
+            runShell(forceStopCommand(m_recipe.packageName),
                      [this](int, const QString&) { nextStep(); });
         });
     });
@@ -276,9 +273,7 @@ void Runner::runPush(const Step& step)
             pushNext();
             return;
         }
-        const QString script = QStringLiteral("for d in%1; do [ -d \"$d\" ] || { mkdir \"$d\" && chmod 2777 \"$d\"; } "
-                                              "|| exit 1; done")
-                                   .arg(batches.at(index));
+        const QString script = makeFoldersScript(batches.at(index));
         auto* reply = m_client->shell(m_serial, script);
         watch(reply, [this, reply, runBatch, index] {
             if (reply->hasExitCode() && reply->exitCode() != 0) {

@@ -1,11 +1,11 @@
-# 0013: A toolbar button keeps the headset awake on demand
+# 0014: A toolbar button keeps the headset awake on demand
 
 - Status: accepted
 - Date: 2026-11-12
 
 ## Context
 
-[Decision 0012](0012-keeping-the-headset-awake.md) keeps the headset awake only while an install runs. A user also wants the screen on at other times: while setting up a game in the headset, or across several installs. Two overrides on one headset would undo each other, because the first one to end sends the release.
+[Decision 0013](0013-keeping-the-headset-awake.md) keeps the headset awake only while an install runs. A user also wants the screen on at other times: while setting up a game in the headset, or across several installs. Two overrides on one headset would undo each other, because the first one to end sends the release.
 
 ## Decision
 

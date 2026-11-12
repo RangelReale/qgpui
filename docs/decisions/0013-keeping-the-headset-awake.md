@@ -1,4 +1,4 @@
-# 0012: Keep the headset awake during installs, when the user asks
+# 0013: Keep the headset awake during installs, when the user asks
 
 - Status: accepted
 - Date: 2026-11-12

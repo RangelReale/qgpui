@@ -9,6 +9,7 @@
 #include "gamestores/Finder.h"
 #include "installer/ApkFetcher.h"
 #include "installer/HeadsetRecords.h"
+#include "installer/InstallPlan.h"
 #include "installer/KeepAwake.h"
 #include "installer/ReleaseLookup.h"
 #include "installer/Runner.h"
@@ -16,6 +17,8 @@
 #include "qadb/Client.h"
 #include "qadb/Reply.h"
 
+#include <QApplication>
+#include <QClipboard>
 #include <QCloseEvent>
 #include <QDateTime>
 #include <QDesktopServices>
@@ -23,6 +26,7 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QFontDatabase>
 #include <QGridLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
@@ -111,10 +115,14 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     , m_filesGrid(new QGridLayout)
     , m_installButton(new QPushButton(tr("&Install"), this))
     , m_cancelButton(new QPushButton(tr("Stop"), this))
+    , m_detailsButton(new QPushButton(tr("&Details..."), this))
     , m_installHint(new QLabel(this))
     , m_progressArea(new QWidget(this))
     , m_step(new QLabel(this))
     , m_progress(new QProgressBar(this))
+    , m_resultArea(new QWidget(this))
+    , m_resultIcon(new QLabel(this))
+    , m_resultText(new QLabel(this))
     , m_tellArea(new QWidget(this))
     , m_tellText(new QLabel(this))
     , m_log(new QPlainTextEdit(this))
@@ -190,9 +198,12 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     connect(m_installButton, &QPushButton::clicked, this, &GameDialog::install);
     connect(m_cancelButton, &QPushButton::clicked, this, &GameDialog::cancel);
     m_cancelButton->hide();
+    m_detailsButton->setToolTip(tr("Show every command the install runs"));
+    connect(m_detailsButton, &QPushButton::clicked, this, &GameDialog::showInstallDetails);
     auto* installRow = new QHBoxLayout;
     installRow->addWidget(m_installButton);
     installRow->addWidget(m_cancelButton);
+    installRow->addWidget(m_detailsButton);
     installRow->addWidget(m_installHint, 1);
 
     auto* progressLayout = new QVBoxLayout(m_progressArea);
@@ -201,6 +212,25 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     progressLayout->addWidget(m_step);
     progressLayout->addWidget(m_progress);
     m_progressArea->hide();
+
+    // The result of the last install, in place of the progress once it ends.
+    m_resultArea->setObjectName(QStringLiteral("installResult"));
+    m_resultArea->setAttribute(Qt::WA_StyledBackground);
+    auto* resultLayout = new QHBoxLayout(m_resultArea);
+    resultLayout->setContentsMargins(10, 8, 10, 8);
+    QFont iconFont = m_resultIcon->font();
+    iconFont.setPointSizeF(iconFont.pointSizeF() * 1.8);
+    iconFont.setBold(true);
+    m_resultIcon->setFont(iconFont);
+    QFont resultFont = m_resultText->font();
+    resultFont.setPointSizeF(resultFont.pointSizeF() * 1.25);
+    resultFont.setBold(true);
+    m_resultText->setFont(resultFont);
+    m_resultText->setWordWrap(true);
+    m_resultText->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    resultLayout->addWidget(m_resultIcon, 0, Qt::AlignTop);
+    resultLayout->addWidget(m_resultText, 1);
+    m_resultArea->hide();
 
     auto* tellLayout = new QHBoxLayout(m_tellArea);
     m_tellText->setWordWrap(true);
@@ -231,6 +261,7 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     layout->addWidget(m_filesBox);
     layout->addLayout(installRow);
     layout->addWidget(m_progressArea);
+    layout->addWidget(m_resultArea);
     layout->addWidget(m_tellArea);
     layout->addWidget(m_log, 1);
     layout->addWidget(buttons);
@@ -553,7 +584,41 @@ void GameDialog::updateButtons()
     m_installButton->setEnabled(!m_running && hint.isEmpty());
     m_installButton->setVisible(!m_running);
     m_cancelButton->setVisible(m_running);
+    m_detailsButton->setEnabled(m_recipe.has_value());
     m_installHint->setText(m_running ? QString() : hint);
+}
+
+void GameDialog::showInstallDetails()
+{
+    if (!m_recipe)
+        return;
+    installer::InstallPlan plan = installer::planInstall(*m_recipe, {}, InputResolver::sources(m_inputs));
+    plan.steps.append({tr("Record the install"),
+                       {tr("Write the release and version to /sdcard/qgp/installs.json on the headset.")}});
+    const QString text = plan.toText();
+
+    auto* dialog = new QDialog(this);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setWindowTitle(tr("How qgp installs %1").arg(m_game.title));
+    auto* intro = new QLabel(tr("The install runs these steps in order, with the files as they are found now. "
+                                "Lines that start with adb are the commands as the adb tool would take them; "
+                                "qgp sends them to the adb server itself."),
+                             dialog);
+    intro->setWordWrap(true);
+    auto* view = new QPlainTextEdit(text, dialog);
+    view->setReadOnly(true);
+    view->setLineWrapMode(QPlainTextEdit::NoWrap);
+    view->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
+    auto* buttons = new QDialogButtonBox(QDialogButtonBox::Close, dialog);
+    QPushButton* copy = buttons->addButton(tr("&Copy"), QDialogButtonBox::ActionRole);
+    connect(copy, &QPushButton::clicked, dialog, [text] { QApplication::clipboard()->setText(text); });
+    connect(buttons, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
+    auto* layout = new QVBoxLayout(dialog);
+    layout->addWidget(intro);
+    layout->addWidget(view, 1);
+    layout->addWidget(buttons);
+    dialog->resize(900, 600);
+    dialog->show();
 }
 
 // --- Installing --------------------------------------------------------------------------------
@@ -570,6 +635,7 @@ void GameDialog::install()
     m_log->clear();
     m_log->show();
     m_progressArea->show();
+    m_resultArea->hide();
     m_tellArea->hide();
     showInputs(); // Disables the Choose buttons.
     updateButtons();
@@ -623,7 +689,7 @@ void GameDialog::fetchApk(int index)
         const QString apk = QFileDialog::getOpenFileName(this, tr("Choose the APK (%1)").arg(source.page), QDir::homePath(),
                                                          tr("Android apps (*.apk);;All files (*)"));
         if (apk.isEmpty()) {
-            finishInstall(false, tr("No APK was chosen."));
+            finishInstall(Outcome::Failure, tr("No APK was chosen."));
             return;
         }
         m_apkFiles.append(apk);
@@ -653,7 +719,7 @@ void GameDialog::fetchApk(int index)
             [this, index](bool success, const QString& apkPath, const QString& errorMessage) {
                 m_fetcher->deleteLater();
                 if (!success) {
-                    finishInstall(false, errorMessage);
+                    finishInstall(Outcome::Failure, errorMessage);
                     return;
                 }
                 log(tr("Downloaded to %1").arg(native(apkPath)));
@@ -668,7 +734,7 @@ void GameDialog::runSteps()
     if (!m_running)
         return;
     if (m_headset->currentSerial() != m_serial || !m_headset->isReady()) {
-        finishInstall(false, tr("The headset is no longer connected."));
+        finishInstall(Outcome::Failure, tr("The headset is no longer connected."));
         return;
     }
     m_runner = new installer::Runner(m_headset->client(), m_serial, *m_recipe, m_apkFiles,
@@ -696,7 +762,7 @@ void GameDialog::runSteps()
         if (success)
             recordInstall();
         else
-            finishInstall(false, errorMessage);
+            finishInstall(Outcome::Failure, errorMessage);
     });
     m_runner->start();
 }
@@ -715,7 +781,7 @@ void GameDialog::recordInstall()
             info->deleteLater();
             if (hardwareSerial.isEmpty() || !info->isSuccess() || !info->isInstalled()) {
                 // The game is installed; only the record is missing.
-                finishInstall(true, tr("Installed, but the install could not be recorded: %1")
+                finishInstall(Outcome::Warning, tr("Installed, but the install could not be recorded: %1")
                                         .arg(info->isSuccess() ? tr("the package was not found") : info->errorString()));
                 return;
             }
@@ -736,9 +802,9 @@ void GameDialog::recordInstall()
                         const QString version = record.versionName.isEmpty() ? QString::number(record.versionCode)
                                                                              : record.versionName;
                         if (success)
-                            finishInstall(true, tr("Installed version %1.").arg(version));
+                            finishInstall(Outcome::Success, tr("Installed version %1.").arg(version));
                         else
-                            finishInstall(true, tr("Installed version %1, but the install could not be recorded: %2")
+                            finishInstall(Outcome::Warning, tr("Installed version %1, but the install could not be recorded: %2")
                                                     .arg(version, errorMessage));
                     });
             sync->run(record);
@@ -759,10 +825,10 @@ void GameDialog::cancel()
         m_runner->disconnect(this);
         m_runner->cancel();
     }
-    finishInstall(false, tr("Stopped."));
+    finishInstall(Outcome::Failure, tr("Stopped."));
 }
 
-void GameDialog::finishInstall(bool success, const QString& message)
+void GameDialog::finishInstall(Outcome outcome, const QString& message)
 {
     if (!m_running)
         return;
@@ -777,14 +843,44 @@ void GameDialog::finishInstall(bool success, const QString& message)
     }
     updateKeepAwake(); // Hands the screen back to the proximity sensor.
     m_tellArea->hide();
-    m_progress->setRange(0, 1);
-    m_progress->setValue(success ? 1 : 0);
-    m_step->setText(success ? tr("Done. %1").arg(message) : tr("The install failed: %1").arg(message));
-    log(m_step->text());
+    m_progressArea->hide();
+    const QString text = outcome == Outcome::Failure ? tr("The install failed: %1").arg(message)
+                                                     : tr("Install complete. %1").arg(message);
+    showResult(outcome, text);
+    log(text);
     showInputs();
     updateButtons();
     showHeadsetState();
+    QApplication::alert(this); // Flashes the taskbar if the user is in another window.
     emit installFinished();
+}
+
+void GameDialog::showResult(Outcome outcome, const QString& text)
+{
+    // Translucent tints read on both light and dark palettes.
+    QString colour;
+    QString icon;
+    switch (outcome) {
+    case Outcome::Success:
+        colour = QStringLiteral("46, 160, 67");
+        icon = QStringLiteral("✔");
+        break;
+    case Outcome::Warning:
+        colour = QStringLiteral("210, 153, 34");
+        icon = QStringLiteral("!");
+        break;
+    case Outcome::Failure:
+        colour = QStringLiteral("218, 54, 51");
+        icon = QStringLiteral("✖");
+        break;
+    }
+    m_resultArea->setStyleSheet(QStringLiteral("#installResult { background: rgba(%1, 0.15); border: 1px solid rgb(%1);"
+                                               " border-radius: 4px; }")
+                                    .arg(colour));
+    m_resultIcon->setStyleSheet(QStringLiteral("color: rgb(%1);").arg(colour));
+    m_resultIcon->setText(icon);
+    m_resultText->setText(text);
+    m_resultArea->show();
 }
 
 void GameDialog::log(const QString& text)

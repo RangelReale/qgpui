@@ -1,11 +1,11 @@
-# 0014: Leave another app's keep-awake alone, and release on exit
+# 0015: Leave another app's keep-awake alone, and release on exit
 
 - Status: accepted
 - Date: 2026-11-12
 
 ## Context
 
-[Decisions 0012](0012-keeping-the-headset-awake.md) and [0013](0013-keep-awake-button.md) override the Quest's proximity sensor with a broadcast. The override is one switch on the headset, shared by every app that uses it. An app on the headset, such as android-dev-settings, may already hold it and renew it every minute. When qgp then stopped, its release turned that app's override off too, until the app renewed it.
+[Decisions 0013](0013-keeping-the-headset-awake.md) and [0014](0014-keep-awake-button.md) override the Quest's proximity sensor with a broadcast. The override is one switch on the headset, shared by every app that uses it. An app on the headset, such as android-dev-settings, may already hold it and renew it every minute. When qgp then stopped, its release turned that app's override off too, until the app renewed it.
 
 qgp sent its exit release from HeadsetConnection's destructor, which depended on the order in which Qt deletes the main window's children, and covered only the toolbar button, not a running install.
 

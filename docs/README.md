@@ -34,6 +34,7 @@ Why qgp is built this way. One numbered record per decision, with its context an
 | [0009](decisions/0009-files-folder.md) | Look for the user's files in one files folder, by game slug |
 | [0010](decisions/0010-game-dialog-first.md) | Every action on a game starts in its game dialog |
 | [0011](decisions/0011-checking-for-updates.md) | Check the headset's games for updates on their own |
-| [0012](decisions/0012-keeping-the-headset-awake.md) | Keep the headset awake during installs, when the user asks |
-| [0013](decisions/0013-keep-awake-button.md) | A toolbar button keeps the headset awake on demand |
-| [0014](decisions/0014-sharing-the-keep-awake-override.md) | Leave another app's keep-awake alone, and release on exit |
+| [0012](decisions/0012-single-instance.md) | Run one qgp per user; a second start activates the first |
+| [0013](decisions/0013-keeping-the-headset-awake.md) | Keep the headset awake during installs, when the user asks |
+| [0014](decisions/0014-keep-awake-button.md) | A toolbar button keeps the headset awake on demand |
+| [0015](decisions/0015-sharing-the-keep-awake-override.md) | Leave another app's keep-awake alone, and release on exit |
