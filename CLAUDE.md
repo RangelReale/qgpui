@@ -44,8 +44,11 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   `ApkFetcher` resolves a github source (`pickRelease`) and downloads the APK into a cache;
   `planPush` turns a push step and the user's files into single-file copies; `Runner` runs the
   steps on a device through qadb. Below `Android/data` and `Android/obb` it creates folders with
-  `mkdir` and `chmod 2777` before pushing, as `docs/install-recipes.md` explains. Its runner test
-  uses qadb's `FakeAdbServer`.
+  `mkdir` and `chmod 2777` before pushing, as `docs/install-recipes.md` explains. It checks
+  `freeSpaceMB` first, keeps a newer build on the headset, and explains a changed signing key.
+  `Updates.h` compares versions, keeps `InstallRecords` (a JSON file keyed by the headset's
+  `ro.serialno`, then the package) and decides an `UpdateStatus`. Its runner test uses qadb's
+  `FakeAdbServer`.
 - `apps/<name>/`: shipped applications.
 - `apps/qgp/`: the main app, Qt Widgets. The main window shows the catalog's games in a `QListView`
   in icon mode: the cover, with the title below. A toolbar's Order box picks a

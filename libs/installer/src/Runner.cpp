@@ -34,7 +34,21 @@ void Runner::start()
         return;
     m_running = true;
     m_step = -1;
-    nextStep();
+    if (m_recipe.freeSpaceMB <= 0) {
+        nextStep();
+        return;
+    }
+    // Check the headset's free space before changing anything.
+    auto* reply = m_client->storage(m_serial);
+    watch(reply, [this, reply] {
+        const qint64 freeMB = reply->info().freeBytes / (1024 * 1024);
+        if (freeMB < m_recipe.freeSpaceMB) {
+            finish(false, QStringLiteral("The headset has %1 MB free; this game needs about %2 MB.")
+                              .arg(freeMB).arg(m_recipe.freeSpaceMB));
+            return;
+        }
+        nextStep();
+    });
 }
 
 void Runner::continueAfterTell()
@@ -143,8 +157,31 @@ void Runner::runInstall(const Step& step, int apkIndex)
     const QString apk = m_apkFiles.at(apkIndex);
     emit message(QStringLiteral("Installing %1").arg(QFileInfo(apk).fileName()));
     auto* reply = m_client->install(m_serial, apk, options);
+    m_current = reply;
     connect(reply, &qadb::Reply::progress, this, &Runner::progress);
-    watch(reply, [this, step, apkIndex] { runInstall(step, apkIndex + 1); });
+    connect(reply, &qadb::Reply::finished, this, [this, reply, step, apkIndex] {
+        reply->deleteLater();
+        if (!m_running)
+            return;
+        if (reply->isSuccess()) {
+            runInstall(step, apkIndex + 1);
+            return;
+        }
+        const QString error = reply->errorString() + u' ' + reply->outputText();
+        if (error.contains(QLatin1StringView("INSTALL_FAILED_VERSION_DOWNGRADE"))) {
+            // Ports that update themselves in the headset can be newer than the release.
+            emit message(QStringLiteral("The headset already has a newer version of this app; it was kept."));
+            runInstall(step, apkIndex + 1);
+            return;
+        }
+        if (error.contains(QLatin1StringView("INSTALL_FAILED_UPDATE_INCOMPATIBLE"))) {
+            finish(false, QStringLiteral("The installed app was signed with a different key, so it cannot be updated "
+                                         "in place. Back up its saves, uninstall it (this deletes its data on the "
+                                         "headset), then install again and restore the saves."));
+            return;
+        }
+        finish(false, reply->errorString());
+    });
 }
 
 void Runner::runGrant(const Step& step)

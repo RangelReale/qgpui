@@ -69,6 +69,8 @@ private slots:
             FakeAdbServer::ShellResult result;
             if (command.startsWith(QStringLiteral("false")))
                 result.exitCode = 1, result.err = "it failed";
+            else if (command.startsWith(QStringLiteral("stat -f")))
+                result.out = "4096 1000 512\n"; // 2 MB free.
             return result;
         });
         m_client = new qadb::Client(qadb::ServerAddress{QStringLiteral("127.0.0.1"), m_server->port()}, this);
@@ -191,6 +193,49 @@ private slots:
         QVERIFY(!finished.at(0).at(0).toBool());
         QVERIFY(finished.at(0).at(1).toString().contains(QStringLiteral("Main")));
         QVERIFY(messages.at(0).at(0).toString().contains(QStringLiteral("Skipped: Extra")));
+    }
+
+    void keepsANewerBuildOnTheHeadset()
+    {
+        write(m_apk, "FAIL:INSTALL_FAILED_VERSION_DOWNGRADE");
+        Runner* runner = makeRunner(recipe("{'steps':[{'do':'install-apk'},{'do':'shell','args':['true'],'why':'w'}]}"), {});
+        QSignalSpy messages(runner, &Runner::message);
+        QSignalSpy finished(runner, &Runner::finished);
+        runner->start();
+        QTRY_COMPARE_WITH_TIMEOUT(finished.size(), 1, 5000);
+        QVERIFY2(finished.at(0).at(0).toBool(), qPrintable(finished.at(0).at(1).toString()));
+        QVERIFY(messages.last().at(0).toString().contains(QStringLiteral("newer version")));
+        QVERIFY(m_commands.contains(QStringLiteral("true"))); // The run went on.
+    }
+
+    void explainsAChangedSigningKey()
+    {
+        write(m_apk, "FAIL:INSTALL_FAILED_UPDATE_INCOMPATIBLE: Package signatures do not match");
+        Runner* runner = makeRunner(recipe("{'steps':[{'do':'install-apk'}]}"), {});
+        QSignalSpy finished(runner, &Runner::finished);
+        runner->start();
+        QTRY_COMPARE_WITH_TIMEOUT(finished.size(), 1, 5000);
+        QVERIFY(!finished.at(0).at(0).toBool());
+        QVERIFY2(finished.at(0).at(1).toString().contains(QStringLiteral("different key")),
+                 qPrintable(finished.at(0).at(1).toString()));
+    }
+
+    void checksFreeSpaceBeforeStarting()
+    {
+        // The fake headset has 2 MB free.
+        Runner* tooBig = makeRunner(recipe("{'requirements':{'freeSpaceMB':3},'steps':[{'do':'install-apk'}]}"), {});
+        QSignalSpy failed(tooBig, &Runner::finished);
+        tooBig->start();
+        QTRY_COMPARE_WITH_TIMEOUT(failed.size(), 1, 5000);
+        QVERIFY(!failed.at(0).at(0).toBool());
+        QVERIFY2(failed.at(0).at(1).toString().contains(QStringLiteral("2 MB free")), qPrintable(failed.at(0).at(1).toString()));
+        QVERIFY(m_server->installedApks.isEmpty()); // Nothing was changed.
+
+        Runner* fits = makeRunner(recipe("{'requirements':{'freeSpaceMB':1},'steps':[{'do':'install-apk'}]}"), {});
+        QSignalSpy ok(fits, &Runner::finished);
+        fits->start();
+        QTRY_COMPARE_WITH_TIMEOUT(ok.size(), 1, 5000);
+        QVERIFY2(ok.at(0).at(0).toBool(), qPrintable(ok.at(0).at(1).toString()));
     }
 
     void cancelsWhileWaitingForTheUser()

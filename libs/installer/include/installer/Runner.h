@@ -22,8 +22,12 @@ namespace installer {
 // Runs a recipe's steps on one device, in order. The APKs must already be on the PC (see
 // ApkFetcher) and the inputs resolved to files and folders; the runner only talks to the device.
 //
+// Before the first step, when the recipe sets freeSpaceMB, the headset's free space is checked.
+//
 // Steps:
-// - install-apk: adb install -r (and -g) of every APK.
+// - install-apk: adb install -r (and -g) of every APK. A headset that already has a newer build
+//   (INSTALL_FAILED_VERSION_DOWNGRADE) keeps it and the run goes on. An app signed with another
+//   key (INSTALL_FAILED_UPDATE_INCOMPATIBLE) stops the run with a message on what to do.
 // - grant: appops set <package> <op> allow, or pm grant. A failure is logged, not fatal: the
 //   recipes follow it with a tell step for the user.
 // - launch: starts the app's launcher activity, waits, then force-stops it unless told not to.

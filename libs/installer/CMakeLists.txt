@@ -4,10 +4,12 @@ qt_add_library(installer STATIC
     include/installer/PushPlan.h
     include/installer/Recipe.h
     include/installer/Runner.h
+    include/installer/Updates.h
     src/ApkFetcher.cpp
     src/PushPlan.cpp
     src/Recipe.cpp
     src/Runner.cpp
+    src/Updates.cpp
 )
 add_library(qgp::installer ALIAS installer)
 

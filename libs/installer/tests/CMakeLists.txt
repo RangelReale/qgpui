@@ -6,6 +6,10 @@ qgp_add_qt_test(tst_installer_pushplan
     SOURCES tst_pushplan.cpp
     LIBRARIES qgp::installer)
 
+qgp_add_qt_test(tst_installer_updates
+    SOURCES tst_updates.cpp
+    LIBRARIES qgp::installer)
+
 qgp_add_qt_test(tst_installer_releases
     SOURCES tst_releases.cpp
     LIBRARIES qgp::installer)
