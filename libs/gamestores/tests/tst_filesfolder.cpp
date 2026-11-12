@@ -208,7 +208,7 @@ private slots:
                    "{'id':'spanish','kind':'file','label':'Spanish disc','extensions':['.cue','.bin'],'required':false},"
                    "{'id':'roms','kind':'file','label':'ROM sets','names':['a.zip','naomi.zip'],'keepArchived':true},"
                    "{'id':'o2r','kind':'file','label':'Archive','names':['x.o2r'],"
-                   "'preparedWith':{'tool':'Tool','url':'https:\\/\\/example.com'}},"
+                   "'preparedWith':{'tool':'Tool','url':'https:\\/\\/example.com','help':'Run it on the disc.'}},"
                    "{'id':'game','kind':'pc-install','label':'The game','root':'id1','detect':['pak0.pak','pak1.pak']}]"));
         QVERIFY2(text.startsWith(QStringLiteral("Some Game\n=========\n")), qPrintable(text));
         QVERIFY2(text.contains(QStringLiteral("1. English disc\n    Your own disc.\n"
@@ -219,7 +219,8 @@ private slots:
                  qPrintable(text));
         QVERIFY2(text.contains(QStringLiteral("    Put here: a.zip and naomi.zip.\n    Keep zip files zipped.\n")),
                  qPrintable(text));
-        QVERIFY2(text.contains(QStringLiteral("    Made with Tool: https://example.com\n")), qPrintable(text));
+        QVERIFY2(text.contains(QStringLiteral("    Made with Tool: https://example.com\n    Run it on the disc.\n")),
+                 qPrintable(text));
         QVERIFY2(text.contains(QStringLiteral("    Put here: the game's folder, or the folder \"id1\" inside it. "
                                               "qgp recognises it by pak0.pak and pak1.pak.\n")),
                  qPrintable(text));

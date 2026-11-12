@@ -297,10 +297,35 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     });
     m_headsetState->setWordWrap(true);
 
+    // Ways to install the game without qgp, such as the port's own installer, highlighted: a user
+    // who reads the port's guide expects them, and some need fewer steps than qgp's way.
+    auto* otherWays = new QLabel(this);
+    if (m_recipe && !m_recipe->otherWays.isEmpty()) {
+        QStringList ways;
+        for (const installer::OtherWay& way : m_recipe->otherWays) {
+            ways.append(QStringLiteral("<a href=\"%1\">%2</a>: %3")
+                            .arg(way.url.toHtmlEscaped(), way.label.toHtmlEscaped(), way.help.toHtmlEscaped()));
+        }
+        const QString heading = ways.size() == 1 ? tr("Another way to install:") : tr("Other ways to install:");
+        otherWays->setText(QStringLiteral("<b>%1</b> %2")
+                               .arg(heading.toHtmlEscaped(),
+                                    ways.size() == 1 ? ways.first()
+                                                     : QStringLiteral("<br>") + ways.join(QStringLiteral("<br>"))));
+    }
+    otherWays->setTextFormat(Qt::RichText);
+    otherWays->setWordWrap(true);
+    otherWays->setOpenExternalLinks(true);
+    otherWays->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    otherWays->setStyleSheet(QStringLiteral("QLabel { background: rgba(%1, 0.15); border-left: 3px solid rgb(%1);"
+                                            " padding: 4px 8px; }")
+                                 .arg(kBlue));
+    otherWays->setVisible(m_recipe && !m_recipe->otherWays.isEmpty());
+
     auto* headerText = new QVBoxLayout;
     headerText->addWidget(title);
     headerText->addLayout(badges);
     headerText->addWidget(baseGame);
+    headerText->addWidget(otherWays);
     headerText->addWidget(about);
     headerText->addWidget(m_headsetState);
     headerText->addStretch();
@@ -432,10 +457,13 @@ void GameDialog::showInputs()
     QJsonArray inputsJson;
     for (const ResolvedInput& resolved : std::as_const(m_inputs))
         inputsJson.append(resolved.input.json);
+    // The guide's web addresses, such as a tool's download page, are links.
     const auto guideLabel = [this](const QString& text) {
-        auto* label = new QLabel(text, m_filesBox);
+        auto* label = new QLabel(linkified(text), m_filesBox);
+        label->setTextFormat(Qt::RichText);
         label->setWordWrap(true);
-        label->setTextInteractionFlags(Qt::TextSelectableByMouse);
+        label->setOpenExternalLinks(true);
+        label->setTextInteractionFlags(Qt::TextBrowserInteraction);
         label->setForegroundRole(QPalette::PlaceholderText);
         return label;
     };

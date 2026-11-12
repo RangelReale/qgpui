@@ -307,6 +307,9 @@ QStringList FilesFolder::inputGuide(const QJsonArray& inputs, int index, const Q
         lines.append(QStringLiteral("Made with %1: %2")
                          .arg(tool.value(QLatin1StringView("tool")).toString(),
                               tool.value(QLatin1StringView("url")).toString()));
+        const QString toolHelp = tool.value(QLatin1StringView("help")).toString();
+        if (!toolHelp.isEmpty())
+            lines.append(toolHelp);
     }
     return lines;
 }

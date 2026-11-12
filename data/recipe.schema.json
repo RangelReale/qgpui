@@ -54,6 +54,20 @@
       "minItems": 1,
       "items": { "$ref": "#/$defs/step" }
     },
+    "otherWays": {
+      "description": "Ways to install the game that qgp does not run, such as the port's own installer or build kit. The game dialog shows each with its link.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["label", "url", "help"],
+        "properties": {
+          "label": { "description": "The tool's name, shown as the link.", "type": "string", "minLength": 1 },
+          "url": { "description": "Where to get it: usually the release page.", "$ref": "#/$defs/url" },
+          "help": { "description": "What it does, and which file to download when the page has several.", "type": "string", "minLength": 1 }
+        }
+      }
+    },
     "notes": { "description": "For maintainers. Not shown to users.", "type": "string" }
   },
   "$defs": {
