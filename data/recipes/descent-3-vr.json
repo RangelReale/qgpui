@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "descent-3-vr",
-  "status": "draft",
   "support": "automatic",
   "checkedAgainst": {
     "packageName": "com.descentdevelopers.descent3",

@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "animal-crossing-vr",
-  "status": "draft",
   "support": "guided",
   "checkedAgainst": {
     "packageName": "com.liquidazir.animalcrossingquest",

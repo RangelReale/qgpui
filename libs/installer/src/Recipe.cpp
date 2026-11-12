@@ -124,7 +124,6 @@ const Input* Recipe::input(const QString& id) const
 std::optional<Recipe> parseRecipe(const QJsonObject& json, const QString& defaultPackageName, QString* errorMessage)
 {
     Recipe recipe;
-    recipe.status = str(json, "status");
     const QString support = str(json, "support");
     recipe.support = support == QLatin1StringView("manual")   ? Support::Manual
                      : support == QLatin1StringView("guided") ? Support::Guided

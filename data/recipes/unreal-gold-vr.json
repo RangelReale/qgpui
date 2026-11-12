@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "unreal-gold-vr",
-  "status": "draft",
   "support": "guided",
   "checkedAgainst": {
     "packageName": "com.ghwstvr.unrealquest",

@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "beefraiderxr",
-  "status": "draft",
   "support": "automatic",
   "checkedAgainst": {
     "packageName": "com.drbeef.beefraiderxr",

@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "preyvr",
-  "status": "draft",
   "support": "automatic",
   "checkedAgainst": { "packageName": "com.lvonasek.preyvr", "version": "v1.2.4", "targetPath": "/sdcard/preyvr/" },
   "apks": [{ "source": "github", "repo": "Team-Beef-Studios/PreyVR", "asset": "^preyvr-.*\\.apk$" }],

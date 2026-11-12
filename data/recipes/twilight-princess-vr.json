@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "twilight-princess-vr",
-  "status": "draft",
   "support": "automatic",
   "checkedAgainst": {
     "packageName": "com.joeyaw.tpvr",

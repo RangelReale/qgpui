@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "daggerfall-unity-vr",
-  "status": "draft",
   "support": "automatic",
   "checkedAgainst": {
     "packageName": "com.dfworkshop.dfuquest3",

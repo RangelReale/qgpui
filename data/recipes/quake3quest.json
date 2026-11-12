@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "quake3quest",
-  "status": "draft",
   "support": "automatic",
   "checkedAgainst": { "packageName": "com.drbeef.ioq3quest", "version": "v1.2.0" },
   "apks": [

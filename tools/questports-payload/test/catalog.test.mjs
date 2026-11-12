@@ -31,7 +31,6 @@ function recipe(slug, checkedAgainst) {
     format: 'qgp-install-recipe',
     version: 1,
     slug,
-    status: 'draft',
     checkedAgainst,
     apks: [{ source: 'url', url: 'https://example.com/a.apk' }],
     inputs: [],
@@ -52,7 +51,6 @@ test('buildCatalog keeps every game and attaches its recipe', () => {
   assert.deepEqual(catalog.games.map(g => g.slug), ['alpha', 'beta'])
   assert.equal(catalog.games[0].recipe, null)
   assert.deepEqual(catalog.games[1].recipe, {
-    status: 'draft',
     apks: [{ source: 'url', url: 'https://example.com/a.apk' }],
     inputs: [],
     steps: [{ do: 'install-apk' }]

@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "re-code-veronica-x-vr",
-  "status": "draft",
   "support": "automatic",
   "checkedAgainst": { "packageName": "org.recvx.vr", "version": "v1.5.1", "targetPath": "/sdcard/Download/" },
   "apks": [

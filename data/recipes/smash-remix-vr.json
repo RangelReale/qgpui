@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "smash-remix-vr",
-  "status": "draft",
   "support": "automatic",
   "checkedAgainst": { "packageName": "com.ssb64.recompiled", "version": "v0.8.5" },
   "apks": [

@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "rail-chase-2-vr",
-  "status": "draft",
   "support": "automatic",
   "checkedAgainst": {
     "packageName": "com.vrlightgunhub.rchase2",

@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "qualyx",
-  "status": "draft",
   "support": "automatic",
   "checkedAgainst": { "packageName": "org.hlvr.quest", "version": "v1.0.85", "targetPath": "/sdcard/Qualyx/game/" },
   "apks": [{ "source": "github", "repo": "tinsarfal/Qualyx", "asset": "^Qualyx-.*\\.apk$" }],

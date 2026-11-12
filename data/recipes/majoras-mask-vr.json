@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "majoras-mask-vr",
-  "status": "draft",
   "support": "automatic",
   "checkedAgainst": {
     "packageName": "com.fulldivegames.majorasmaskvr",

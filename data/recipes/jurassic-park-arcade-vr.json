@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "jurassic-park-arcade-vr",
-  "status": "draft",
   "support": "manual",
   "checkedAgainst": {
     "packageName": "com.jp2015.vr",

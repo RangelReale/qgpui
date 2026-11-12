@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "hotd4-special-vr",
-  "status": "draft",
   "support": "automatic",
   "checkedAgainst": {
     "packageName": "org.lindbergh.hotd4sp.vr",

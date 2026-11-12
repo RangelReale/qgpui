@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "wipeout-pure-vr",
-  "status": "draft",
   "support": "automatic",
   "checkedAgainst": {
     "packageName": "online.portroyale.wipeoutpurevr",

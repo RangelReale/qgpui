@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "time-crisis-vr",
-  "status": "draft",
   "support": "automatic",
   "checkedAgainst": {
     "packageName": "org.timecrisis.quest",

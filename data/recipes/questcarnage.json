@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "questcarnage",
-  "status": "draft",
   "support": "automatic",
   "checkedAgainst": {
     "packageName": "com.github.maranone.questcarnage",

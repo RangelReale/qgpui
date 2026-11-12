@@ -24,7 +24,7 @@ private slots:
     {
         QString error;
         const auto recipe = parseRecipe(
-            json("{'status':'draft','support':'guided','requirements':{'freeSpaceMB':900},"
+            json("{'support':'guided','requirements':{'freeSpaceMB':900},"
                  "'apks':[{'source':'github','repo':'o/r','tag':'^v','prerelease':true,'asset':'q\\\\.apk$'},"
                  "        {'source':'manual','page':'https:\\/\\/x.test','asset':'a'}],"
                  "'inputs':[{'id':'disc','kind':'file','label':'Disc','extensions':['.iso'],'multiple':true},"

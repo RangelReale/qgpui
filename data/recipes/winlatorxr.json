@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "winlatorxr",
-  "status": "draft",
   "support": "manual",
   "checkedAgainst": {
     "packageName": "com.winlator.cmod",

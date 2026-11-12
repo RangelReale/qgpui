@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "armsx2-3d",
-  "status": "draft",
   "support": "automatic",
   "checkedAgainst": {
     "packageName": "com.armsx2",

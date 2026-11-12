@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "starfox-enhanced-vr",
-  "status": "draft",
   "support": "guided",
   "checkedAgainst": { "packageName": "com.starfox.enhanced.quest", "version": "v0.0.8.8.3" },
   "apks": [

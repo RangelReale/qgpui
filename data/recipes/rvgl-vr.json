@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "rvgl-vr",
-  "status": "draft",
   "support": "automatic",
   "checkedAgainst": { "packageName": "com.bilko.rvglvr", "version": "v0.1.1" },
   "requirements": { "freeSpaceMB": 500 },

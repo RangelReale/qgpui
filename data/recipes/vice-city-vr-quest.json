@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "vice-city-vr-quest",
-  "status": "draft",
   "support": "manual",
   "checkedAgainst": {
     "packageName": "com.miamivr.quest",

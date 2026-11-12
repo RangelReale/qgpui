@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "lets-go-jungle-vr",
-  "status": "draft",
   "support": "automatic",
   "checkedAgainst": {
     "packageName": "org.lindbergh.lgj.vr",

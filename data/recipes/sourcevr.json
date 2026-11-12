@@ -3,7 +3,6 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "sourcevr",
-  "status": "draft",
   "support": "automatic",
   "checkedAgainst": {
     "packageName": "com.sourcevrport.hl2vr",
