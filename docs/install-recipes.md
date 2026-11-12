@@ -48,7 +48,7 @@ Checked on a Quest 3 with Android 14 (build 52641960034500520) on 2026-11-12, us
   - `adb shell mkdir -p` creates nested folders, and `chmod` on them works.
   - galaxyquest's own install script leaves its pushed folders `drwxrwxrwx`, and the game runs with them; descent-3's guide uses `chmod 2777` for the same reason.
 
-The installer library's `Runner` then installed urbanterror-vr on the same headset (`tst_installer_live`): it picked release v1.0.1 on GitHub, downloaded the 11 MB APK, installed it and granted `MANAGE_EXTERNAL_STORAGE`, which `appops get` read back as `allow`. The game itself was not started, so the recipe stays `draft`.
+The installer library's `Runner` then installed urbanterror-vr on the same headset (`tst_installer_live`): it picked release v1.0.1 on GitHub, downloaded the 11 MB APK, installed it and granted `MANAGE_EXTERNAL_STORAGE`, which `appops get` read back as `allow`. Started from the headset, the game went straight to its 1.4 GB data download without asking for file access, then played. urbanterror-vr is the first recipe marked `tested`.
 
 So the recipe runner must, for every push below `/sdcard/Android/data/`: create the folders with `mkdir -p`, push the files one at a time, and open each folder it created to the app (`chmod 2777`). The `launch` step before such a push stays necessary, because the app must create its own `files` folder.
 

@@ -3,7 +3,7 @@
   "format": "qgp-install-recipe",
   "version": 1,
   "slug": "urbanterror-vr",
-  "status": "draft",
+  "status": "tested",
   "support": "automatic",
   "checkedAgainst": {
     "packageName": "com.bilko.urtquest",
