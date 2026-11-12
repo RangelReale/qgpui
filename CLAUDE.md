@@ -108,6 +108,9 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
 
 ## Documentation
 
+`README.md` is for the app's users: what QGPUI does, what it needs and how to use it. Keep build
+and developer instructions in `DEVELOPMENT.md`.
+
 Put new documents in the folder that fits and add them to `docs/README.md`. Record a design
 choice that someone could reasonably question as a new decision. Put measurements and findings
 about external systems in research, and update architecture when the code changes.
