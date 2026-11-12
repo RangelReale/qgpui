@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "galaxyquest",
   "support": "guided",
@@ -24,7 +24,7 @@
       "id": "cooked",
       "kind": "pc-install",
       "label": "Super Mario Galaxy, converted for GalaxyQuest",
-      "help": "A folder named cooked, which the GalaxyQuest converter makes on your PC from your own Super Mario Galaxy disc (European RMGP01 or US RMGE01). qgp cannot read the disc image itself.",
+      "help": "A folder named cooked, which the GalaxyQuest converter makes on your PC from your own Super Mario Galaxy disc (European RMGP01 or US RMGE01). QGPUI cannot read the disc image itself.",
       "detect": [
         "sys/fst.bin"
       ],

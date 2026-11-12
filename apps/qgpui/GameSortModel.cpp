@@ -73,10 +73,10 @@ bool GameSortModel::accepts(const questports::Game& game, GameFlags flags) const
         return true;
     case GameFilter::Headset::OnHeadset:
         return flags.testFlag(GameFlag::OnHeadset);
-    case GameFilter::Headset::InstalledByQgp:
-        return flags.testFlag(GameFlag::InstalledByQgp);
-    case GameFilter::Headset::InstalledOutsideQgp:
-        return flags.testFlag(GameFlag::InstalledOutsideQgp);
+    case GameFilter::Headset::InstalledByQgpui:
+        return flags.testFlag(GameFlag::InstalledByQgpui);
+    case GameFilter::Headset::InstalledOutsideQgpui:
+        return flags.testFlag(GameFlag::InstalledOutsideQgpui);
     case GameFilter::Headset::NotOnHeadset:
         return !flags.testFlag(GameFlag::OnHeadset);
     case GameFilter::Headset::UpdateAvailable:

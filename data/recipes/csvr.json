@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "csvr",
   "support": "automatic",
@@ -21,7 +21,7 @@
       "id": "cstrike",
       "kind": "pc-install",
       "label": "Counter-Strike 1.6 (Steam)",
-      "help": "Your Steam install of Counter-Strike 1.6. qgp copies its cstrike folder.",
+      "help": "Your Steam install of Counter-Strike 1.6. QGPUI copies its cstrike folder.",
       "stores": [
         {
           "store": "steam",

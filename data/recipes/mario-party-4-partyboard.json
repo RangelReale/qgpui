@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "mario-party-4-partyboard",
   "support": "automatic",

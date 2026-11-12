@@ -62,11 +62,11 @@ std::optional<Catalog> parseCatalog(const QByteArray& json, QString* errorMessag
 
     const QJsonObject root = document.object();
     const QString format = root.value(QLatin1StringView("format")).toString();
-    if (format == QLatin1StringView("qgp-questports-payload"))
-        return fail(errorMessage, QStringLiteral("This is a QuestPorts payload, not a qgp catalog. Build the "
+    if (format == QLatin1StringView("qgpui-questports-payload"))
+        return fail(errorMessage, QStringLiteral("This is a QuestPorts payload, not a QGPUI catalog. Build the "
                                                  "catalog from it with \"task catalog\"."));
     if (format != QLatin1StringView(kCatalogFormat))
-        return fail(errorMessage, QStringLiteral("Not a qgp catalog (format \"%1\").").arg(format));
+        return fail(errorMessage, QStringLiteral("Not a QGPUI catalog (format \"%1\").").arg(format));
     const int version = root.value(QLatin1StringView("version")).toInt(-1);
     if (version != kCatalogVersion)
         return fail(errorMessage, QStringLiteral("Unsupported catalog version %1; this build reads version %2.")

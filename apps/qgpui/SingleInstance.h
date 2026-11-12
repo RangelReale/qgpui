@@ -6,7 +6,7 @@
 
 class QLocalServer;
 
-// Keeps qgp to one running instance per user (decision 0012). The first instance holds a lock file
+// Keeps QGPUI to one running instance per user (decision 0012). The first instance holds a lock file
 // and listens on a local socket. A later instance finds the lock taken, sends its catalog argument
 // over the socket and quits; the first instance then raises its window and opens that catalog.
 class SingleInstance : public QObject

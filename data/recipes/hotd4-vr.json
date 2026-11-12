@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "hotd4-vr",
   "support": "automatic",
@@ -50,5 +50,5 @@
       "text": "Open The House of the Dead 4 VR from Library > Unknown Sources. If it opens the All files access screen, allow it and start the app again."
     }
   ],
-  "notes": "lialan/lindbergh-recomp-ports puts several games in one release (Ghost Squad Evolution, Let's Go Jungle, HOTD4 Special) under shared tags, so no tag filter is possible. qgp skips releases without a matching asset, so a newer release that leaves out HOTD4 is fine. The asset pattern does not match HouseOfTheDead4SpecialVR."
+  "notes": "lialan/lindbergh-recomp-ports puts several games in one release (Ghost Squad Evolution, Let's Go Jungle, HOTD4 Special) under shared tags, so no tag filter is possible. QGPUI skips releases without a matching asset, so a newer release that leaves out HOTD4 is fine. The asset pattern does not match HouseOfTheDead4SpecialVR."
 }

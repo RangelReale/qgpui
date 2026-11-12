@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "openxwa-vr",
   "support": "guided",
@@ -71,5 +71,5 @@
       "help": "Run OpenXWA-VR-Launcher.exe from OpenXWA-Quest-<version>.zip on Windows. It finds your X-Wing Alliance, installs the game, copies and checks the game files and can bring your PC pilots along. You need no game zip."
     }
   ],
-  "notes": "Follows the manual install from README.txt in the release zip. The normal path is OpenXWA-VR-Launcher.exe (in the same zip), a Windows program that installs the app, copies about 1 GB of game files, checks them and can bring PC pilots along; qgp could later zip the pc-install itself instead. Releases also carry a PCVR zip. Steam app ID 361670 (from the guide) is not needed while the input is a zip."
+  "notes": "Follows the manual install from README.txt in the release zip. The normal path is OpenXWA-VR-Launcher.exe (in the same zip), a Windows program that installs the app, copies about 1 GB of game files, checks them and can bring PC pilots along; QGPUI could later zip the pc-install itself instead. Releases also carry a PCVR zip. Steam app ID 361670 (from the guide) is not needed while the input is a zip."
 }

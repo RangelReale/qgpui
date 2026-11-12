@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "primedgun",
   "support": "automatic",
@@ -29,5 +29,5 @@
       "text": "Open PrimedGun from Library > Unknown Sources. Select your disc image in the launcher and tap Play. The first launch builds shaders for 2 to 3 minutes. When you quit, press Exit Game in the VR menu twice so the shaders are saved."
     }
   ],
-  "notes": "The guide says the newer tags (v1.1.7-windows, primedgun-2.0-downloads) are not Quest APKs; qgp skips releases without a matching asset and picks v1.1.7. A disc check (gameId) is left out because the guide does not give the game ID and most accepted formats are compressed."
+  "notes": "The guide says the newer tags (v1.1.7-windows, primedgun-2.0-downloads) are not Quest APKs; QGPUI skips releases without a matching asset and picks v1.1.7. A disc check (gameId) is left out because the guide does not give the game ID and most accepted formats are compressed."
 }

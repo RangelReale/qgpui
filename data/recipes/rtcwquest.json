@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "rtcwquest",
   "support": "automatic",
@@ -11,7 +11,7 @@
       "id": "rtcw",
       "kind": "pc-install",
       "label": "Return to Castle Wolfenstein",
-      "help": "Your installed copy of Return to Castle Wolfenstein from Steam or GOG. qgp copies the full-game pk3 files from its Main folder.",
+      "help": "Your installed copy of Return to Castle Wolfenstein from Steam or GOG. QGPUI copies the full-game pk3 files from its Main folder.",
       "stores": [{ "store": "steam", "installDir": "Return to Castle Wolfenstein" }, { "store": "gog" }],
       "root": "Main",
       "detect": ["pak0.pk3", "sp_pak1.pk3", "sp_pak2.pk3", "sp_pak3.pk3", "sp_pak4.pk3"]

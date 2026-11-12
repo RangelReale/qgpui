@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "quake2quest",
   "support": "automatic",
@@ -21,7 +21,7 @@
       "id": "quake2",
       "kind": "pc-install",
       "label": "Quake II (original, not the rerelease)",
-      "help": "Your installed copy of Quake II. qgp uses the original baseq2 folder, not the rerelease folder.",
+      "help": "Your installed copy of Quake II. QGPUI uses the original baseq2 folder, not the rerelease folder.",
       "stores": [{ "store": "steam", "appId": "2320", "installDir": "Quake 2" }],
       "root": "baseq2",
       "detect": ["pak0.pak", "pak1.pak", "pak2.pak"]

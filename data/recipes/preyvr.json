@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "preyvr",
   "support": "automatic",
@@ -11,7 +11,7 @@
       "id": "prey",
       "kind": "pc-install",
       "label": "Prey (2006)",
-      "help": "Your installed copy of the original Prey (2006). qgp copies the .pk4 files from its base folder.",
+      "help": "Your installed copy of the original Prey (2006). QGPUI copies the .pk4 files from its base folder.",
       "stores": [{ "store": "steam" }],
       "root": "base",
       "detect": ["pak000.pk4"]

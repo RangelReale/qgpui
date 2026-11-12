@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "gothic2-vr",
   "support": "guided",
@@ -35,8 +35,8 @@
     {
       "label": "Gothic II VR installer",
       "url": "https://github.com/dubrovskiy-yevhen-stakelogic/gothic2-vr/releases/latest",
-      "help": "Run INSTALL.bat from the Quest folder of Gothic-II-VR-<version>.zip. It installs the game and packages your game files for the headset. qgp needs it for the game files too."
+      "help": "Run INSTALL.bat from the Quest folder of Gothic-II-VR-<version>.zip. It installs the game and packages your game files for the headset. QGPUI needs it for the game files too."
     }
   ],
-  "notes": "INSTALL.bat packages the game files into a private zip in /sdcard/Download/Gothic2VR/ for the in-headset import; the format is not documented, so qgp cannot do it. Uncertain: v0.2.1 ships one zip (Gothic-II-VR-0.2.1.zip) whose layout was not checked; inZip assumes the APK is still in a Quest/ folder. v0.2.0 also had a Quest-Win7-x86 zip, which the asset pattern excludes."
+  "notes": "INSTALL.bat packages the game files into a private zip in /sdcard/Download/Gothic2VR/ for the in-headset import; the format is not documented, so QGPUI cannot do it. Uncertain: v0.2.1 ships one zip (Gothic-II-VR-0.2.1.zip) whose layout was not checked; inZip assumes the APK is still in a Quest/ folder. v0.2.0 also had a Quest-Win7-x86 zip, which the asset pattern excludes."
 }

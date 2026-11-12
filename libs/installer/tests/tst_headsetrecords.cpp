@@ -124,7 +124,7 @@ private slots:
 
     void leavesAnUnchangedListAlone()
     {
-        // Formatted differently from what qgp writes: a rewrite would change the bytes.
+        // Formatted differently from what QGPUI writes: a rewrite would change the bytes.
         const QByteArray compact = headsetRecordsJson(kHardware, {record(QStringLiteral("com.a.b"), QStringLiteral("v1.0"), 1)})
                                        .simplified();
         m_server->files.insert(kPath, compact);
@@ -140,7 +140,7 @@ private slots:
         InstallRecords cache = InstallRecords::load(m_cachePath);
         QString error;
         QVERIFY(!run(cache, record(QStringLiteral("com.a.b"), QStringLiteral("v1.0"), 1), &error));
-        QVERIFY2(error.contains(QStringLiteral("not a qgp install list")), qPrintable(error));
+        QVERIFY2(error.contains(QStringLiteral("not a QGPUI install list")), qPrintable(error));
         QCOMPARE(m_server->files.value(kPath), QByteArray("not json"));
     }
 

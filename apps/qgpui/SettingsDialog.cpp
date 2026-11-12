@@ -18,7 +18,7 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 
     m_keepAwake->setChecked(keepAwakeWhileInstalling());
     auto* keepAwakeHelp = new QLabel(tr("A Quest goes to sleep about 20 seconds after it is taken off, and "
-                                        "some install steps need it awake. With this on, qgp makes the "
+                                        "some install steps need it awake. With this on, QGPUI makes the "
                                         "headset act as if it is worn until the install ends."),
                                      this);
     keepAwakeHelp->setWordWrap(true);

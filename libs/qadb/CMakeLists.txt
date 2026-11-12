@@ -16,7 +16,7 @@ qt_add_library(qadb STATIC
     src/ReplyAccess.h
     src/Types.cpp
 )
-add_library(qgp::qadb ALIAS qadb)
+add_library(qgpui::qadb ALIAS qadb)
 
 target_include_directories(qadb
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -24,6 +24,6 @@ target_include_directories(qadb
 target_link_libraries(qadb PUBLIC Qt6::Core Qt6::Network)
 target_compile_definitions(qadb PRIVATE QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 
-if(QGP_BUILD_TESTS)
+if(QGPUI_BUILD_TESTS)
     add_subdirectory(tests)
 endif()

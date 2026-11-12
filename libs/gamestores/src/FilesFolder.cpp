@@ -152,7 +152,7 @@ FilesFolder::FilesFolder(QString root)
 
 QString FilesFolder::defaultRoot()
 {
-    return clean(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + QStringLiteral("/qgp/files"));
+    return clean(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + QStringLiteral("/qgpui/files"));
 }
 
 QString FilesFolder::gameFolder(const QString& slug) const
@@ -294,7 +294,7 @@ QStringList FilesFolder::inputGuide(const QJsonArray& inputs, int index, const Q
                            ? QStringLiteral("%1: %2, or a copy of it").arg(where, folder)
                            : QStringLiteral("%1: %2, or the folder \"%3\" inside it").arg(where, folder, root);
         if (!detect.isEmpty())
-            line += QStringLiteral(". qgp recognises it by %1").arg(joinWith(detect, QStringLiteral("and")));
+            line += QStringLiteral(". QGPUI recognises it by %1").arg(joinWith(detect, QStringLiteral("and")));
         lines.append(line + u'.');
     } else if (!names.isEmpty()) {
         lines.append(QStringLiteral("%1: %2.").arg(where, joinWith(names, QStringLiteral("and"))));
@@ -328,7 +328,7 @@ QString FilesFolder::sharedFilesNote(const QJsonArray& inputs) const
     });
     if (!anyNames)
         return {};
-    return QStringLiteral("qgp also finds files with these exact names anywhere in %1. "
+    return QStringLiteral("QGPUI also finds files with these exact names anywhere in %1. "
                           "A file that several games use, such as naomi.zip, is needed only once.")
         .arg(QDir::toNativeSeparators(m_root));
 }
@@ -336,7 +336,7 @@ QString FilesFolder::sharedFilesNote(const QJsonArray& inputs) const
 QString FilesFolder::guideText(const QString& title, const QJsonArray& inputs) const
 {
     QString text = title + u'\n' + QString(title.size(), u'=') + QStringLiteral("\n\n");
-    text += QStringLiteral("qgp looks in this folder for the files below when it installs the game. "
+    text += QStringLiteral("QGPUI looks in this folder for the files below when it installs the game. "
                            "It also looks in the folders inside this one.\n");
 
     for (int i = 0; i < inputs.size(); ++i) {
@@ -352,8 +352,8 @@ QString FilesFolder::guideText(const QString& title, const QJsonArray& inputs) c
     const QString shared = sharedFilesNote(inputs);
     if (!shared.isEmpty())
         text += u'\n' + shared + u'\n';
-    text += QStringLiteral("\nqgp wrote this file and rewrites it each time you create the folder. "
-                           "qgp ignores it when it looks for files, and never copies it to the headset.\n");
+    text += QStringLiteral("\nqgpui wrote this file and rewrites it each time you create the folder. "
+                           "QGPUI ignores it when it looks for files, and never copies it to the headset.\n");
     return text;
 }
 

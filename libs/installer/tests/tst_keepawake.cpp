@@ -180,7 +180,7 @@ private slots:
     {
         KeepAwake awake(m_client, kSerial);
         startAndSettle(awake);
-        // As in qgp's main(): the application's loop has run and quit.
+        // As in QGPUI's main(): the application's loop has run and quit.
         QTimer::singleShot(0, qApp, &QCoreApplication::quit);
         QCoreApplication::exec();
         KeepAwake::releaseAll(5000);

@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "openxw-vr",
   "support": "automatic",
@@ -22,7 +22,7 @@
       "id": "game",
       "kind": "pc-install",
       "label": "Star Wars: X-Wing Special Edition (Steam)",
-      "help": "Your installed Steam copy. qgp copies its collectors_cd and remastered folders.",
+      "help": "Your installed Steam copy. QGPUI copies its collectors_cd and remastered folders.",
       "stores": [{ "store": "steam", "installDir": "STAR WARS X-Wing" }],
       "detect": ["collectors_cd", "remastered"]
     }

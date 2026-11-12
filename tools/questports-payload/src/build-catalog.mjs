@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Builds the qgp catalog: the QuestPorts payload joined with qgp's install recipes. See README.md.
+// Builds the QGPUI catalog: the QuestPorts payload joined with QGPUI's install recipes. See README.md.
 
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
@@ -10,7 +10,7 @@ import { DEFAULT_RECIPES_DIR, DEFAULT_SCHEMA_FILE, loadRecipes } from './recipes
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..')
 const DEFAULT_PAYLOAD = path.join(repositoryRoot, 'local', 'questports-payload.json')
-const DEFAULT_OUT = path.join(repositoryRoot, 'local', 'qgp-catalog.json')
+const DEFAULT_OUT = path.join(repositoryRoot, 'local', 'qgpui-catalog.json')
 
 const USAGE = `Usage: node src/build-catalog.mjs [options]
 
@@ -18,7 +18,7 @@ Options:
   --payload <file>   Payload to read (default: local/questports-payload.json in the repository).
   --recipes <dir>    Recipe folder (default: data/recipes in the repository).
   --schema <file>    Recipe schema (default: data/recipe.schema.json in the repository).
-  --out <file>       Output file (default: local/qgp-catalog.json in the repository).
+  --out <file>       Output file (default: local/qgpui-catalog.json in the repository).
   --strict           Fail, and write nothing, on recipes without a game or on a changed
                      package name or target path.
   --verbose          Also list the games without a recipe.

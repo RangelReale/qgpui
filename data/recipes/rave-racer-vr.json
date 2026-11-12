@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "rave-racer-vr",
   "support": "guided",
@@ -50,5 +50,5 @@
     },
     { "do": "tell", "text": "Open Rave Racer VR from Library > Unknown Sources and play." }
   ],
-  "notes": "The APK is on itch.io only. The schema cannot say \"raverace.zip or raveracw.zip\", so the ROM input takes any .zip; qgp should check the name is one of the two. File names must match exactly. The payload version v0.1.2-beta matches the guide's v0.1.2 lifecycle-fix APK."
+  "notes": "The APK is on itch.io only. The schema cannot say \"raverace.zip or raveracw.zip\", so the ROM input takes any .zip; QGPUI should check the name is one of the two. File names must match exactly. The payload version v0.1.2-beta matches the guide's v0.1.2 lifecycle-fix APK."
 }

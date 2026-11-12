@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "questsam",
   "support": "automatic",
@@ -22,7 +22,7 @@
       "id": "tse",
       "kind": "pc-install",
       "label": "Serious Sam Classic: The Second Encounter",
-      "help": "Your installed copy of Serious Sam Classic: The Second Encounter from Steam or GOG. qgp copies its .gro files.",
+      "help": "Your installed copy of Serious Sam Classic: The Second Encounter from Steam or GOG. QGPUI copies its .gro files.",
       "stores": [
         {
           "store": "steam"
@@ -40,7 +40,7 @@
       "id": "tfe",
       "kind": "pc-install",
       "label": "Serious Sam Classic: The First Encounter (optional)",
-      "help": "Your installed copy of Serious Sam Classic: The First Encounter from Steam or GOG. qgp copies its .gro files.",
+      "help": "Your installed copy of Serious Sam Classic: The First Encounter from Steam or GOG. QGPUI copies its .gro files.",
       "required": false,
       "stores": [
         {

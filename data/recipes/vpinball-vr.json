@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "vpinball-vr",
   "support": "automatic",
@@ -24,5 +24,5 @@
       "text": "Open VPinball from Library > Unknown Sources. Get tables with + > Download from Archive.org. Some tables are several hundred MB, so use fast Wi-Fi."
     }
   ],
-  "notes": "Releases are all pre-releases. Own tables go in VPinball/tables/<Table name>/ with their ROMs in pinmame/roms/; qgp does not offer that yet."
+  "notes": "Releases are all pre-releases. Own tables go in VPinball/tables/<Table name>/ with their ROMs in pinmame/roms/; QGPUI does not offer that yet."
 }

@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "jkxr",
   "support": "automatic",
@@ -15,7 +15,7 @@
       "id": "jk2",
       "kind": "pc-install",
       "label": "Star Wars Jedi Knight II: Jedi Outcast",
-      "help": "Your installed copy of Jedi Outcast from Steam. qgp uses the pk3 files in GameData/base.",
+      "help": "Your installed copy of Jedi Outcast from Steam. QGPUI uses the pk3 files in GameData/base.",
       "stores": [{ "store": "steam", "appId": "6030", "installDir": "Jedi Outcast" }],
       "root": "GameData/base",
       "detect": ["assets0.pk3"]

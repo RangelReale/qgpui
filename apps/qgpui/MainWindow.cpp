@@ -166,7 +166,7 @@ MainWindow::MainWindow(QWidget* parent)
     , m_releases(new installer::ReleaseLookup(this))
     , m_headsetStatus(new QToolButton(this))
 {
-    setWindowTitle(QStringLiteral("qgp"));
+    setWindowTitle(QStringLiteral("QGPUI"));
 
     m_view->setModel(m_sorted);
     m_view->setViewMode(QListView::IconMode);
@@ -287,13 +287,13 @@ void MainWindow::createToolBar()
     addBox(toolBar, tr("&Installed:"), m_onHeadset);
     m_onHeadset->addItem(tr("Any"), int(GameFilter::Headset::Any));
     m_onHeadset->addItem(tr("On my headset"), int(GameFilter::Headset::OnHeadset));
-    m_onHeadset->addItem(tr("Installed by qgp"), int(GameFilter::Headset::InstalledByQgp));
-    m_onHeadset->addItem(tr("Installed outside qgp"), int(GameFilter::Headset::InstalledOutsideQgp));
+    m_onHeadset->addItem(tr("Installed by qgpui"), int(GameFilter::Headset::InstalledByQgpui));
+    m_onHeadset->addItem(tr("Installed outside qgpui"), int(GameFilter::Headset::InstalledOutsideQgpui));
     m_onHeadset->addItem(tr("Not on my headset"), int(GameFilter::Headset::NotOnHeadset));
     m_onHeadset->addItem(tr("Update available"), int(GameFilter::Headset::UpdateAvailable));
     m_onHeadset->setItemData(5, tr("Games on your headset with a newer release than the one installed"), Qt::ToolTipRole);
 
-    m_selfContained->setToolTip(tr("Games qgp installs on its own: no files from you, or only files anyone can get for free"));
+    m_selfContained->setToolTip(tr("Games QGPUI installs on its own: no files from you, or only files anyone can get for free"));
     toolBar->addWidget(m_selfContained);
 
     QSettings settings;
@@ -582,7 +582,7 @@ void MainWindow::showHeadsetDialog()
 void MainWindow::updateKeepAwakeAction()
 {
     if (m_headset->isKeptAwakeElsewhere()) {
-        const QString text = tr("Another app on the headset already keeps its screen on. qgp leaves it alone, "
+        const QString text = tr("Another app on the headset already keeps its screen on. QGPUI leaves it alone, "
                                 "and takes over if that app stops.");
         m_keepAwakeAction->setToolTip(text);
         statusBar()->showMessage(text, 10000);
@@ -637,7 +637,7 @@ bool MainWindow::loadCatalog(const QString& path)
 void MainWindow::openCatalog()
 {
     const QString path = QFileDialog::getOpenFileName(this, tr("Open Catalog"), QFileInfo(m_catalogPath).path(),
-                                                      tr("qgp catalog (*.json);;All files (*)"));
+                                                      tr("QGPUI catalog (*.json);;All files (*)"));
     if (path.isEmpty())
         return;
     if (!loadCatalog(path))
@@ -672,7 +672,7 @@ void MainWindow::chooseFilesFolder()
     if (folder.isEmpty())
         return;
     GameDialog::setFilesRoot(folder);
-    m_status->setText(tr("qgp looks for your game files in %1").arg(QDir::toNativeSeparators(folder)));
+    m_status->setText(tr("QGPUI looks for your game files in %1").arg(QDir::toNativeSeparators(folder)));
 }
 
 void MainWindow::openGame()

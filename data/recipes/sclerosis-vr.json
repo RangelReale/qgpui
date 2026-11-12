@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "sclerosis-vr",
   "support": "guided",
@@ -18,7 +18,7 @@
       "id": "amnesia",
       "kind": "pc-install",
       "label": "Amnesia: The Dark Descent",
-      "help": "Your installed copy of Amnesia: The Dark Descent from Steam or another store. qgp copies its files to the headset.",
+      "help": "Your installed copy of Amnesia: The Dark Descent from Steam or another store. QGPUI copies its files to the headset.",
       "stores": [{ "store": "steam", "appId": "57300" }],
       "detect": ["Amnesia.exe"]
     }

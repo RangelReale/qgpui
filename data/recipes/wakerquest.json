@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "wakerquest",
   "support": "automatic",
@@ -28,7 +28,7 @@
   "steps": [
     {
       "do": "tell",
-      "text": "If WakerQuest is already installed, do not uninstall it. Uninstalling erases your saves and memory card data. qgp installs over it."
+      "text": "If WakerQuest is already installed, do not uninstall it. Uninstalling erases your saves and memory card data. QGPUI installs over it."
     },
     { "do": "install-apk" },
     {

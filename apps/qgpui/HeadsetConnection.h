@@ -68,13 +68,13 @@ public:
     // What the user can do about the status, or an empty string when there is nothing to do.
     QString statusAdvice() const;
 
-    // Keeps the current headset's screen on (installer::KeepAwake) until turned off or qgp exits.
+    // Keeps the current headset's screen on (installer::KeepAwake) until turned off or QGPUI exits.
     // It follows the current headset: a headset that becomes current is kept awake, and one that
-    // stops being current is released. Off when qgp starts.
+    // stops being current is released. Off when QGPUI starts.
     bool keepsAwake() const { return m_keepAwakeWanted; }
     void setKeepAwake(bool on);
     // True while the button is on but another app on the headset already keeps it awake, so
-    // qgp leaves that app's override alone.
+    // QGPUI leaves that app's override alone.
     bool isKeptAwakeElsewhere() const;
     // A small open eye, for the keep-awake button.
     static QIcon keepAwakeIcon();

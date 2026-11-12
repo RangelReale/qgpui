@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "urbanterror-vr",
   "support": "automatic",
@@ -29,5 +29,5 @@
       "text": "Open Urban Terror VR from Library > Unknown Sources. If it asks for file access, allow it. Press I agree - download and install, and wait for the 1.4 GB download. Then change your player name in the player setup."
     }
   ],
-  "notes": "The app downloads the free Urban Terror 4.3.4 data to /sdcard/UrTQuest/q3ut4 on the first start; about 3 GB is needed while it installs. Existing Urban Terror 4.3 data copied to that folder is reused; qgp does not offer that. The guide says \"allow file access\" without naming the permission; All files access is assumed. The asset pattern does not match the .apk.sha256 file."
+  "notes": "The app downloads the free Urban Terror 4.3.4 data to /sdcard/UrTQuest/q3ut4 on the first start; about 3 GB is needed while it installs. Existing Urban Terror 4.3 data copied to that folder is reused; QGPUI does not offer that. The guide says \"allow file access\" without naming the permission; All files access is assumed. The asset pattern does not match the .apk.sha256 file."
 }

@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "openxvt-vr",
   "support": "automatic",
@@ -25,7 +25,7 @@
       "id": "game",
       "kind": "pc-install",
       "label": "Star Wars: X-Wing vs TIE Fighter - Balance of Power Campaigns",
-      "help": "Your installed copy of the game with Balance of Power. qgp copies the whole folder (about 400 MB).",
+      "help": "Your installed copy of the game with Balance of Power. QGPUI copies the whole folder (about 400 MB).",
       "stores": [
         {
           "store": "steam",

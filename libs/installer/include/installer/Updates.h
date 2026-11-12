@@ -28,7 +28,7 @@ VersionOrder compareVersions(const QString& a, const QString& b);
 
 // --- Install records --------------------------------------------------------------------------
 
-// What qgp installed on one headset, for one package.
+// What QGPUI installed on one headset, for one package.
 struct InstallRecord
 {
     QString packageName;
@@ -65,11 +65,11 @@ private:
 
 // --- Records on the headset -------------------------------------------------------------------
 
-// The file on each headset that lists what qgp installed there. It is the source of truth; the
+// The file on each headset that lists what QGPUI installed there. It is the source of truth; the
 // PC's InstallRecords are a cache of it for when no headset is connected.
-inline constexpr auto kHeadsetRecordsPath = "/sdcard/qgp/installs.json";
+inline constexpr auto kHeadsetRecordsPath = "/sdcard/qgpui/installs.json";
 
-// The headset file's content: {"format":"qgp-headset-installs","version":1,"serial":...,
+// The headset file's content: {"format":"qgpui-headset-installs","version":1,"serial":...,
 // "packages":{<package>: <record>}}.
 QByteArray headsetRecordsJson(const QString& hardwareSerial, const QList<InstallRecord>& records);
 
@@ -93,7 +93,7 @@ enum class UpdateStatus {
 // Whether the newest release (latestTag, as pickRelease() chose it) is newer than what the
 // headset has.
 // - Not installed: NotInstalled.
-// - qgp installed it and the app is unchanged since (same versionCode): the same tag is
+// - QGPUI installed it and the app is unchanged since (same versionCode): the same tag is
 //   UpToDate; any other tag is UpdateAvailable, because pickRelease() takes the newest release.
 // - Otherwise (installed elsewhere, or the app updated itself): compares latestTag with the
 //   installed versionName.

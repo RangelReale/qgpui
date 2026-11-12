@@ -1,7 +1,7 @@
-# qgp
+# QGPUI
 
 Tools for Meta Quest headsets over adb: finding headsets, managing connections, installing APKs and
-copying files. C++20, Qt 6, CMake. The main app, `apps/qgp`, is at an early stage. The rest is the `qadb`
+copying files. C++20, Qt 6, CMake. The main app, `apps/qgpui`, is at an early stage. The rest is the `qadb`
 library, a catalog reader and two developer tools.
 
 ## Worktrees
@@ -11,13 +11,13 @@ before the first edit; it creates the feature branch and its checkout under `.cl
 (ignored by git). Leave the worktree with `ExitWorktree` when the work is merged or abandoned.
 
 A new worktree has no `build/` and no `local/`. Configure it with `cmake --preset windows` before
-building. To run qgp against the catalog, copy `local/qgp-catalog.json` from the main checkout, or
+building. To run QGPUI against the catalog, copy `local/qgpui-catalog.json` from the main checkout, or
 copy `local/questports-payload.json` and run `task catalog`, or run `task payload` and `task catalog`.
 
 ## Layout
 
 - `libs/<name>/`: one folder per library, with `include/<name>/` (public headers), `src/`
-  (sources and private headers) and `tests/`. Each library defines a `qgp::<name>` alias target.
+  (sources and private headers) and `tests/`. Each library defines a `qgpui::<name>` alias target.
 - `libs/qadb/`: a Qt client for the adb server. See `libs/qadb/README.md`.
 - `tools/<name>/`: developer tools, not shipped.
 - `tools/adbmanager/`: a Qt Widgets window with one button per qadb feature and a log. Use it to
@@ -26,7 +26,7 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   list (Supabase) with each game's install requirements (TypeScript in the QuestPorts repository)
   into one JSON file. `npm install`, then `npm run build-payload` and `npm test`. See its README
   for the payload format. `src/recipes.mjs` checks the install recipes, and `npm run
-  build-catalog` (`task catalog`) joins the payload with them into `local/qgp-catalog.json`.
+  build-catalog` (`task catalog`) joins the payload with them into `local/qgpui-catalog.json`.
 - `data/recipes/<slug>.json`: hand-written install recipes, one per game, following
   `data/recipe.schema.json`. They hold what the payload lacks: the APK source, the user's files and
   the steps. See `docs/architecture/install-recipes.md`.
@@ -49,19 +49,19 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   `freeSpaceMB` first, keeps a newer build on the headset, and explains a changed signing key.
   `Updates.h` compares versions and decides an `UpdateStatus`; `ReleaseLookup` finds a source's
   newest release without downloading it, one GitHub request per repository, kept for an hour. Install records live on each
-  headset in `/sdcard/qgp/installs.json`; `InstallRecords` is the PC's cache of them (keyed by the
+  headset in `/sdcard/qgpui/installs.json`; `InstallRecords` is the PC's cache of them (keyed by the
   headset's `ro.serialno`, then the package), and `HeadsetRecordSync` keeps the two in step.
   `KeepAwake` keeps a Quest's screen on with the proximity-sensor broadcast, leaves an override
   that another app holds alone, and `main()` releases them all on exit (decisions 0013 to 0015).
   Its runner, sync and keep-awake tests use qadb's `FakeAdbServer`.
 - `apps/<name>/`: shipped applications.
-- `apps/qgp/`: the main app, Qt Widgets. The main window shows the catalog's games in a `QListView`
+- `apps/qgpui/`: the main app, Qt Widgets. The main window shows the catalog's games in a `QListView`
   in icon mode: the cover, with the title below. A toolbar's Order box picks a
   `questports::GameOrder`; `GameSortModel` applies it and `QSettings` remembers it. Four more boxes filter, and a
   game must match all of them (`GameFilter`): Source (the site's origin platform,
   `resolved.originPlatform`), Store (sold on Steam or GOG, from the recipe's `stores`, or in this
   PC's Steam or GOG library, from `GameFinder` when the catalog loads), Installed (on the current
-  headset, installed by qgp, installed outside qgp, i.e. with no entry in the headset's install
+  headset, installed by QGPUI, installed outside QGPUI, i.e. with no entry in the headset's install
   records, not on it, or with an update) and Self-contained only (an automatic recipe, no manual
   APK, and every required input and each input group free). A second row holds the site's own
   filters: Runs on (`resolved.headsets`), VR style (`resolved.vrStyle`), No PC needed
@@ -89,18 +89,18 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   0010): its inputs as `InputResolver` finds them (Steam and GOG, then the files folder) with a
   Choose button each and, below each, what it needs in the words of the files folder's guide
   (`FilesFolder::inputGuide`), Open Files Folder (creates the game's folder and its
-  `qgp - what goes here.txt`), the port's `base_game_store` highlighted just above Install, and Install, which fetches the APK, runs `installer::Runner` with
+  `qgpui - what goes here.txt`), the port's `base_game_store` highlighted just above Install, and Install, which fetches the APK, runs `installer::Runner` with
   a progress bar, Continue for tell steps and a log, then records the install with
   `HeadsetRecordSync` and shows the result in a coloured banner. Details shows two tabs: the port's `installation_guide` (Markdown, drawn by `GuideView` in the site's colours, with a workaround for Qt's importer putting a code block inside a list item) above its `troubleshooting_notes`, as on the port's page, and `planInstall`'s commands. File > Files Folder changes the files folder (`QSettings`). File > Settings (`SettingsDialog`)
-  holds the other preferences, such as keeping the headset awake during installs. The icons in `apps/qgp/icons/` are temporary;
-  `make-icon.ps1` draws them (Windows PowerShell). `qgp.rc` gives the .exe its icon. `SingleInstance`
-  keeps one qgp per user: a second start passes its catalog argument to the first, which comes to
+  holds the other preferences, such as keeping the headset awake during installs. The icons in `apps/qgpui/icons/` are temporary;
+  `make-icon.ps1` draws them (Windows PowerShell). `qgpui.rc` gives the .exe its icon. `SingleInstance`
+  keeps one QGPUI per user: a second start passes its catalog argument to the first, which comes to
   the front, and quits (decision 0012).
-- `cmake/`: shared CMake functions (`qgp_add_qt_test`).
+- `cmake/`: shared CMake functions (`qgpui_add_qt_test`).
 - `docs/`: documentation in three folders; `docs/README.md` lists every document.
   - `docs/research/`: what was found out, with the evidence and the date: external systems
     (QuestPorts), the games' install processes, measurements on a real headset.
-  - `docs/architecture/`: how qgp is built now (the overview, the recipe format). Keep these in
+  - `docs/architecture/`: how QGPUI is built now (the overview, the recipe format). Keep these in
     step with the code.
   - `docs/decisions/`: one numbered record per decision (`NNNN-short-name.md`: status, date,
     context, decision, consequences). Do not edit an accepted record; write a new one that
@@ -116,7 +116,7 @@ about external systems in research, and update architecture when the code change
 
 - Qt is a prebuilt download in aqtinstall's layout, in the folder named by the `QT_ROOT`
   environment variable (it may be shared between projects), or else `.qt/`. The
-  presets set `QGP_QT_SUBDIR` (for example `6.8.3/msvc2022_64`) and `CMakeLists.txt` adds the
+  presets set `QGPUI_QT_SUBDIR` (for example `6.8.3/msvc2022_64`) and `CMakeLists.txt` adds the
   root. CMake caches the Qt it found: configure with `--fresh` after changing `QT_ROOT`.
 - Presets: `windows` (Visual Studio 2022; use it locally), `windows-ninja` (needs a developer
   prompt), `macos`.
@@ -134,15 +134,15 @@ about external systems in research, and update architecture when the code change
   for server requests, `QADB_LIVE_SERIAL=<serial>` for read-only device requests, and
   `QADB_LIVE_WRITE=1` to also push and pull a file in `/data/local/tmp`.
 - `tst_gamestores_live` reads this PC's Steam and GOG libraries and matches every recipe against
-  them, printing what it finds. It is skipped unless `QGP_STORES_LIVE=1`. Read its output with
+  them, printing what it finds. It is skipped unless `QGPUI_STORES_LIVE=1`. Read its output with
   `ctest -V`.
 - adb may not be on `PATH`. `qadb::AdbServer::findAdb()` also looks in the Android SDK, at
   `%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe`.
 - `CLAUDE.local.md` (ignored by git), when present, records where this machine keeps Qt, adb and
   other local checkouts.
-- The qgp build copies adb (`adb.exe`, `AdbWinApi.dll`, `AdbWinUsbApi.dll`, `NOTICE.txt` on
-  Windows) from `QGP_PLATFORM_TOOLS` (default: the Android SDK's platform-tools) into
-  `platform-tools/` next to `qgp.exe`, so users need no Android SDK. `findAdb()` looks there
+- The QGPUI build copies adb (`adb.exe`, `AdbWinApi.dll`, `AdbWinUsbApi.dll`, `NOTICE.txt` on
+  Windows) from `QGPUI_PLATFORM_TOOLS` (default: the Android SDK's platform-tools) into
+  `platform-tools/` next to `qgpui.exe`, so users need no Android SDK. `findAdb()` looks there
   right after the `ADB` environment variable. CMake warns and ships no adb when the files are
   missing.
 - Builds use `/W4` (MSVC) or `-Wall -Wextra -Wpedantic`. Keep them free of warnings.

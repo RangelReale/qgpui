@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "starfox-enhanced-vr",
   "support": "guided",
@@ -49,5 +49,5 @@
     },
     { "do": "tell", "text": "Open Star Fox Enhanced from Library > Unknown Sources." }
   ],
-  "notes": "The guide imports the BIN through a first-launch picker and pushes it only as a fallback; qgp pushes it directly, which skips the picker. The APK path inside the zip (StarFoxEnhanced-quest-arm64.apk) comes from the guide for 0.0.8.8.1 and was not checked against the current zip. The release also has an android-arm64 APK and a steam-frame zip, which are not the Quest build. Supported ROMs: Star Fox JP 1.0/1.1, USA 1.0/1.1/1.2, Starwing EU 1.0/1.1, DE 1.0. Alpha VR build."
+  "notes": "The guide imports the BIN through a first-launch picker and pushes it only as a fallback; QGPUI pushes it directly, which skips the picker. The APK path inside the zip (StarFoxEnhanced-quest-arm64.apk) comes from the guide for 0.0.8.8.1 and was not checked against the current zip. The release also has an android-arm64 APK and a steam-frame zip, which are not the Quest build. Supported ROMs: Star Fox JP 1.0/1.1, USA 1.0/1.1/1.2, Starwing EU 1.0/1.1, DE 1.0. Alpha VR build."
 }

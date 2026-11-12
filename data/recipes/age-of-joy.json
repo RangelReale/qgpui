@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "age-of-joy",
   "support": "guided",
@@ -33,5 +33,5 @@
       "text": "AGE of Joy has no cabinets or ROMs. Get cabinets from the AGE of Joy Discord and deploy them with your own MAME-compatible ROMs, as the official cabinet guide on itch.io explains. The game places them in the gallery by itself."
     }
   ],
-  "notes": "Cabinets come from the community Discord and their folders are described only in an external devlog, so qgp cannot copy them yet. freeSpaceMB comes from the guide saying the APK is about 1.4 GB. The v0.5.0 builds are release candidates; some are marked pre-release and some are not, so prerelease is set."
+  "notes": "Cabinets come from the community Discord and their folders are described only in an external devlog, so QGPUI cannot copy them yet. freeSpaceMB comes from the guide saying the APK is about 1.4 GB. The v0.5.0 builds are release candidates; some are marked pre-release and some are not, so prerelease is set."
 }

@@ -100,7 +100,7 @@ QString describeApkSource(const ApkSource& source)
     }
     if (!source.inZip.isEmpty())
         text += QStringLiteral(", and take the APK matching %1 out of the zip").arg(source.inZip);
-    return text + QStringLiteral(". Downloads are kept in qgp's cache.");
+    return text + QStringLiteral(". Downloads are kept in QGPUI's cache.");
 }
 
 QStringList grantCommand(const QString& packageName, const Step& step)

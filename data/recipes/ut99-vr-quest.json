@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "ut99-vr-quest",
   "support": "automatic",
@@ -20,7 +20,7 @@
       "id": "ut99",
       "kind": "pc-install",
       "label": "Unreal Tournament (1999, GOTY or standard)",
-      "help": "Your own PC copy of Unreal Tournament from GOG, Steam, CD-ROM or an archive. qgp copies System, Maps, Textures, Sounds and Music.",
+      "help": "Your own PC copy of Unreal Tournament from GOG, Steam, CD-ROM or an archive. QGPUI copies System, Maps, Textures, Sounds and Music.",
       "stores": [
         { "store": "steam", "appId": "13240", "installDir": "Unreal Tournament" },
         { "store": "gog", "installDir": "Unreal Tournament GOTY" }
@@ -58,5 +58,5 @@
       "text": "Open UT99 Quest from Library > Unknown Sources. On the first start it downloads and applies the OldUnreal 469 patch, with a progress bar. Keep Wi-Fi on."
     }
   ],
-  "notes": "The APK is a fixed URL on the author's site, so qgp cannot tell its version before downloading. Music is optional in the payload; the Music glob may match nothing. The GOG install folder name is a guess. The guide also allows a UT99 folder or zip in /sdcard/UT99Quest/ with the in-headset importer. The launch is assumed to be needed for the Android/data folder; the guide does not say so."
+  "notes": "The APK is a fixed URL on the author's site, so QGPUI cannot tell its version before downloading. Music is optional in the payload; the Music glob may match nothing. The GOG install folder name is a guess. The guide also allows a UT99 folder or zip in /sdcard/UT99Quest/ with the in-headset importer. The launch is assumed to be needed for the Android/data folder; the guide does not say so."
 }

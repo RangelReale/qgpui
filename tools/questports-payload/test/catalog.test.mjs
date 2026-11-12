@@ -16,7 +16,7 @@ function game(slug, { packageName = `com.example.${slug.replaceAll('-', '')}`, v
 
 function payload(games) {
   return {
-    format: 'qgp-questports-payload',
+    format: 'qgpui-questports-payload',
     version: 1,
     generatedAt: '2026-11-11T12:00:00.000Z',
     sources: { database: { rows: games.length } },
@@ -28,7 +28,7 @@ function payload(games) {
 function recipe(slug, checkedAgainst) {
   return {
     $schema: '../recipe.schema.json',
-    format: 'qgp-install-recipe',
+    format: 'qgpui-install-recipe',
     version: 1,
     slug,
     checkedAgainst,
@@ -79,7 +79,7 @@ test('buildCatalog rejects two recipes with one slug, and a payload of another f
   )
   assert.throws(
     () => buildCatalog({ payload: { ...payload([]), version: 2 }, recipes: [], generatedAt }),
-    /not qgp-questports-payload version 1/
+    /not qgpui-questports-payload version 1/
   )
 })
 

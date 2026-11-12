@@ -17,7 +17,7 @@ struct PlannedStep
 {
     QString title;
     // One action per line. Lines that start with "adb " are commands as the adb command-line tool
-    // would take them; the others say what qgp does without one.
+    // would take them; the others say what QGPUI does without one.
     QStringList lines;
 };
 

@@ -13,7 +13,7 @@ namespace installer {
 
 namespace {
 
-constexpr auto kFormat = "qgp-install-records";
+constexpr auto kFormat = "qgpui-install-records";
 constexpr int kVersion = 1;
 
 QJsonObject toJson(const InstallRecord& r)
@@ -90,7 +90,7 @@ InstallRecords InstallRecords::load(const QString& path, QString* errorMessage)
     const QJsonObject root = QJsonDocument::fromJson(file.readAll()).object();
     if (root.value(QLatin1StringView("format")).toString() != QLatin1StringView(kFormat)) {
         if (errorMessage)
-            *errorMessage = QStringLiteral("%1 is not a qgp install record file.").arg(path);
+            *errorMessage = QStringLiteral("%1 is not a QGPUI install record file.").arg(path);
         return records;
     }
     const QJsonObject headsets = root.value(QLatin1StringView("headsets")).toObject();
@@ -116,7 +116,7 @@ bool InstallRecords::save(QString* errorMessage) const
     root.insert(QStringLiteral("version"), kVersion);
     root.insert(QStringLiteral("headsets"), headsets);
 
-    // The first save on a PC has no folder yet, such as AppData/Roaming/qgp.
+    // The first save on a PC has no folder yet, such as AppData/Roaming/qgpui.
     const QString folder = QFileInfo(m_path).absolutePath();
     if (!QDir().mkpath(folder)) {
         if (errorMessage)
@@ -161,7 +161,7 @@ QByteArray headsetRecordsJson(const QString& hardwareSerial, const QList<Install
     for (const InstallRecord& r : records)
         packages.insert(r.packageName, toJson(r));
     QJsonObject root;
-    root.insert(QStringLiteral("format"), QStringLiteral("qgp-headset-installs"));
+    root.insert(QStringLiteral("format"), QStringLiteral("qgpui-headset-installs"));
     root.insert(QStringLiteral("version"), kVersion);
     root.insert(QStringLiteral("serial"), hardwareSerial);
     root.insert(QStringLiteral("packages"), packages);
@@ -171,9 +171,9 @@ QByteArray headsetRecordsJson(const QString& hardwareSerial, const QList<Install
 std::optional<QList<InstallRecord>> parseHeadsetRecords(const QByteArray& json, QString* errorMessage)
 {
     const QJsonObject root = QJsonDocument::fromJson(json).object();
-    if (root.value(QLatin1StringView("format")).toString() != QLatin1StringView("qgp-headset-installs")) {
+    if (root.value(QLatin1StringView("format")).toString() != QLatin1StringView("qgpui-headset-installs")) {
         if (errorMessage)
-            *errorMessage = QStringLiteral("%1 on the headset is not a qgp install list.")
+            *errorMessage = QStringLiteral("%1 on the headset is not a QGPUI install list.")
                                 .arg(QLatin1StringView(kHeadsetRecordsPath));
         return std::nullopt;
     }

@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "wc-saga-vr",
   "support": "automatic",
@@ -30,5 +30,5 @@
       "text": "Open Wing Commander Saga VR from Library > Unknown Sources. If the installer asks for file access, switch it on and press Done. Press Download and install and keep the headset on (3.6 GB, 10 to 20 minutes). If the download stops, start the app again and it continues."
     }
   ],
-  "notes": "The guide installs with adb install -r -g, hence grantAll. The One-Tap Installer downloads Wing Commander Saga 0.9.65 from FSNebula to /sdcard/WCSaga/Wing_Commander_Saga; about 9 GB is needed while it installs and 6.7 GB afterwards. Existing data at /sdcard/WCSaga/Wing_Commander_Saga/data skips the installer; qgp does not offer that. Releases are all pre-releases."
+  "notes": "The guide installs with adb install -r -g, hence grantAll. The One-Tap Installer downloads Wing Commander Saga 0.9.65 from FSNebula to /sdcard/WCSaga/Wing_Commander_Saga; about 9 GB is needed while it installs and 6.7 GB afterwards. Existing data at /sdcard/WCSaga/Wing_Commander_Saga/data skips the installer; QGPUI does not offer that. Releases are all pre-releases."
 }

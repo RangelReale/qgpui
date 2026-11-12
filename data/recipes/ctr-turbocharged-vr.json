@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "ctr-turbocharged-vr",
   "support": "automatic",
@@ -20,7 +20,7 @@
       "id": "disc",
       "kind": "file",
       "label": "Crash Team Racing disc image (NTSC-U, SCUS-94426)",
-      "help": "Your own US disc image of Crash Team Racing as a raw .bin. qgp copies it as ctr-u.bin.",
+      "help": "Your own US disc image of Crash Team Racing as a raw .bin. QGPUI copies it as ctr-u.bin.",
       "extensions": [
         ".bin"
       ]

@@ -38,7 +38,7 @@ GameFlags headsetFlags(const questports::Game& game, const QSet<QString>& instal
     const QString package = gamePackageName(game);
     if (package.isEmpty() || !installed.contains(package))
         return {};
-    return GameFlag::OnHeadset | (recorded.contains(package) ? GameFlag::InstalledByQgp : GameFlag::InstalledOutsideQgp);
+    return GameFlag::OnHeadset | (recorded.contains(package) ? GameFlag::InstalledByQgpui : GameFlag::InstalledOutsideQgpui);
 }
 
 std::optional<installer::ApkSource> updateSource(const installer::Recipe& recipe)
@@ -50,7 +50,7 @@ std::optional<installer::ApkSource> updateSource(const installer::Recipe& recipe
 
 GameFlags selfContained(const questports::Game& game)
 {
-    // Guided and manual recipes leave work to the user outside qgp, such as running the port's
+    // Guided and manual recipes leave work to the user outside QGPUI, such as running the port's
     // own installer on their game files.
     if (!game.hasRecipe() || game.recipe.value(QLatin1StringView("support")).toString() != QLatin1StringView("automatic"))
         return {};

@@ -14,7 +14,7 @@ namespace questports {
 
 // The catalog format this library reads. tools/questports-payload's build-catalog command writes
 // it; the tool's README describes the fields.
-inline constexpr auto kCatalogFormat = "qgp-catalog";
+inline constexpr auto kCatalogFormat = "qgpui-catalog";
 inline constexpr int kCatalogVersion = 1;
 
 // One payload value that changed since the game's recipe was written.
@@ -29,7 +29,7 @@ struct Drift
 };
 
 // One game: a row of the QuestPorts ports table joined with its install requirements and, when
-// there is one, qgp's install recipe.
+// there is one, QGPUI's install recipe.
 struct Game
 {
     QString slug;
@@ -50,7 +50,7 @@ struct Game
     QStringList headsets;   // resolved.headsets: the headsets it runs on, such as "Quest 3".
     // resolved.noPcInstall is "yes": the headset alone can install it (the site's "No PC needed").
     bool noPcNeeded = false;
-    QJsonObject recipe;   // qgp's install recipe (data/recipes/<slug>.json); empty when there is none.
+    QJsonObject recipe;   // QGPUI's install recipe (data/recipes/<slug>.json); empty when there is none.
     QList<Drift> drift;   // Payload values that changed since the recipe was written.
 
     bool hasInstall() const { return !install.isEmpty(); }
@@ -84,7 +84,7 @@ struct Catalog
 // Reads a catalog. Returns nothing, and sets *errorMessage when it is given, if the data is not a
 // catalog of kCatalogFormat and kCatalogVersion or a game has no slug or title.
 // True for a slug that is safe as a folder name: lower-case letters and digits in words joined by
-// single hyphens, as data/recipe.schema.json requires. The catalog comes from outside qgp, and
+// single hyphens, as data/recipe.schema.json requires. The catalog comes from outside QGPUI, and
 // gamestores::FilesFolder makes a folder for each game from its slug.
 bool isValidSlug(const QString& slug);
 

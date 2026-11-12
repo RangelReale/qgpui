@@ -27,7 +27,7 @@ QString statusName(Location::Status status)
 
 // Reads the real Steam and GOG libraries of this PC and matches every recipe's pc-install inputs
 // against them. It prints what it finds and fails only when a store cannot be read. Set
-// QGP_STORES_LIVE=1 to run it.
+// QGPUI_STORES_LIVE=1 to run it.
 class TestLive : public QObject
 {
     Q_OBJECT
@@ -35,8 +35,8 @@ class TestLive : public QObject
 private slots:
     void initTestCase()
     {
-        if (qEnvironmentVariable("QGP_STORES_LIVE") != QLatin1StringView("1"))
-            QSKIP("Set QGP_STORES_LIVE=1 to read this PC's Steam and GOG libraries.");
+        if (qEnvironmentVariable("QGPUI_STORES_LIVE") != QLatin1StringView("1"))
+            QSKIP("Set QGPUI_STORES_LIVE=1 to read this PC's Steam and GOG libraries.");
     }
 
     void readsTheStoresOfThisPc()
@@ -72,7 +72,7 @@ private slots:
     void matchesTheRecipes()
     {
         const GameFinder finder = GameFinder::forThisPc();
-        const QDir recipes(QStringLiteral(QGP_RECIPES_DIR));
+        const QDir recipes(QStringLiteral(QGPUI_RECIPES_DIR));
         int inputs = 0;
         for (const QString& name : recipes.entryList({QStringLiteral("*.json")}, QDir::Files, QDir::Name)) {
             QFile file(recipes.filePath(name));

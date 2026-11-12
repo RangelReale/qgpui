@@ -1,18 +1,18 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/RangelReale/qgp/data/recipe.schema.json",
-  "title": "qgp install recipe",
-  "description": "How qgp installs one QuestPorts game. Holds only what the QuestPorts payload lacks. See docs/architecture/install-recipes.md. Uses the OpenAPI discriminator keyword, which Ajv supports with its discriminator option.",
+  "$id": "https://github.com/RangelReale/qgpui/data/recipe.schema.json",
+  "title": "QGPUI install recipe",
+  "description": "How QGPUI installs one QuestPorts game. Holds only what the QuestPorts payload lacks. See docs/architecture/install-recipes.md. Uses the OpenAPI discriminator keyword, which Ajv supports with its discriminator option.",
   "type": "object",
   "additionalProperties": false,
   "required": ["format", "version", "slug", "support", "checkedAgainst", "apks", "inputs", "steps"],
   "properties": {
     "$schema": { "type": "string" },
-    "format": { "const": "qgp-install-recipe" },
+    "format": { "const": "qgpui-install-recipe" },
     "version": { "const": 1 },
     "slug": { "$ref": "#/$defs/slug" },
     "support": {
-      "description": "automatic: qgp does every step on the PC; the user may still act in the headset. guided: the user must also run a PC tool or do a step qgp cannot. manual: qgp can only install what it can and show the instructions.",
+      "description": "automatic: QGPUI does every step on the PC; the user may still act in the headset. guided: the user must also run a PC tool or do a step QGPUI cannot. manual: QGPUI can only install what it can and show the instructions.",
       "enum": ["automatic", "guided", "manual"]
     },
     "checkedAgainst": {
@@ -49,13 +49,13 @@
       "items": { "$ref": "#/$defs/input" }
     },
     "steps": {
-      "description": "What qgp does, in order.",
+      "description": "What QGPUI does, in order.",
       "type": "array",
       "minItems": 1,
       "items": { "$ref": "#/$defs/step" }
     },
     "otherWays": {
-      "description": "Ways to install the game that qgp does not run, such as the port's own installer or build kit. The game dialog shows each with its link.",
+      "description": "Ways to install the game that QGPUI does not run, such as the port's own installer or build kit. The game dialog shows each with its link.",
       "type": "array",
       "items": {
         "type": "object",
@@ -160,11 +160,11 @@
       "minLength": 1
     },
     "inputFree": {
-      "description": "Anyone can get these files at no cost, legally: a free release, a free store copy or the port's own download. qgp then counts the game as self-contained.",
+      "description": "Anyone can get these files at no cost, legally: a free release, a free store copy or the port's own download. QGPUI then counts the game as self-contained.",
       "type": "boolean"
     },
     "preparedWith": {
-      "description": "A tool the user runs on the PC to make this input. qgp links to it; it does not run it.",
+      "description": "A tool the user runs on the PC to make this input. QGPUI links to it; it does not run it.",
       "type": "object",
       "additionalProperties": false,
       "required": ["tool", "url", "help"],
@@ -175,7 +175,7 @@
       }
     },
     "inputPcInstall": {
-      "description": "A game installed on the PC. qgp looks for it in each store, or the user picks the folder.",
+      "description": "A game installed on the PC. QGPUI looks for it in each store, or the user picks the folder.",
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "kind", "label", "detect"],
@@ -202,7 +202,7 @@
           }
         },
         "root": {
-          "description": "Folder inside the install that push paths and detect paths are relative to. If the user picks this folder itself, qgp uses it as is.",
+          "description": "Folder inside the install that push paths and detect paths are relative to. If the user picks this folder itself, QGPUI uses it as is.",
           "$ref": "#/$defs/relativePath"
         },
         "detect": {
@@ -246,12 +246,12 @@
         },
         "keepArchived": { "description": "Zip files are pushed as they are, never unpacked.", "type": "boolean" },
         "disc": {
-          "description": "Disc header check, for formats whose header qgp can read.",
+          "description": "Disc header check, for formats whose header QGPUI can read.",
           "type": "object",
           "additionalProperties": false,
           "required": ["platform", "gameId"],
           "properties": {
-            "platform": { "enum": ["gamecube", "wii"], "description": "Platforms whose disc header qgp can read." },
+            "platform": { "enum": ["gamecube", "wii"], "description": "Platforms whose disc header QGPUI can read." },
             "gameId": { "type": "string", "pattern": "^[A-Z0-9]{6}$" },
             "revision": { "type": "integer", "minimum": 0 }
           }

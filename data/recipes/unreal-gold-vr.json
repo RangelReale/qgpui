@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "unreal-gold-vr",
   "support": "guided",
@@ -39,5 +39,5 @@
       "text": "Open Unreal Gold VR from Library > Unknown Sources. On the first start, use the welcome menu to find and select the Unreal Gold folder in Download."
     }
   ],
-  "notes": "The APK is only on a free Patreon post. The guide also accepts a zip of the folder; qgp pushes the folder. The GOG install folder name and the detect file (System/Core.u, present in every Unreal Engine 1 game) are assumptions; detect does not tell Unreal Gold from other Unreal Engine 1 games. A player reports it runs with the GOG release."
+  "notes": "The APK is only on a free Patreon post. The guide also accepts a zip of the folder; QGPUI pushes the folder. The GOG install folder name and the detect file (System/Core.u, present in every Unreal Engine 1 game) are assumptions; detect does not tell Unreal Gold from other Unreal Engine 1 games. A player reports it runs with the GOG release."
 }

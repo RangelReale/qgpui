@@ -38,7 +38,7 @@ namespace detail {
 QNetworkRequest request(const QUrl& url)
 {
     QNetworkRequest req(url);
-    req.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qgp"));
+    req.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qgpui"));
     req.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
     return req;
 }
@@ -117,7 +117,7 @@ void ApkFetcher::fetch(const ApkSource& source)
         return;
     }
     if (!source.inZip.isEmpty()) {
-        fail(QStringLiteral("This APK comes inside a zip file, which qgp cannot unpack yet."));
+        fail(QStringLiteral("This APK comes inside a zip file, which QGPUI cannot unpack yet."));
         return;
     }
     if (source.kind == ApkSource::Kind::Url) {

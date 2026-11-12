@@ -1,6 +1,6 @@
 {
   "$schema": "../recipe.schema.json",
-  "format": "qgp-install-recipe",
+  "format": "qgpui-install-recipe",
   "version": 1,
   "slug": "opencmr2-vr",
   "support": "guided",
@@ -38,5 +38,5 @@
       "text": "Open OpenCMR2 VR from Library > Unknown Sources. Choose Select game data ZIP, open Downloads in the file picker and pick your ZIP. Wait for Import complete, then choose Start game. Afterwards you can delete the ZIP from Download."
     }
   ],
-  "notes": "Guided because the user makes the ZIP; qgp could build it from a pc-install later. Import steps come from the repository README (the guide links to it). The README says the ZIP needs Game/Bigfiles/common.bfl, FrontEnd/common.bfl and Sounds/surface.bfl. Releases also have a PCVR zip and a source tarball."
+  "notes": "Guided because the user makes the ZIP; QGPUI could build it from a pc-install later. Import steps come from the repository README (the guide links to it). The README says the ZIP needs Game/Bigfiles/common.bfl, FrontEnd/common.bfl and Sounds/surface.bfl. Releases also have a PCVR zip and a source tarball."
 }
