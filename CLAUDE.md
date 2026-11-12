@@ -74,7 +74,8 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   each. Each
   box's choice is kept in `QSettings` (`main.cpp` sets the organization name, without which
   QSettings stores nothing on Windows). The game dialog's header shows badges (on the headset,
-  update, source, type, port status), the port's `base_game_store` highlighted, and one line of
+  update, source, type, port status), the port's `base_game_store` highlighted, the recipe's
+  `otherWays` (the port's own installers, with links) highlighted, and one line of
   links: the game's QuestPorts page, and the Steam and GOG pages of each `pc-install` input
   (GOG through its product API). `CoverCache` downloads covers through a
   `QNetworkDiskCache` and fits them into one size. `HeadsetConnection` starts the adb server

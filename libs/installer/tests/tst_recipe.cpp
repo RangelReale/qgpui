@@ -36,7 +36,8 @@ private slots:
                  "         {'do':'launch','why':'w','waitSeconds':3,'stop':false},"
                  "         {'do':'push','input':'disc','map':[{'to':'\\/sdcard\\/Download\\/'}]},"
                  "         {'do':'verify','files':['\\/sdcard\\/a']},{'do':'shell','args':['am','force-stop','p'],'why':'w'},"
-                 "         {'do':'tell','text':'Open it.'}]}"),
+                 "         {'do':'tell','text':'Open it.'}],"
+                 "'otherWays':[{'label':'Installer','url':'https:\\/\\/x.test\\/releases','help':'Does it all.'}]}"),
             QStringLiteral("com.example.game"), &error);
         QVERIFY2(recipe, qPrintable(error));
         QCOMPARE(recipe->support, Support::Guided);
@@ -64,6 +65,10 @@ private slots:
         QCOMPARE(describeStep(recipe->steps[3]), QStringLiteral("Copy disc to /sdcard/Download/"));
         QVERIFY(recipe->input(QStringLiteral("game")));
         QVERIFY(!recipe->input(QStringLiteral("nope")));
+        QCOMPARE(recipe->otherWays.size(), 1);
+        QCOMPARE(recipe->otherWays[0].label, QStringLiteral("Installer"));
+        QCOMPARE(recipe->otherWays[0].url, QStringLiteral("https://x.test/releases"));
+        QCOMPARE(recipe->otherWays[0].help, QStringLiteral("Does it all."));
     }
 
     void usesTheRecipesPackageOverride()
@@ -104,6 +109,11 @@ private slots:
         QTest::newRow("repo") << QByteArray("{'apks':[{'source':'github','repo':'a/../../b'}]}") << QStringLiteral("Bad GitHub");
         QTest::newRow("apk package") << QByteArray("{'apks':[{'source':'url','packageName':'a b'}]}") << QStringLiteral("Bad package");
         QTest::newRow("package") << QByteArray("{'packageName':'com.x;reboot'}") << QStringLiteral("Bad package");
+        // The game dialog opens an other way's link: only a web address.
+        QTest::newRow("other way file") << QByteArray("{'otherWays':[{'label':'a','url':'file:///C:/x.exe','help':'h'}]}")
+                                        << QStringLiteral("Bad link");
+        QTest::newRow("other way http") << QByteArray("{'otherWays':[{'label':'a','url':'http://x.test','help':'h'}]}")
+                                        << QStringLiteral("Bad link");
     }
 
     void rejectsWhatTheRunnerCannotRun()

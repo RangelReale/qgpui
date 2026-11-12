@@ -208,7 +208,7 @@ private slots:
                    "{'id':'spanish','kind':'file','label':'Spanish disc','extensions':['.cue','.bin'],'required':false},"
                    "{'id':'roms','kind':'file','label':'ROM sets','names':['a.zip','naomi.zip'],'keepArchived':true},"
                    "{'id':'o2r','kind':'file','label':'Archive','names':['x.o2r'],"
-                   "'preparedWith':{'tool':'Tool','url':'https:\\/\\/example.com'}},"
+                   "'preparedWith':{'tool':'Tool','url':'https:\\/\\/example.com','help':'Run it on the disc.'}},"
                    "{'id':'game','kind':'pc-install','label':'The game','root':'id1','detect':['pak0.pak','pak1.pak']}]"));
         QVERIFY2(text.startsWith(QStringLiteral("Some Game\n=========\n")), qPrintable(text));
         QVERIFY2(text.contains(QStringLiteral("1. English disc\n    Your own disc.\n"
@@ -219,7 +219,8 @@ private slots:
                  qPrintable(text));
         QVERIFY2(text.contains(QStringLiteral("    Put here: a.zip and naomi.zip.\n    Keep zip files zipped.\n")),
                  qPrintable(text));
-        QVERIFY2(text.contains(QStringLiteral("    Made with Tool: https://example.com\n")), qPrintable(text));
+        QVERIFY2(text.contains(QStringLiteral("    Made with Tool: https://example.com\n    Run it on the disc.\n")),
+                 qPrintable(text));
         QVERIFY2(text.contains(QStringLiteral("    Put here: the game's folder, or the folder \"id1\" inside it. "
                                               "qgp recognises it by pak0.pak and pak1.pak.\n")),
                  qPrintable(text));
@@ -243,6 +244,18 @@ private slots:
         QVERIFY(folder.inputGuide(list, 3).isEmpty());
         QVERIFY(!folder.sharedFilesNote(list).isEmpty());
         QVERIFY(folder.sharedFilesNote(QJsonArray{list.at(0)}).isEmpty());
+    }
+
+    // A folder that a PC tool makes is not a game install: the guide names the tool.
+    void inputGuideNamesTheTool()
+    {
+        const FilesFolder folder(root());
+        const QJsonArray list = inputs("[{'id':'cooked','kind':'pc-install','label':'Data','detect':['sys/fst.bin'],"
+                                       "'preparedWith':{'tool':'The converter','url':'https:\\/\\/x.test','help':'Run it.'}}]");
+        QCOMPARE(folder.inputGuide(list, 0, QStringLiteral("gq")),
+                 (QStringList{QStringLiteral("Put in the folder \"gq\": the folder that The converter makes, or a copy of it. "
+                                             "qgp recognises it by sys/fst.bin."),
+                              QStringLiteral("Made with The converter: https://x.test"), QStringLiteral("Run it.")}));
     }
 
     // The guide is never one of an input's files.

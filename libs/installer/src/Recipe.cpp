@@ -2,6 +2,7 @@
 
 #include <QJsonArray>
 #include <QRegularExpression>
+#include <QUrl>
 
 #include <algorithm>
 
@@ -201,6 +202,17 @@ std::optional<Recipe> parseRecipe(const QJsonObject& json, const QString& defaul
             return std::nullopt;
         }
         recipe.steps.append(step);
+    }
+    for (const QJsonValue& v : json.value(QLatin1StringView("otherWays")).toArray()) {
+        const QJsonObject o = v.toObject();
+        OtherWay way{str(o, "label"), str(o, "url"), str(o, "help")};
+        // The dialog opens the link in the browser: only a web address, never a file or a program.
+        const QUrl url(way.url, QUrl::StrictMode);
+        if (!url.isValid() || url.scheme() != QLatin1StringView("https") || url.host().isEmpty()) {
+            fail(errorMessage, QStringLiteral("Bad link \"%1\" for \"%2\".").arg(way.url, way.label));
+            return std::nullopt;
+        }
+        recipe.otherWays.append(way);
     }
     if (recipe.packageName.isEmpty()) {
         fail(errorMessage, QStringLiteral("The recipe has no package name."));

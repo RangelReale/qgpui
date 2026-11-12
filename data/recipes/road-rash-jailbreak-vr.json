@@ -37,5 +37,12 @@
     { "do": "verify", "files": ["/sdcard/Android/data/com.rrjb.vr/files/disc.bin"] },
     { "do": "tell", "text": "Open Road Rash VR from Library > Unknown Sources." }
   ],
+  "otherWays": [
+    {
+      "label": "Road Rash VR installer",
+      "url": "https://github.com/dubrovskiy-yevhen-stakelogic/road-rash-jailbreak/releases/latest",
+      "help": "Run INSTALL.bat from RoadRashJailbreak-<version>.zip. It checks your disc image, prepares the tracks, installs the game and copies the disc to the headset."
+    }
+  ],
   "notes": "Uncertain. The guide uses the release zip's INSTALL.bat, which verifies the disc by its executable SHA-1, \"prepares the tracks\", installs the APK and copies the disc. The payload says the installer copies the disc to files/disc.bin and the game opens the first .bin or .img there; this recipe relies on that and skips the hash check and any track preparation. If the game needs more than the raw .bin, switch to guided with INSTALL.bat as preparedWith. The APK's path inside the zip was not checked; inZip takes the only .apk. The repository's install.ps1 accepts only a single data-track MODE2/2352 BIN/CUE dump."
 }

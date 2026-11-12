@@ -24,5 +24,12 @@
       "text": "Open VHR Quest from Library > Unknown Sources. To update, download the new release and run Install-Quest.bat again. Saves and settings stay on the headset."
     }
   ],
+  "otherWays": [
+    {
+      "label": "Victory Heat Rally VR installer",
+      "url": "https://github.com/segadreamcat/VictoryHeatRallyVR-Quest/releases/latest",
+      "help": "No APK is published. Install-Quest.bat, in VictoryHeatRallyVR-Quest-<version>.zip, patches your Steam copy, builds the APK and installs it. qgp only installs an APK you have already built."
+    }
+  ],
   "notes": "The release is a Windows installer zip, not an APK. Install-Quest.bat finds the Steam copy, downloads UndertaleModTool CLI, platform-tools and the OpenXR loader, patches the game data, builds and signs VHRQuest.apk and installs it over USB. If the game is not found, the user runs Install-Quest.ps1 -GameDirectory <folder>. The script installs the APK itself, so qgp's install-apk step is only needed if the user picks the built VHRQuest.apk; whether the script leaves that file on disk is not stated in the guide. Optional settings go in /sdcard/Android/data/com.segadreamcat.vhrquest/files/vhrq.txt."
 }

@@ -18,5 +18,12 @@
   ],
   "inputs": [],
   "steps": [{ "do": "install-apk" }],
+  "otherWays": [
+    {
+      "label": "SideQuest",
+      "url": "https://sidequestvr.com/app/10349/iron-lung-vr",
+      "help": "SideQuest installs the game with one click."
+    }
+  ],
   "notes": "Self-contained APK. The guide also names a SideQuest page (https://sidequestvr.com/app/10349/iron-lung-vr). The itch.io file is named after the version only."
 }

@@ -50,6 +50,14 @@ struct Input
     QJsonObject json; // The input as written, for gamestores::GameFinder::find().
 };
 
+// A way to install the game that qgp does not run, such as the port's own installer.
+struct OtherWay
+{
+    QString label; // The tool's name.
+    QString url;   // An https address: where to get it.
+    QString help;  // What it does.
+};
+
 struct PushMapping
 {
     QString from; // Empty: every file of the input.
@@ -81,6 +89,7 @@ struct Recipe
     QList<ApkSource> apks;
     QList<Input> inputs;
     QList<Step> steps;
+    QList<OtherWay> otherWays;
 
     const Input* input(const QString& id) const;
 };
@@ -88,7 +97,7 @@ struct Recipe
 // Reads a recipe object, as the catalog's games carry it. defaultPackageName is the payload's
 // install.packageName, used unless the recipe overrides it. Returns nothing, and sets
 // *errorMessage when it is given, for an unknown step, source or input kind, a push of an
-// input the recipe does not have, or a value that breaks the checks below. The catalog comes
+// input the recipe does not have, an other way whose link is not https, or a value that breaks the checks below. The catalog comes
 // from outside qgp, so the paths and names that reach the PC's or the headset's file system,
 // or a shell command, are checked here again, even though build-catalog checked them.
 std::optional<Recipe> parseRecipe(const QJsonObject& json, const QString& defaultPackageName,

@@ -31,5 +31,12 @@
       "text": "In the headset, approve storage permissions when asked, select the imported data archive, and launch Gothic II VR from Unknown Sources."
     }
   ],
+  "otherWays": [
+    {
+      "label": "Gothic II VR installer",
+      "url": "https://github.com/dubrovskiy-yevhen-stakelogic/gothic2-vr/releases/latest",
+      "help": "Run INSTALL.bat from the Quest folder of Gothic-II-VR-<version>.zip. It installs the game and packages your game files for the headset. qgp needs it for the game files too."
+    }
+  ],
   "notes": "INSTALL.bat packages the game files into a private zip in /sdcard/Download/Gothic2VR/ for the in-headset import; the format is not documented, so qgp cannot do it. Uncertain: v0.2.1 ships one zip (Gothic-II-VR-0.2.1.zip) whose layout was not checked; inZip assumes the APK is still in a Quest/ folder. v0.2.0 also had a Quest-Win7-x86 zip, which the asset pattern excludes."
 }
