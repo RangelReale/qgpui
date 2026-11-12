@@ -14,6 +14,10 @@ export const PAYLOAD_VERSION = 1
  * Games are the database rows. Install configs whose slug has no row are listed in
  * `unmatched.installWithoutPort` and otherwise left out, because the site does not show them.
  */
+// A slug becomes a folder name in qgp's files folder, so it must be a plain lower-case id, as
+// data/recipe.schema.json requires of recipe slugs. The site's database is not ours to trust.
+const SLUG_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/
+
 export function buildPayload({ ports, install, sources, generatedAt }) {
   const configs = install.PORT_PACKAGE_CONFIGS
   const expansions = install.PORT_EXPANSIONS
@@ -22,6 +26,9 @@ export function buildPayload({ ports, install, sources, generatedAt }) {
   const games = ports.map(port => {
     if (typeof port.slug !== 'string' || port.slug === '') {
       throw new Error(`A ports row has no slug (id ${port.id ?? 'unknown'}).`)
+    }
+    if (!SLUG_PATTERN.test(port.slug)) {
+      throw new Error(`The ports row ${port.id ?? 'unknown'} has the unsafe slug ${JSON.stringify(port.slug)}.`)
     }
     if (seen.has(port.slug)) {
       throw new Error(`Two ports rows have the slug "${port.slug}".`)

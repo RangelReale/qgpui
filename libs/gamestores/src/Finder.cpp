@@ -1,5 +1,7 @@
 #include "gamestores/Finder.h"
 
+#include "SafePath.h"
+
 #include <QDir>
 #include <QFileInfo>
 #include <QJsonArray>
@@ -90,7 +92,8 @@ GameFinder GameFinder::forThisPc(QStringList* warnings)
 
 QString GameFinder::applyRoot(const QString& folder, const QString& root)
 {
-    if (!root.isEmpty()) {
+    // A root that would leave the install is ignored, as one that does not exist is.
+    if (!root.isEmpty() && detail::isSafeRelativePath(root)) {
         const QString rooted = QDir(folder).filePath(root);
         if (QFileInfo(rooted).isDir())
             return QDir::cleanPath(rooted);
@@ -103,6 +106,9 @@ bool GameFinder::matchesDetect(const QString& folder, const QStringList& detect)
     if (folder.isEmpty() || !QFileInfo(folder).isDir())
         return false;
     for (const QString& path : detect) {
+        // A detect path that would leave the install matches nothing.
+        if (!detail::isSafeRelativePath(path))
+            return false;
         QStringList current{folder};
         const QStringList segments = QDir::fromNativeSeparators(path).split(u'/', Qt::SkipEmptyParts);
         for (const QString& segment : segments) {

@@ -38,3 +38,4 @@ Why qgp is built this way. One numbered record per decision, with its context an
 | [0013](decisions/0013-keeping-the-headset-awake.md) | Keep the headset awake during installs, when the user asks |
 | [0014](decisions/0014-keep-awake-button.md) | A toolbar button keeps the headset awake on demand |
 | [0015](decisions/0015-sharing-the-keep-awake-override.md) | Leave another app's keep-awake alone, and release on exit |
+| [0016](decisions/0016-checking-the-catalog-again.md) | qgp checks the catalog's paths and names again when it reads them |

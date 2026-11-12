@@ -68,6 +68,17 @@ test('githubSource reads raw files at a commit and maps 404 to missing', async (
   assert.deepEqual(source.describe(), { kind: 'github', repo: 'owner/name', commit: 'abc123' })
 })
 
+test('buildPayload rejects a slug that is not a plain id', async () => {
+  const install = await loadInstallData(localSource(fixtureRepo))
+  for (const slug of ['../x', 'a/b', 'a\\b', 'Game', '..']) {
+    assert.throws(
+      () => buildPayload({ ports: [{ id: '1', slug, title: 'T' }], install, sources: {}, generatedAt: new Date() }),
+      /unsafe slug/,
+      slug
+    )
+  }
+})
+
 test('buildPayload joins rows with install data by slug', async () => {
   const install = await loadInstallData(localSource(fixtureRepo))
   const ports = [

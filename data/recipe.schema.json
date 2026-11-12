@@ -61,7 +61,16 @@
     "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
     "packageName": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*)+$" },
     "regex": { "description": "An ECMAScript regular expression.", "type": "string", "minLength": 1 },
-    "headsetPath": { "description": "An absolute path on the headset.", "type": "string", "pattern": "^/sdcard/" },
+    "headsetPath": {
+      "description": "An absolute path under /sdcard/ that cannot leave it: no empty, . or .. segment, no backslash and no control character. Ends in / for a folder.",
+      "type": "string",
+      "pattern": "^/sdcard/(?!/)(?!.*//)(?!(?:.*/)?\\.{1,2}(?:/|$))[^\\\\\\u0000-\\u001f]*$"
+    },
+    "relativePath": {
+      "description": "A path relative to a folder that cannot leave it: not absolute, no drive, no .. segment and no control character.",
+      "type": "string",
+      "pattern": "^(?![/\\\\])(?!.*:)(?!(?:.*[/\\\\])?\\.\\.(?:[/\\\\]|$))[^\\u0000-\\u001f]+$"
+    },
     "url": { "type": "string", "pattern": "^https://" },
 
     "apk": {
@@ -180,13 +189,13 @@
         },
         "root": {
           "description": "Folder inside the install that push paths and detect paths are relative to. If the user picks this folder itself, qgp uses it as is.",
-          "type": "string"
+          "$ref": "#/$defs/relativePath"
         },
         "detect": {
           "description": "Files, relative to root, that must exist for the folder to count as the right one.",
           "type": "array",
           "minItems": 1,
-          "items": { "type": "string" }
+          "items": { "$ref": "#/$defs/relativePath" }
         }
       }
     },
@@ -328,7 +337,7 @@
             "properties": {
               "from": {
                 "description": "A glob relative to the input's root, or a name from the input's names. A glob drops the folders before its first wildcard and keeps the rest of each path. Omitted: every file of the input.",
-                "type": "string"
+                "$ref": "#/$defs/relativePath"
               },
               "to": { "$ref": "#/$defs/headsetPath" }
             }

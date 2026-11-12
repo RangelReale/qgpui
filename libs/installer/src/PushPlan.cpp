@@ -127,6 +127,15 @@ bool planPush(const Step& step, const Input& input, const InputSource& source, P
                                     .arg(matched.size()).arg(mapping.from, mapping.to);
             return false;
         }
+        // The recipe's target was checked, but the file names that are added to it come from the PC.
+        for (const PushFile& file : std::as_const(matched)) {
+            if (!isSafeHeadsetPath(file.remotePath) || targetsFolder(file.remotePath)) {
+                if (errorMessage)
+                    *errorMessage = QStringLiteral("Refusing to copy %1 to the unsafe path %2.")
+                                        .arg(QDir::toNativeSeparators(file.localPath), file.remotePath);
+                return false;
+            }
+        }
         plan.files += matched;
     }
     return true;

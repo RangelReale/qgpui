@@ -8,6 +8,7 @@ qt_add_library(gamestores STATIC
     src/FilesFolder.cpp
     src/Finder.cpp
     src/Gog.cpp
+    src/SafePath.h
     src/Steam.cpp
     src/Vdf.cpp
 )

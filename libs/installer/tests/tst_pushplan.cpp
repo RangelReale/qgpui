@@ -124,6 +124,19 @@ private slots:
         QVERIFY2(error.contains(QStringLiteral("names one file")), qPrintable(error));
     }
 
+    void refusesUnsafeTargets()
+    {
+        // parseRecipe rejects this target; planPush checks the final path again, since it adds the PC's names.
+        Input input;
+        input.kind = Input::Kind::PcInstall;
+        PushPlan plan;
+        QString error;
+        QVERIFY(!planPush(push({{QStringLiteral("*.pak"), QStringLiteral("/sdcard/../data/")}}), input,
+                          {m_game, {}}, plan, &error));
+        QVERIFY2(error.contains(QStringLiteral("unsafe path")), qPrintable(error));
+        QVERIFY(plan.files.isEmpty());
+    }
+
     void findsAppPrivateFoldersParentsFirst()
     {
         QVERIFY(isAppPrivatePath(QStringLiteral("/sdcard/Android/data/com.a/files/x")));

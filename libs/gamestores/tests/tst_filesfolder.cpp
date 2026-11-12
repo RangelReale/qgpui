@@ -178,6 +178,26 @@ private slots:
         QVERIFY(QDir(path(QStringLiteral("files/apk-only"))).isEmpty());
     }
 
+    void refusesNamesThatLeaveTheFolder()
+    {
+        // Slugs and input ids come from the catalog.
+        const FilesFolder folder(path(QStringLiteral("files")));
+        QString error;
+        QVERIFY(!folder.create(QStringLiteral("../outside"), QStringLiteral("T"), QJsonArray(), &error));
+        QVERIFY2(error.contains(QStringLiteral("folder name")), qPrintable(error));
+        QVERIFY(!folder.create(QStringLiteral("a/b"), QStringLiteral("T"), QJsonArray()));
+        QVERIFY(!QFileInfo::exists(path(QStringLiteral("outside"))));
+
+        // Two inputs with the same extensions get folders of their own, named by their ids.
+        const QJsonArray climbing = inputs("[{'id':'..','kind':'file','label':'A','extensions':['.cue']},"
+                                           "{'id':'b','kind':'file','label':'B','extensions':['.cue']}]");
+        QVERIFY(!folder.create(QStringLiteral("game"), QStringLiteral("T"), climbing, &error));
+        QVERIFY2(error.contains(QStringLiteral("input id")), qPrintable(error));
+
+        touch(path(QStringLiteral("x.cue")));
+        QVERIFY(folder.find(QStringLiteral(".."), inputs(languageInputs), QStringLiteral("english")).paths.isEmpty());
+    }
+
     void guide()
     {
         const FilesFolder folder(root());

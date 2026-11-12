@@ -112,6 +112,12 @@ private slots:
         QTest::newRow("no games") << QByteArray(R"({"format":"qgp-catalog","version":1})")
                                   << QStringLiteral("no games list");
         QTest::newRow("no slug") << catalogJson(R"([{"port":{"title":"T"}}])") << QStringLiteral("Game 0 has no slug");
+        QTest::newRow("slug climbs") << catalogJson(R"([{"slug":"..\/..\/x","port":{"title":"T"}}])")
+                                     << QStringLiteral("unsafe slug");
+        QTest::newRow("slug with a folder") << catalogJson(R"([{"slug":"a\\b","port":{"title":"T"}}])")
+                                            << QStringLiteral("unsafe slug");
+        QTest::newRow("slug upper case") << catalogJson(R"([{"slug":"Quake","port":{"title":"T"}}])")
+                                         << QStringLiteral("unsafe slug");
         QTest::newRow("no title") << catalogJson(R"([{"slug":"s","port":{}}])")
                                   << QStringLiteral("\"s\" has no title");
     }

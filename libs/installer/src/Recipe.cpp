@@ -1,6 +1,9 @@
 #include "installer/Recipe.h"
 
 #include <QJsonArray>
+#include <QRegularExpression>
+
+#include <algorithm>
 
 namespace installer {
 
@@ -26,6 +29,22 @@ bool fail(QString* errorMessage, const QString& message)
     return false;
 }
 
+const QLatin1StringView kIdPattern("^[a-z0-9]+(-[a-z0-9]+)*$");
+const QLatin1StringView kPackagePattern(R"(^[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z][A-Za-z0-9_]*)+$)");
+const QLatin1StringView kRepoPattern("^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$");
+const QLatin1StringView kAppopPattern("^[A-Z_]+$");
+const QLatin1StringView kPermissionPattern(R"(^android\.permission\.[A-Z_]+$)");
+
+bool matches(const QString& s, QLatin1StringView pattern)
+{
+    return QRegularExpression(pattern).match(s).hasMatch();
+}
+
+bool hasControlCharacter(const QString& s)
+{
+    return std::any_of(s.cbegin(), s.cend(), [](QChar c) { return c.unicode() < 0x20 || c.unicode() == 0x7f; });
+}
+
 bool parseApk(const QJsonObject& o, ApkSource& apk, QString* errorMessage)
 {
     const QString source = str(o, "source");
@@ -46,6 +65,10 @@ bool parseApk(const QJsonObject& o, ApkSource& apk, QString* errorMessage)
     apk.help = str(o, "help");
     apk.inZip = str(o, "inZip");
     apk.packageName = str(o, "packageName");
+    if (apk.kind == ApkSource::Kind::GitHub && !matches(apk.repo, kRepoPattern))
+        return fail(errorMessage, QStringLiteral("Bad GitHub repository \"%1\".").arg(apk.repo));
+    if (!apk.packageName.isEmpty() && !isValidPackageName(apk.packageName))
+        return fail(errorMessage, QStringLiteral("Bad package name \"%1\".").arg(apk.packageName));
     return true;
 }
 
@@ -70,6 +93,14 @@ bool parseInput(const QJsonObject& o, Input& input, QString* errorMessage)
     input.root = str(o, "root");
     input.detect = strings(o, "detect");
     input.json = o;
+    if (!isValidRecipeId(input.id))
+        return fail(errorMessage, QStringLiteral("Bad input id \"%1\".").arg(input.id));
+    if (!input.root.isEmpty() && !isSafeRelativePath(input.root))
+        return fail(errorMessage, QStringLiteral("Input \"%1\" has the unsafe root \"%2\".").arg(input.id, input.root));
+    for (const QString& path : std::as_const(input.detect)) {
+        if (!isSafeRelativePath(path))
+            return fail(errorMessage, QStringLiteral("Input \"%1\" detects the unsafe path \"%2\".").arg(input.id, path));
+    }
     return true;
 }
 
@@ -84,6 +115,12 @@ bool parseStep(const QJsonObject& o, Step& step, QString* errorMessage)
         step.kind = Step::Kind::Grant;
         step.appop = str(o, "appop");
         step.permission = str(o, "permission");
+        if (step.appop.isEmpty() == step.permission.isEmpty())
+            return fail(errorMessage, QStringLiteral("A grant needs either an appop or a permission."));
+        if (!step.appop.isEmpty() && !matches(step.appop, kAppopPattern))
+            return fail(errorMessage, QStringLiteral("Bad appop \"%1\".").arg(step.appop));
+        if (!step.permission.isEmpty() && !matches(step.permission, kPermissionPattern))
+            return fail(errorMessage, QStringLiteral("Bad permission \"%1\".").arg(step.permission));
     } else if (kind == QLatin1StringView("launch")) {
         step.kind = Step::Kind::Launch;
         step.waitSeconds = o.value(QLatin1StringView("waitSeconds")).toInt(10);
@@ -93,11 +130,20 @@ bool parseStep(const QJsonObject& o, Step& step, QString* errorMessage)
         step.input = str(o, "input");
         for (const QJsonValue& v : o.value(QLatin1StringView("map")).toArray()) {
             const QJsonObject m = v.toObject();
-            step.map.append({str(m, "from"), str(m, "to")});
+            const PushMapping mapping{str(m, "from"), str(m, "to")};
+            if (!mapping.from.isEmpty() && !isSafeRelativePath(mapping.from))
+                return fail(errorMessage, QStringLiteral("A push copies from the unsafe path \"%1\".").arg(mapping.from));
+            if (!isSafeHeadsetPath(mapping.to))
+                return fail(errorMessage, QStringLiteral("A push copies to the unsafe path \"%1\".").arg(mapping.to));
+            step.map.append(mapping);
         }
     } else if (kind == QLatin1StringView("verify")) {
         step.kind = Step::Kind::Verify;
         step.files = strings(o, "files");
+        for (const QString& path : std::as_const(step.files)) {
+            if (!isSafeHeadsetPath(path))
+                return fail(errorMessage, QStringLiteral("A verify checks the unsafe path \"%1\".").arg(path));
+        }
     } else if (kind == QLatin1StringView("shell")) {
         step.kind = Step::Kind::Shell;
         step.args = strings(o, "args");
@@ -160,7 +206,49 @@ std::optional<Recipe> parseRecipe(const QJsonObject& json, const QString& defaul
         fail(errorMessage, QStringLiteral("The recipe has no package name."));
         return std::nullopt;
     }
+    if (!isValidPackageName(recipe.packageName)) {
+        fail(errorMessage, QStringLiteral("Bad package name \"%1\".").arg(recipe.packageName));
+        return std::nullopt;
+    }
     return recipe;
+}
+
+bool isValidRecipeId(const QString& id)
+{
+    return matches(id, kIdPattern);
+}
+
+bool isValidPackageName(const QString& name)
+{
+    return matches(name, kPackagePattern);
+}
+
+bool isSafeHeadsetPath(const QString& path)
+{
+    static const QLatin1StringView prefix("/sdcard/");
+    if (!path.startsWith(prefix) || path.contains(u'\\') || hasControlCharacter(path))
+        return false;
+    if (path.size() == prefix.size())
+        return true; // A push into /sdcard/ itself.
+    QStringList segments = path.mid(prefix.size()).split(u'/');
+    if (segments.size() > 1 && segments.last().isEmpty())
+        segments.removeLast(); // A folder target ends in /.
+    for (const QString& segment : std::as_const(segments)) {
+        if (segment.isEmpty() || segment == u'.' || segment == QLatin1StringView(".."))
+            return false;
+    }
+    return true;
+}
+
+bool isSafeRelativePath(const QString& path)
+{
+    if (path.isEmpty() || hasControlCharacter(path) || path.contains(u':'))
+        return false;
+    const QString normal = QString(path).replace(u'\\', u'/');
+    if (normal.startsWith(u'/'))
+        return false;
+    const QStringList segments = normal.split(u'/');
+    return !segments.contains(QLatin1StringView(".."));
 }
 
 QString describeStep(const Step& step)

@@ -34,6 +34,29 @@ test('the schema rejects a push outside /sdcard', async () => {
   assert.notDeepEqual(validate(recipe), [])
 })
 
+test('the schema rejects headset paths that leave /sdcard', async () => {
+  const validate = await loadSchemaValidator()
+  for (const to of ['/sdcard/../data/', '/sdcard/a/..', '/sdcard//x', '/sdcard/./x', '/sdcard/a\\b', '/sdcard/a\nb']) {
+    const recipe = await sample('xelee')
+    recipe.steps[1].map[0].to = to
+    assert.notDeepEqual(validate(recipe), [], to)
+  }
+  for (const to of ['/sdcard/', '/sdcard/Download/', '/sdcard/a/..b/c.']) {
+    const recipe = await sample('xelee')
+    recipe.steps[1].map[0].to = to
+    assert.deepEqual(validate(recipe), [], to)
+  }
+})
+
+test('the schema rejects relative paths that leave their folder', async () => {
+  const validate = await loadSchemaValidator()
+  for (const from of ['../x', 'a/../../x', '..\\x', '/etc/x', 'C:/x', '\\x']) {
+    const recipe = await sample('xelee')
+    recipe.steps[1].map[0].from = from
+    assert.ok(validate(recipe).some(error => error.includes('/from')), from)
+  }
+})
+
 test('the schema rejects a file input without names or extensions', async () => {
   const validate = await loadSchemaValidator()
   const recipe = await sample('xelee')

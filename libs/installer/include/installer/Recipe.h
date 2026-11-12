@@ -87,10 +87,27 @@ struct Recipe
 
 // Reads a recipe object, as the catalog's games carry it. defaultPackageName is the payload's
 // install.packageName, used unless the recipe overrides it. Returns nothing, and sets
-// *errorMessage when it is given, for an unknown step, source or input kind, or a push of an
-// input the recipe does not have.
+// *errorMessage when it is given, for an unknown step, source or input kind, a push of an
+// input the recipe does not have, or a value that breaks the checks below. The catalog comes
+// from outside qgp, so the paths and names that reach the PC's or the headset's file system,
+// or a shell command, are checked here again, even though build-catalog checked them.
 std::optional<Recipe> parseRecipe(const QJsonObject& json, const QString& defaultPackageName,
                                   QString* errorMessage = nullptr);
+
+// True for a lower-case id or slug: words of a-z and 0-9 joined by single hyphens.
+bool isValidRecipeId(const QString& id);
+
+// True for an Android package name, such as com.example.game.
+bool isValidPackageName(const QString& name);
+
+// True for an absolute path under /sdcard/ that cannot leave it: / separators, no empty, "."
+// or ".." segment, no backslash and no control character. A trailing / (a folder) is allowed,
+// and so is /sdcard/ itself.
+bool isSafeHeadsetPath(const QString& path);
+
+// True for a path relative to a folder that cannot leave it: not absolute, no drive, no ".."
+// segment and no control character. Either separator is allowed, and so are wildcards.
+bool isSafeRelativePath(const QString& path);
 
 // A short description of a step for progress displays, such as "Push melee to /sdcard/Download/".
 QString describeStep(const Step& step);
