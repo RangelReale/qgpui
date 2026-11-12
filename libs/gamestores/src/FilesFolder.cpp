@@ -285,9 +285,14 @@ QStringList FilesFolder::inputGuide(const QJsonArray& inputs, int index, const Q
     if (input.value(QLatin1StringView("kind")).toString() == QLatin1StringView("pc-install")) {
         const QString root = input.value(QLatin1StringView("root")).toString();
         const QStringList detect = stringList(input.value(QLatin1StringView("detect")));
+        // A folder that a PC tool makes is not a game install: name the tool instead.
+        const QString tool =
+            input.value(QLatin1StringView("preparedWith")).toObject().value(QLatin1StringView("tool")).toString();
+        const QString folder = tool.isEmpty() ? QStringLiteral("the game's folder")
+                                              : QStringLiteral("the folder that %1 makes").arg(tool);
         QString line = root.isEmpty()
-                           ? QStringLiteral("%1: the game's folder, or a copy of it").arg(where)
-                           : QStringLiteral("%1: the game's folder, or the folder \"%2\" inside it").arg(where, root);
+                           ? QStringLiteral("%1: %2, or a copy of it").arg(where, folder)
+                           : QStringLiteral("%1: %2, or the folder \"%3\" inside it").arg(where, folder, root);
         if (!detect.isEmpty())
             line += QStringLiteral(". qgp recognises it by %1").arg(joinWith(detect, QStringLiteral("and")));
         lines.append(line + u'.');

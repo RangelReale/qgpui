@@ -246,6 +246,18 @@ private slots:
         QVERIFY(folder.sharedFilesNote(QJsonArray{list.at(0)}).isEmpty());
     }
 
+    // A folder that a PC tool makes is not a game install: the guide names the tool.
+    void inputGuideNamesTheTool()
+    {
+        const FilesFolder folder(root());
+        const QJsonArray list = inputs("[{'id':'cooked','kind':'pc-install','label':'Data','detect':['sys/fst.bin'],"
+                                       "'preparedWith':{'tool':'The converter','url':'https:\\/\\/x.test','help':'Run it.'}}]");
+        QCOMPARE(folder.inputGuide(list, 0, QStringLiteral("gq")),
+                 (QStringList{QStringLiteral("Put in the folder \"gq\": the folder that The converter makes, or a copy of it. "
+                                             "qgp recognises it by sys/fst.bin."),
+                              QStringLiteral("Made with The converter: https://x.test"), QStringLiteral("Run it.")}));
+    }
+
     // The guide is never one of an input's files.
     void guideIsNotAFile()
     {
