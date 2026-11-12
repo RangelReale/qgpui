@@ -5,6 +5,7 @@
 
 #include "questports/Catalog.h"
 
+#include <QApplication>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QKeySequence>
@@ -13,6 +14,7 @@
 #include <QLocale>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QScrollBar>
 #include <QSettings>
 #include <QStatusBar>
 
@@ -23,13 +25,29 @@ constexpr QSize kCoverSize(300, 140);
 constexpr int kCellPadding = 16;
 constexpr int kTitleLines = 2;
 
+// Scrolling per pixel in icon mode makes one scroll step a whole row, and a wheel notch is several
+// steps, so a notch jumps about three rows. This view sets the step so that a notch moves half a row.
+class GameListView : public QListView
+{
+public:
+    using QListView::QListView;
+
+protected:
+    void updateGeometries() override
+    {
+        QListView::updateGeometries(); // Resets the single step.
+        const int linesPerNotch = qMax(1, QApplication::wheelScrollLines());
+        verticalScrollBar()->setSingleStep(qMax(1, gridSize().height() / 2 / linesPerNotch));
+    }
+};
+
 } // namespace
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , m_covers(new CoverCache(kCoverSize, this))
     , m_model(new GameListModel(m_covers, this))
-    , m_view(new QListView(this))
+    , m_view(new GameListView(this))
     , m_status(new QLabel(this))
 {
     setWindowTitle(QStringLiteral("qgp"));
