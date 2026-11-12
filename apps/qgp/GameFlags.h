@@ -1,5 +1,6 @@
 #pragma once
 
+#include "installer/Recipe.h"
 #include "questports/Catalog.h"
 
 #include <QFlags>
@@ -24,6 +25,7 @@ enum class GameFlag {
     InstalledByQgp = 0x20,      // ... and the headset's install records list it.
     InstalledOutsideQgp = 0x40, // ... and they do not: it was installed some other way.
     SelfContained = 0x80, // qgp installs it on its own: no files from the user, or only free ones.
+    UpdateAvailable = 0x100, // On the headset, and its APK has a newer release.
 };
 Q_DECLARE_FLAGS(GameFlags, GameFlag)
 Q_DECLARE_OPERATORS_FOR_FLAGS(GameFlags)
@@ -43,6 +45,10 @@ GameFlags storesHolding(const questports::Game& game, const gamestores::GameFind
 // OnHeadset with InstalledByQgp or InstalledOutsideQgp, from the headset's third-party packages and
 // the packages its install records list. No flags when the game's package is not installed.
 GameFlags headsetFlags(const questports::Game& game, const QSet<QString>& installed, const QSet<QString>& recorded);
+
+// The APK source whose releases tell whether the game has an update: the recipe's first APK, whose
+// release qgp records at install, when it comes from GitHub. Nothing for other sources.
+std::optional<installer::ApkSource> updateSource(const installer::Recipe& recipe);
 
 // A store page of one stores entry of a pc-install input.
 struct StorePage

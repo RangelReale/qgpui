@@ -25,8 +25,13 @@ class QWidget;
 
 namespace installer {
 class ApkFetcher;
+struct InstallRecord;
+class ReleaseLookup;
 class Runner;
 } // namespace installer
+namespace qadb {
+struct PackageInfo;
+}
 
 // One game: its cover and recipe, what is on the current headset, the files the recipe needs and
 // where they were found, and the Install button with the install's progress and log. Every action
@@ -36,8 +41,9 @@ class GameDialog : public QDialog
     Q_OBJECT
 
 public:
+    // releases finds the newest release of the game's APK; the main window shares it.
     GameDialog(const questports::Game& game, HeadsetConnection* headset, CoverCache* covers,
-               QWidget* parent = nullptr);
+               installer::ReleaseLookup* releases, QWidget* parent = nullptr);
 
     QString slug() const { return m_game.slug; }
 
@@ -60,6 +66,10 @@ private:
     void openFilesFolder();
     void openStorePage(const StorePage& page);
     void showHeadsetState();
+    // Adds to state whether the newest release is newer than the installed package, and turns
+    // Install into Update when it is.
+    void showUpdate(const QString& state, const qadb::PackageInfo& installed,
+                    const std::optional<installer::InstallRecord>& record);
     void updateButtons();
 
     void install();
@@ -75,6 +85,7 @@ private:
     questports::Game m_game;
     HeadsetConnection* m_headset;
     CoverCache* m_covers;
+    installer::ReleaseLookup* m_releases;
     std::optional<installer::Recipe> m_recipe;
     QString m_recipeError;
     QList<ResolvedInput> m_inputs;
@@ -94,6 +105,7 @@ private:
     QPlainTextEdit* m_log;
 
     bool m_running = false;
+    bool m_updateAvailable = false;
     QString m_serial; // The headset the install runs on.
     QStringList m_apkFiles;
     QString m_releaseTag;

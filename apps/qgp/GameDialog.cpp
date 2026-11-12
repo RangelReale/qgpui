@@ -8,6 +8,7 @@
 #include "gamestores/Finder.h"
 #include "installer/ApkFetcher.h"
 #include "installer/HeadsetRecords.h"
+#include "installer/ReleaseLookup.h"
 #include "installer/Runner.h"
 #include "installer/Updates.h"
 #include "qadb/Client.h"
@@ -95,11 +96,13 @@ void GameDialog::setFilesRoot(const QString& folder)
     QSettings().setValue(kFilesFolderSetting, QDir::fromNativeSeparators(folder));
 }
 
-GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset, CoverCache* covers, QWidget* parent)
+GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset, CoverCache* covers,
+                       installer::ReleaseLookup* releases, QWidget* parent)
     : QDialog(parent)
     , m_game(game)
     , m_headset(headset)
     , m_covers(covers)
+    , m_releases(releases)
     , m_cover(new QLabel(this))
     , m_headsetState(new QLabel(this))
     , m_filesBox(new QGroupBox(tr("Files"), this))
@@ -431,6 +434,8 @@ void GameDialog::openStorePage(const StorePage& page)
 
 void GameDialog::showHeadsetState()
 {
+    m_updateAvailable = false;
+    updateButtons();
     if (!m_headset->isReady()) {
         m_headsetState->setText(tr("Headset: %1").arg(m_headset->statusText()));
         return;
@@ -456,23 +461,60 @@ void GameDialog::showHeadsetState()
             m_headsetState->setText(tr("Not installed on %1.").arg(name));
             return;
         }
-        const QString version = reply->info().versionName.isEmpty() ? QString::number(reply->info().versionCode)
-                                                                    : reply->info().versionName;
+        const qadb::PackageInfo installed = reply->info();
+        const QString version = installed.versionName.isEmpty() ? QString::number(installed.versionCode)
+                                                                : installed.versionName;
         // Whether qgp installed it: the headset's install records say.
         auto* records = client->shell(serial, QStringList{QStringLiteral("cat"), QLatin1StringView(installer::kHeadsetRecordsPath)});
-        connect(records, &qadb::Reply::finished, this, [this, records, name, package, version] {
+        connect(records, &qadb::Reply::finished, this, [this, records, name, package, installed, version] {
             records->deleteLater();
-            bool byQgp = false;
+            std::optional<installer::InstallRecord> record;
             if (records->isSuccess()) {
                 if (const auto list = installer::parseHeadsetRecords(records->output())) {
-                    byQgp = std::any_of(list->cbegin(), list->cend(), [&](const installer::InstallRecord& record) {
-                        return record.packageName == package;
+                    const auto it = std::find_if(list->cbegin(), list->cend(), [&](const installer::InstallRecord& r) {
+                        return r.packageName == package;
                     });
+                    if (it != list->cend())
+                        record = *it;
                 }
             }
-            m_headsetState->setText(byQgp ? tr("Installed on %1 by qgp: version %2.").arg(name, version)
-                                          : tr("Installed on %1 outside qgp: version %2.").arg(name, version));
+            const QString state = record ? tr("Installed on %1 by qgp: version %2.").arg(name, version)
+                                         : tr("Installed on %1 outside qgp: version %2.").arg(name, version);
+            m_headsetState->setText(state);
+            showUpdate(state, installed, record);
         });
+    });
+}
+
+void GameDialog::showUpdate(const QString& state, const qadb::PackageInfo& installed,
+                            const std::optional<installer::InstallRecord>& record)
+{
+    const auto source = m_recipe ? updateSource(*m_recipe) : std::nullopt;
+    if (!source)
+        return;
+    m_releases->latest(*source, this, [this, state, installed, record](const auto& asset, const QString& errorMessage) {
+        if (m_running)
+            return;
+        if (!asset) {
+            m_headsetState->setText(tr("%1 The newest release is not known: %2").arg(state, errorMessage));
+            return;
+        }
+        switch (installer::updateStatus(installed, record, asset->tag)) {
+        case installer::UpdateStatus::UpdateAvailable:
+            m_updateAvailable = true;
+            m_headsetState->setText(tr("%1 An update is available: release %2.").arg(state, asset->tag));
+            break;
+        case installer::UpdateStatus::UpToDate:
+            m_headsetState->setText(tr("%1 It is up to date with release %2.").arg(state, asset->tag));
+            break;
+        case installer::UpdateStatus::Unknown:
+            m_headsetState->setText(tr("%1 The newest release is %2; qgp cannot tell whether it is newer.")
+                                        .arg(state, asset->tag));
+            break;
+        case installer::UpdateStatus::NotInstalled:
+            break;
+        }
+        updateButtons();
     });
 }
 
@@ -488,6 +530,7 @@ void GameDialog::updateButtons()
     else if (!InputResolver::ready(m_inputs))
         hint = tr("Some files are missing. Choose them, or put them in your files folder and look again.");
 
+    m_installButton->setText(m_updateAvailable ? tr("&Update") : tr("&Install"));
     m_installButton->setEnabled(!m_running && hint.isEmpty());
     m_installButton->setVisible(!m_running);
     m_cancelButton->setVisible(m_running);

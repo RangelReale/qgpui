@@ -11,6 +11,8 @@
 #include "questports/Catalog.h"
 #include "questports/GameOrder.h"
 #include "gamestores/Finder.h"
+#include "installer/Recipe.h"
+#include "installer/ReleaseLookup.h"
 #include "installer/Updates.h"
 #include "qadb/Client.h"
 #include "qadb/Reply.h"
@@ -160,6 +162,7 @@ MainWindow::MainWindow(QWidget* parent)
     , m_view(new GameListView(this))
     , m_status(new QLabel(this))
     , m_headset(new HeadsetConnection(this))
+    , m_releases(new installer::ReleaseLookup(this))
     , m_headsetStatus(new QToolButton(this))
 {
     setWindowTitle(QStringLiteral("qgp"));
@@ -268,6 +271,8 @@ void MainWindow::createToolBar()
     m_onHeadset->addItem(tr("Installed by qgp"), int(GameFilter::Headset::InstalledByQgp));
     m_onHeadset->addItem(tr("Installed outside qgp"), int(GameFilter::Headset::InstalledOutsideQgp));
     m_onHeadset->addItem(tr("Not on my headset"), int(GameFilter::Headset::NotOnHeadset));
+    m_onHeadset->addItem(tr("Update available"), int(GameFilter::Headset::UpdateAvailable));
+    m_onHeadset->setItemData(5, tr("Games on your headset with a newer release than the one installed"), Qt::ToolTipRole);
 
     m_selfContained->setToolTip(tr("Games qgp installs on its own: no files from you, or only files anyone can get for free"));
     toolBar->addWidget(m_selfContained);
@@ -481,32 +486,78 @@ void MainWindow::findHeadsetGames()
         packages->deleteLater();
         if (query != m_headsetQuery || !packages->isSuccess())
             return;
-        QSet<QString> installed;
+        QHash<QString, qadb::PackageInfo> installed;
         for (const qadb::PackageInfo& package : packages->packages())
-            installed.insert(package.packageName);
+            installed.insert(package.packageName, package);
 
         auto* records = client->shell(serial, QStringList{QStringLiteral("cat"), QLatin1StringView(installer::kHeadsetRecordsPath)});
-        connect(records, &qadb::Reply::finished, this, [this, records, installed, query] {
+        connect(records, &qadb::Reply::finished, this, [this, records, installed, serial, query] {
             records->deleteLater();
             if (query != m_headsetQuery)
                 return;
             // No file, or one that cannot be read: nothing was recorded.
-            QSet<QString> recorded;
+            QHash<QString, installer::InstallRecord> recorded;
             if (records->isSuccess()) {
                 if (const auto list = installer::parseHeadsetRecords(records->output())) {
                     for (const installer::InstallRecord& record : *list)
-                        recorded.insert(record.packageName);
+                        recorded.insert(record.packageName, record);
                 }
             }
+            const QStringList installedNames = installed.keys();
+            const QStringList recordedNames = recorded.keys();
+            const QSet<QString> installedSet(installedNames.cbegin(), installedNames.cend());
+            const QSet<QString> recordedSet(recordedNames.cbegin(), recordedNames.cend());
             QHash<QString, GameFlags> onHeadset;
             for (int row = 0; row < m_model->rowCount(); ++row) {
                 const questports::Game& game = m_model->game(row);
-                if (const GameFlags flags = headsetFlags(game, installed, recorded))
+                if (const GameFlags flags = headsetFlags(game, installedSet, recordedSet))
                     onHeadset.insert(game.slug, flags);
             }
             m_model->setHeadset(onHeadset);
             m_sorted->refilter();
+            for (int row = 0; row < m_model->rowCount(); ++row) {
+                const questports::Game& game = m_model->game(row);
+                if (onHeadset.contains(game.slug))
+                    checkForUpdate(game, serial, installed.value(gamePackageName(game)), recorded, query);
+            }
         });
+    });
+}
+
+void MainWindow::checkForUpdate(const questports::Game& game, const QString& serial, const qadb::PackageInfo& package,
+                                const QHash<QString, installer::InstallRecord>& recorded, int query)
+{
+    if (!game.hasRecipe())
+        return;
+    const auto recipe = installer::parseRecipe(game.recipe, gamePackageName(game));
+    const auto source = recipe ? updateSource(*recipe) : std::nullopt;
+    if (!source)
+        return;
+    const std::optional<installer::InstallRecord> record =
+        recorded.contains(package.packageName) ? std::optional(recorded.value(package.packageName)) : std::nullopt;
+
+    const QString slug = game.slug;
+    auto compare = [this, slug, record, query, source = *source](const qadb::PackageInfo& installed) {
+        m_releases->latest(source, this, [this, slug, record, installed, query](const auto& asset, const QString&) {
+            // No release found (no network, GitHub's rate limit): no mark.
+            if (query != m_headsetQuery || !asset)
+                return;
+            if (installer::updateStatus(installed, record, asset->tag) == installer::UpdateStatus::UpdateAvailable) {
+                m_model->setUpdateAvailable(slug);
+                m_sorted->refilter();
+            }
+        });
+    };
+    // The package list has no versionName. A record of the same build does not need it.
+    if (record && !record->releaseTag.isEmpty() && record->versionCode == package.versionCode) {
+        compare(package);
+        return;
+    }
+    auto* info = m_headset->client()->packageInfo(serial, package.packageName);
+    connect(info, &qadb::Reply::finished, this, [this, info, query, compare] {
+        info->deleteLater();
+        if (query == m_headsetQuery && info->isSuccess() && info->isInstalled())
+            compare(info->info());
     });
 }
 
@@ -581,6 +632,8 @@ void MainWindow::openCatalog()
 
 void MainWindow::reloadCatalog()
 {
+    // Reloading also looks for new releases.
+    m_releases->clear();
     if (!m_catalogPath.isEmpty())
         loadCatalog(m_catalogPath);
 }
@@ -620,7 +673,7 @@ void MainWindow::openGameAt(const QModelIndex& index)
     const questports::Game& game = m_model->game(m_sorted->mapToSource(index).row());
     QPointer<GameDialog>& dialog = m_gameDialogs[game.slug];
     if (!dialog) {
-        dialog = new GameDialog(game, m_headset, m_covers, this);
+        dialog = new GameDialog(game, m_headset, m_covers, m_releases, this);
         connect(dialog, &GameDialog::installFinished, this, &MainWindow::findHeadsetGames);
         dialog->show();
     }
