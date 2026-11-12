@@ -2,6 +2,7 @@
 
 #include "CoverCache.h"
 #include "GameFlags.h"
+#include "GuideView.h"
 #include "HeadsetConnection.h"
 #include "SettingsDialog.h"
 
@@ -42,6 +43,8 @@
 #include <QRegularExpression>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QTabWidget>
+#include <QTextBrowser>
 #include <QTime>
 #include <QUrl>
 #include <QVBoxLayout>
@@ -325,7 +328,7 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     connect(m_installButton, &QPushButton::clicked, this, &GameDialog::install);
     connect(m_cancelButton, &QPushButton::clicked, this, &GameDialog::cancel);
     m_cancelButton->hide();
-    m_detailsButton->setToolTip(tr("Show the port's troubleshooting notes and every command the install runs"));
+    m_detailsButton->setToolTip(tr("Show the port's installation guide and troubleshooting notes, and every command the install runs"));
     connect(m_detailsButton, &QPushButton::clicked, this, &GameDialog::showInstallDetails);
     auto* installRow = new QHBoxLayout;
     installRow->addWidget(m_installButton);
@@ -727,7 +730,8 @@ void GameDialog::updateButtons()
     m_installButton->setEnabled(!m_running && hint.isEmpty());
     m_installButton->setVisible(!m_running);
     m_cancelButton->setVisible(m_running);
-    m_detailsButton->setEnabled(m_recipe.has_value() || !troubleshootingNotes().isEmpty());
+    m_detailsButton->setEnabled(m_recipe.has_value() || !installationGuide().isEmpty()
+                                || !troubleshootingNotes().isEmpty());
     m_installHint->setText(m_running ? QString() : hint);
 }
 
@@ -736,55 +740,77 @@ QString GameDialog::troubleshootingNotes() const
     return m_game.port.value(QLatin1StringView("troubleshooting_notes")).toString().trimmed();
 }
 
+QString GameDialog::installationGuide() const
+{
+    return m_game.port.value(QLatin1StringView("installation_guide")).toString().trimmed();
+}
+
 void GameDialog::showInstallDetails()
 {
+    const QString guide = installationGuide();
     const QString notes = troubleshootingNotes();
-    if (!m_recipe && notes.isEmpty())
+    if (!m_recipe && guide.isEmpty() && notes.isEmpty())
         return;
 
     auto* dialog = new QDialog(this);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
-    dialog->setWindowTitle(tr("How qgp installs %1").arg(m_game.title));
+    dialog->setWindowTitle(tr("Installing %1").arg(m_game.title));
     auto* layout = new QVBoxLayout(dialog);
+    auto* tabs = new QTabWidget(dialog);
     auto* buttons = new QDialogButtonBox(QDialogButtonBox::Close, dialog);
     connect(buttons, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
 
-    // QuestPorts' troubleshooting notes for the port, above the steps.
-    if (!notes.isEmpty()) {
-        auto* box = new QGroupBox(tr("Troubleshooting"), dialog);
-        auto* label = new QLabel(linkified(notes), box);
-        label->setTextFormat(Qt::RichText);
-        label->setWordWrap(true);
-        label->setOpenExternalLinks(true);
-        label->setTextInteractionFlags(Qt::TextBrowserInteraction);
-        auto* boxLayout = new QVBoxLayout(box);
-        boxLayout->addWidget(label);
-        layout->addWidget(box);
+    // QuestPorts' guide, then its troubleshooting notes, in the order of the port's page.
+    if (!guide.isEmpty() || !notes.isEmpty()) {
+        auto* page = new QWidget(tabs);
+        auto* pageLayout = new QVBoxLayout(page);
+        if (!guide.isEmpty())
+            pageLayout->addWidget(makeGuideView(guide, page), 1);
+        if (!notes.isEmpty()) {
+            auto* box = new QGroupBox(tr("Troubleshooting && Tips"), page);
+            auto* label = new QLabel(linkified(notes), box);
+            label->setTextFormat(Qt::RichText);
+            label->setWordWrap(true);
+            label->setOpenExternalLinks(true);
+            label->setTextInteractionFlags(Qt::TextBrowserInteraction);
+            auto* boxLayout = new QVBoxLayout(box);
+            boxLayout->addWidget(label);
+            pageLayout->addWidget(box);
+        }
+        if (guide.isEmpty())
+            pageLayout->addStretch();
+        tabs->addTab(page, tr("Installation &Guide"));
     }
 
+    QPushButton* copy = nullptr;
     if (m_recipe) {
         installer::InstallPlan plan = installer::planInstall(*m_recipe, {}, InputResolver::sources(m_inputs));
         plan.steps.append({tr("Record the install"),
                            {tr("Write the release and version to /sdcard/qgp/installs.json on the headset.")}});
         const QString text = plan.toText();
+        auto* page = new QWidget(tabs);
+        auto* pageLayout = new QVBoxLayout(page);
         auto* intro = new QLabel(tr("The install runs these steps in order, with the files as they are found now. "
                                     "Lines that start with adb are the commands as the adb tool would take them; "
                                     "qgp sends them to the adb server itself."),
-                                 dialog);
+                                 page);
         intro->setWordWrap(true);
-        auto* view = new QPlainTextEdit(text, dialog);
+        auto* view = new QPlainTextEdit(text, page);
         view->setReadOnly(true);
         view->setLineWrapMode(QPlainTextEdit::NoWrap);
         view->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
-        QPushButton* copy = buttons->addButton(tr("&Copy"), QDialogButtonBox::ActionRole);
+        pageLayout->addWidget(intro);
+        pageLayout->addWidget(view, 1);
+        const int index = tabs->addTab(page, tr("&qgp's Steps"));
+        copy = buttons->addButton(tr("&Copy Steps"), QDialogButtonBox::ActionRole);
         connect(copy, &QPushButton::clicked, dialog, [text] { QApplication::clipboard()->setText(text); });
-        layout->addWidget(intro);
-        layout->addWidget(view, 1);
-    } else {
-        layout->addStretch();
+        connect(tabs, &QTabWidget::currentChanged, copy, [copy, index](int current) { copy->setVisible(current == index); });
+        copy->setVisible(tabs->currentIndex() == index);
     }
+
+    layout->addWidget(tabs, 1);
     layout->addWidget(buttons);
-    dialog->resize(900, 600);
+    dialog->resize(900, 700);
     dialog->show();
 }
 

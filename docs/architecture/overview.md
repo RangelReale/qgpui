@@ -36,7 +36,7 @@ data/recipes/<slug>.json (qgp's own, hand-written) ─────────�
 5. The app records what it installed in `/sdcard/qgp/installs.json` on the headset, with a copy on the PC keyed by the headset's hardware serial for when no headset is connected ([decisions 0004](../decisions/0004-headset-identity.md), [0006](../decisions/0006-update-detection.md) and [0008](../decisions/0008-install-records-on-the-headset.md)).
 6. The dialog shows the result in a green, amber or red banner. Amber means the game is installed but its record is not.
 
-Before installing, the dialog's Details button shows every step and command the install runs, with the files as they are found at that moment. `installer::planInstall` builds that list. The Runner builds its grant, launch, force-stop and folder commands with the same functions, so the list matches what runs.
+Before installing, the dialog's Details button opens two tabs. The first shows the port's step-by-step installation guide from QuestPorts, the Markdown of the port row's `installation_guide`, drawn by `GuideView` in the site's colours, with the port's troubleshooting notes below it. The second shows every step and command the install runs, with the files as they are found at that moment. `installer::planInstall` builds that list. The Runner builds its grant, launch, force-stop and folder commands with the same functions, so the list matches what runs.
 
 ## Updates
 

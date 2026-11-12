@@ -9,6 +9,7 @@ qt_add_executable(qgp WIN32 MACOSX_BUNDLE
     HeadsetConnection.h HeadsetConnection.cpp
     HeadsetDialog.h HeadsetDialog.cpp
     GameDialog.h GameDialog.cpp
+    GuideView.h GuideView.cpp
     InputResolver.h InputResolver.cpp
     GameFlags.h GameFlags.cpp
     SettingsDialog.h SettingsDialog.cpp
