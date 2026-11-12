@@ -239,7 +239,7 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     badges->addStretch();
 
     // Where to get the original game (the port row's base_game_store), highlighted: most games
-    // need the user's own copy.
+    // need the user's own copy. It sits just above the Install button, where the user decides.
     auto* baseGame = new QLabel(this);
     const QString baseGameStore = m_game.port.value(QLatin1StringView("base_game_store")).toString().trimmed();
     baseGame->setText(tr("<b>Original game:</b> %1").arg(baseGameStore.toHtmlEscaped()));
@@ -300,7 +300,6 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     auto* headerText = new QVBoxLayout;
     headerText->addWidget(title);
     headerText->addLayout(badges);
-    headerText->addWidget(baseGame);
     headerText->addWidget(about);
     headerText->addWidget(m_headsetState);
     headerText->addStretch();
@@ -386,6 +385,7 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     auto* layout = new QVBoxLayout(this);
     layout->addLayout(header);
     layout->addWidget(m_filesBox);
+    layout->addWidget(baseGame);
     layout->addLayout(installRow);
     layout->addWidget(m_progressArea);
     layout->addWidget(m_resultArea);
