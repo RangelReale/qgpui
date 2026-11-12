@@ -64,15 +64,6 @@ QString supportText(installer::Support support)
     return {};
 }
 
-QString statusText(const QString& status)
-{
-    if (status == QLatin1StringView("tested"))
-        return GameDialog::tr("tested on a headset");
-    if (status == QLatin1StringView("reviewed"))
-        return GameDialog::tr("reviewed, not yet tested");
-    return GameDialog::tr("not yet tested");
-}
-
 // The site's names for its port types, for one game.
 QString categoryText(const QString& category)
 {
@@ -168,6 +159,8 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     , m_updateBadge(new QLabel(this))
     , m_filesBox(new QGroupBox(tr("Files"), this))
     , m_filesGrid(new QGridLayout)
+    , m_checkFilesButton(new QPushButton(tr("Check Files &Again"), m_filesBox))
+    , m_openFolderButton(new QPushButton(tr("Open Files &Folder"), m_filesBox))
     , m_installButton(new QPushButton(tr("&Install"), this))
     , m_cancelButton(new QPushButton(tr("Stop"), this))
     , m_detailsButton(new QPushButton(tr("&Details..."), this))
@@ -226,29 +219,69 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     }
     badges->addStretch();
 
+    // Where to get the original game (the port row's base_game_store), highlighted: most games
+    // need the user's own copy.
+    auto* baseGame = new QLabel(this);
+    const QString baseGameStore = m_game.port.value(QLatin1StringView("base_game_store")).toString().trimmed();
+    baseGame->setText(tr("<b>Original game:</b> %1").arg(baseGameStore.toHtmlEscaped()));
+    baseGame->setTextFormat(Qt::RichText);
+    baseGame->setWordWrap(true);
+    baseGame->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    baseGame->setStyleSheet(QStringLiteral("QLabel { background: rgba(%1, 0.15); border-left: 3px solid rgb(%1);"
+                                           " padding: 4px 8px; }")
+                                .arg(kOrange));
+    baseGame->setVisible(!baseGameStore.isEmpty());
+
     auto* about = new QLabel(this);
     about->setWordWrap(true);
     QStringList lines;
     if (!m_game.developer.isEmpty())
         lines.append(tr("By %1").arg(m_game.developer.toHtmlEscaped()));
     if (m_recipe) {
-        lines.append(tr("%1. The recipe is %2.").arg(supportText(m_recipe->support), statusText(m_recipe->status)));
+        lines.append(tr("%1.").arg(supportText(m_recipe->support)));
         lines.append(tr("Package: %1").arg(m_recipe->packageName.toHtmlEscaped()));
     } else if (m_game.hasRecipe()) {
         lines.append(tr("The recipe cannot be read: %1").arg(m_recipeError.toHtmlEscaped()));
     } else {
         lines.append(tr("qgp has no install recipe for this game yet."));
     }
-    lines.append(QStringLiteral("<a href=\"https://questports.com/ports/%1\">%2</a>")
-                     .arg(QString::fromUtf8(QUrl::toPercentEncoding(m_game.slug)), tr("QuestPorts page")));
+    // Every external link on one line: QuestPorts, then the Steam and GOG pages of each PC game the
+    // recipe needs. Store links are "store:<index>", because a GOG page needs a lookup first.
+    QStringList links{QStringLiteral("<a href=\"https://questports.com/ports/%1\">%2</a>")
+                          .arg(QString::fromUtf8(QUrl::toPercentEncoding(m_game.slug)), tr("QuestPorts page"))};
+    QList<StorePage> pages;
+    if (m_recipe) {
+        int pcInputs = 0;
+        for (const installer::Input& input : m_recipe->inputs)
+            pcInputs += storePages(input.json).isEmpty() ? 0 : 1;
+        for (const installer::Input& input : m_recipe->inputs) {
+            for (const StorePage& page : storePages(input.json)) {
+                const QString store = page.store == QLatin1StringView("steam") ? tr("Steam") : tr("GOG");
+                // Name the PC game when the recipe needs more than one.
+                const QString text = pcInputs > 1 ? tr("%1: %2").arg(store, input.label) : tr("%1 page").arg(store);
+                links.append(QStringLiteral("<a href=\"store:%1\">%2</a>").arg(pages.size()).arg(text.toHtmlEscaped()));
+                pages.append(page);
+            }
+        }
+    }
+    lines.append(links.join(QStringLiteral(" &middot; ")));
     about->setText(lines.join(QStringLiteral("<br>")));
     about->setTextFormat(Qt::RichText);
-    about->setOpenExternalLinks(true);
+    connect(about, &QLabel::linkActivated, this, [this, pages](const QString& link) {
+        if (link.startsWith(QLatin1StringView("store:"))) {
+            const int index = link.mid(6).toInt();
+            if (index >= 0 && index < pages.size())
+                openStorePage(pages[index]);
+            return;
+        }
+        QDesktopServices::openUrl(QUrl(link));
+    });
     m_headsetState->setWordWrap(true);
 
     auto* headerText = new QVBoxLayout;
     headerText->addWidget(title);
     headerText->addLayout(badges);
+    headerText->addWidget(baseGame);
     headerText->addWidget(about);
     headerText->addWidget(m_headsetState);
     headerText->addStretch();
@@ -256,22 +289,16 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     header->addWidget(m_cover, 0, Qt::AlignTop);
     header->addLayout(headerText, 1);
 
-    // Files: one row per input, and the files folder.
+    // Files: one row per input, with a Choose button each, and below the last one Check Files Again
+    // and Open Files Folder. The buttons fill their column, so they all have the same width.
     auto* filesLayout = new QVBoxLayout(m_filesBox);
     m_filesGrid->setColumnStretch(0, 2);
     m_filesGrid->setColumnStretch(1, 3);
     filesLayout->addLayout(m_filesGrid);
-    auto* filesButtons = new QHBoxLayout;
-    auto* openFolder = new QPushButton(tr("Open Files &Folder"), this);
-    openFolder->setToolTip(tr("Create this game's folder in your files folder, with a guide to what goes there, and open it"));
-    connect(openFolder, &QPushButton::clicked, this, &GameDialog::openFilesFolder);
-    auto* lookAgain = new QPushButton(tr("&Look Again"), this);
-    lookAgain->setToolTip(tr("Look for the files again in Steam, GOG and your files folder"));
-    connect(lookAgain, &QPushButton::clicked, this, &GameDialog::findInputs);
-    filesButtons->addWidget(openFolder);
-    filesButtons->addWidget(lookAgain);
-    filesButtons->addStretch();
-    filesLayout->addLayout(filesButtons);
+    m_checkFilesButton->setToolTip(tr("Look for the files again in Steam, GOG and your files folder"));
+    connect(m_checkFilesButton, &QPushButton::clicked, this, &GameDialog::findInputs);
+    m_openFolderButton->setToolTip(tr("Create this game's folder in your files folder, with a guide to what goes there, and open it"));
+    connect(m_openFolderButton, &QPushButton::clicked, this, &GameDialog::openFilesFolder);
     m_filesBox->setVisible(m_recipe && !m_recipe->inputs.isEmpty());
 
     // Install: the button, then the progress, the user's turn and the log.
@@ -375,7 +402,9 @@ void GameDialog::findInputs()
 void GameDialog::showInputs()
 {
     while (QLayoutItem* item = m_filesGrid->takeAt(0)) {
-        delete item->widget();
+        QWidget* widget = item->widget();
+        if (widget != m_checkFilesButton && widget != m_openFolderButton)
+            delete widget;
         delete item;
     }
 
@@ -428,25 +457,10 @@ void GameDialog::showInputs()
                 state = input.required ? tr("Not found.") : tr("Not found; the install goes on without it.");
             break;
         }
-        // Links to the Steam and GOG pages of the PC game, when the recipe names the stores.
-        const QList<StorePage> pages = storePages(input.json);
-        QStringList links;
-        for (int i = 0; i < pages.size(); ++i) {
-            const QString name = pages[i].store == QLatin1StringView("steam") ? tr("Steam page") : tr("GOG page");
-            links.append(QStringLiteral("<a href=\"%1\">%2</a>").arg(i).arg(name));
-        }
-        QString html = state.toHtmlEscaped();
-        if (!links.isEmpty())
-            html += QStringLiteral("<br>") + links.join(QStringLiteral(" &middot; "));
-        auto* status = new QLabel(html, m_filesBox);
-        status->setTextFormat(Qt::RichText);
+        auto* status = new QLabel(state, m_filesBox);
+        status->setTextFormat(Qt::PlainText);
         status->setWordWrap(true);
-        status->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
-        connect(status, &QLabel::linkActivated, this, [this, pages](const QString& link) {
-            const int index = link.toInt();
-            if (index >= 0 && index < pages.size())
-                openStorePage(pages[index]);
-        });
+        status->setTextInteractionFlags(Qt::TextSelectableByMouse);
         if (resolved.state != ResolvedInput::State::Found && input.required)
             status->setStyleSheet(QStringLiteral("color: palette(link)"));
         if (!resolved.candidates.isEmpty())
@@ -458,15 +472,19 @@ void GameDialog::showInputs()
 
         m_filesGrid->addWidget(label, row, 0);
         m_filesGrid->addWidget(status, row, 1);
-        m_filesGrid->addWidget(choose, row, 2, Qt::AlignTop);
+        m_filesGrid->addWidget(choose, row, 2, Qt::AlignTop); // Vertical only: it fills the column.
         const QStringList guide = files.inputGuide(inputsJson, index, m_game.slug);
         if (!guide.isEmpty())
             m_filesGrid->addWidget(guideLabel(guide.join(u'\n')), row + 1, 0, 1, 2);
     }
 
+    // The last input's guide row has the third column free: the buttons start there.
+    const int end = qMax(1, int(m_inputs.size()) * 2);
+    m_filesGrid->addWidget(m_checkFilesButton, end - 1, 2, Qt::AlignTop);
+    m_filesGrid->addWidget(m_openFolderButton, end, 2, Qt::AlignTop);
     const QString shared = files.sharedFilesNote(inputsJson);
     if (!shared.isEmpty())
-        m_filesGrid->addWidget(guideLabel(shared), int(m_inputs.size()) * 2, 0, 1, 3);
+        m_filesGrid->addWidget(guideLabel(shared), end, 0, 1, 2);
 }
 
 void GameDialog::chooseInput(int index)

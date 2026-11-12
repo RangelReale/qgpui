@@ -109,6 +109,8 @@ private:
     QLabel* m_updateBadge;
     QGroupBox* m_filesBox;
     QGridLayout* m_filesGrid;
+    QPushButton* m_checkFilesButton; // In the files grid, below the last Choose button.
+    QPushButton* m_openFolderButton; // ... and below it.
     QPushButton* m_installButton;
     QPushButton* m_cancelButton;
     QPushButton* m_detailsButton;

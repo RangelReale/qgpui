@@ -71,8 +71,9 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   and after an install, and `checkForUpdate` compares each game on it with its APK's newest
   release (decision 0011); a game with an update gets an Update band on its cover. Each
   box's choice is kept in `QSettings` (`main.cpp` sets the organization name, without which
-  QSettings stores nothing on Windows). The game dialog
-  links to the game's QuestPorts page, and each `pc-install` input to its Steam and GOG pages
+  QSettings stores nothing on Windows). The game dialog's header shows badges (on the headset,
+  update, source, type, port status), the port's `base_game_store` highlighted, and one line of
+  links: the game's QuestPorts page, and the Steam and GOG pages of each `pc-install` input
   (GOG through its product API). `CoverCache` downloads covers through a
   `QNetworkDiskCache` and fits them into one size. `HeadsetConnection` starts the adb server
   if needed, tracks devices and remembers the current headset (`QSettings`) by adb serial and by
