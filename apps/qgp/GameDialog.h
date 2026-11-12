@@ -78,11 +78,13 @@ private:
     void updateButtons();
 
     void install();
-    // Shows the port's troubleshooting notes and the commands the install will run, in a dialog of
-    // their own.
+    // Shows, in a dialog of their own and one tab each, the port's installation guide with its
+    // troubleshooting notes, and the commands the install will run.
     void showInstallDetails();
     // The port row's troubleshooting_notes; empty when it has none.
     QString troubleshootingNotes() const;
+    // The port row's installation_guide (Markdown); empty when it has none.
+    QString installationGuide() const;
     void fetchApk(int index);
     void runSteps();
     void recordInstall();
