@@ -146,7 +146,11 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     } else {
         lines.append(tr("qgp has no install recipe for this game yet."));
     }
+    lines.append(QStringLiteral("<a href=\"https://questports.com/ports/%1\">%2</a>")
+                     .arg(QString::fromUtf8(QUrl::toPercentEncoding(m_game.slug)), tr("QuestPorts page")));
     about->setText(lines.join(QStringLiteral("<br>")));
+    about->setTextFormat(Qt::RichText);
+    about->setOpenExternalLinks(true);
     m_headsetState->setWordWrap(true);
 
     auto* headerText = new QVBoxLayout;
@@ -261,9 +265,14 @@ void GameDialog::showInputs()
         const ResolvedInput& resolved = m_inputs.at(row);
         const installer::Input& input = resolved.input;
 
-        auto* label = new QLabel(QStringLiteral("<b>%1</b>%2").arg(input.label.toHtmlEscaped(),
-                                                                    input.required ? QString() : tr(" (optional)")),
-                                 m_filesBox);
+        QString note;
+        if (!input.group.isEmpty())
+            note += tr(" (at least one of these)");
+        else if (!input.required)
+            note += tr(" (optional)");
+        if (input.json.value(QLatin1StringView("free")).toBool())
+            note += tr(" (free)");
+        auto* label = new QLabel(QStringLiteral("<b>%1</b>%2").arg(input.label.toHtmlEscaped(), note), m_filesBox);
         label->setWordWrap(true);
         label->setToolTip(input.help);
 

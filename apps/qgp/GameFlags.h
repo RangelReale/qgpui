@@ -23,6 +23,7 @@ enum class GameFlag {
     OnHeadset = 0x10,     // The game's package is installed on the current headset.
     InstalledByQgp = 0x20,      // ... and the headset's install records list it.
     InstalledOutsideQgp = 0x40, // ... and they do not: it was installed some other way.
+    SelfContained = 0x80, // qgp installs it on its own: no files from the user, or only free ones.
 };
 Q_DECLARE_FLAGS(GameFlags, GameFlag)
 Q_DECLARE_OPERATORS_FOR_FLAGS(GameFlags)
@@ -30,6 +31,10 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(GameFlags)
 // The game's package: the recipe's override, else the payload's, else the one the recipe was
 // written against. Empty when none is known.
 QString gamePackageName(const questports::Game& game);
+
+// SelfContained when the game has an automatic recipe whose APKs qgp downloads itself (no manual
+// source), whose required inputs are all marked free and whose groups each have a free input.
+GameFlags selfContained(const questports::Game& game);
 
 // SoldOnSteam and SoldOnGog, from the recipe alone.
 GameFlags storesSelling(const questports::Game& game);

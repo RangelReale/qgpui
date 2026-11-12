@@ -17,6 +17,7 @@
 
 
 #include <QApplication>
+#include <QCheckBox>
 #include <QComboBox>
 #include <QDesktopServices>
 #include <QDir>
@@ -41,7 +42,10 @@
 namespace {
 
 const QString kOrderSetting = QStringLiteral("order");
-const QString kShowSetting = QStringLiteral("show");
+const QString kSourceSetting = QStringLiteral("filter/source");
+const QString kStoreSetting = QStringLiteral("filter/store");
+const QString kHeadsetSetting = QStringLiteral("filter/headset");
+const QString kSelfContainedSetting = QStringLiteral("filter/selfContained");
 QString orderLabel(questports::GameOrder order)
 {
     switch (order) {
@@ -84,7 +88,10 @@ MainWindow::MainWindow(QWidget* parent)
     , m_model(new GameListModel(m_covers, this))
     , m_sorted(new GameSortModel(m_model, this))
     , m_order(new QComboBox(this))
-    , m_show(new QComboBox(this))
+    , m_source(new QComboBox(this))
+    , m_store(new QComboBox(this))
+    , m_onHeadset(new QComboBox(this))
+    , m_selfContained(new QCheckBox(tr("Self-&contained only"), this))
     , m_view(new GameListView(this))
     , m_status(new QLabel(this))
     , m_headset(new HeadsetConnection(this))
@@ -173,36 +180,87 @@ void MainWindow::createToolBar()
     m_sorted->setOrder(questports::gameOrderFromKey(m_order->currentData().toString()));
     connect(m_order, &QComboBox::currentIndexChanged, this, &MainWindow::orderChanged);
 
-    auto* showLabel = new QLabel(tr("&Show:"), toolBar);
-    showLabel->setBuddy(m_show);
-    showLabel->setContentsMargins(12, 0, 4, 0);
-    toolBar->addWidget(showLabel);
-    // The item data is the GameFlag to require; 0 shows every game.
-    m_show->addItem(tr("All games"), 0);
-    m_show->addItem(tr("Sold on Steam"), int(GameFlag::SoldOnSteam));
-    m_show->addItem(tr("Sold on GOG"), int(GameFlag::SoldOnGog));
-    m_show->addItem(tr("In my Steam library"), int(GameFlag::InSteamLibrary));
-    m_show->addItem(tr("In my GOG library"), int(GameFlag::InGogLibrary));
-    m_show->addItem(tr("On my headset"), int(GameFlag::OnHeadset));
-    m_show->addItem(tr("Installed outside qgp"), int(GameFlag::InstalledOutsideQgp));
-    m_show->setItemData(1, tr("Games that need a PC game sold on Steam"), Qt::ToolTipRole);
-    m_show->setItemData(2, tr("Games that need a PC game sold on GOG"), Qt::ToolTipRole);
-    m_show->setItemData(3, tr("Games whose PC game is installed through Steam on this PC"), Qt::ToolTipRole);
-    m_show->setItemData(4, tr("Games whose PC game is installed through GOG, or owned in GOG Galaxy"), Qt::ToolTipRole);
-    m_show->setItemData(5, tr("Games installed on the current headset"), Qt::ToolTipRole);
-    m_show->setItemData(6, tr("Games on the current headset that qgp did not install"), Qt::ToolTipRole);
-    m_show->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    toolBar->addWidget(m_show);
-    m_show->setCurrentIndex(qMax(0, m_show->findData(QSettings().value(kShowSetting, 0).toInt())));
-    m_sorted->setFilter(GameFlags::fromInt(m_show->currentData().toInt()));
-    connect(m_show, &QComboBox::currentIndexChanged, this, &MainWindow::showChanged);
+    auto addBox = [this, toolBar](const QString& text, QComboBox* box) {
+        auto* label = new QLabel(text, toolBar);
+        label->setBuddy(box);
+        label->setContentsMargins(12, 0, 4, 0);
+        toolBar->addWidget(label);
+        box->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+        toolBar->addWidget(box);
+    };
+    toolBar->addSeparator();
+
+    // Source: filled when a catalog loads, from its platforms.
+    addBox(tr("&Source:"), m_source);
+    m_source->addItem(tr("All sources"), QString());
+
+    addBox(tr("S&tore:"), m_store);
+    m_store->addItem(tr("Any"), 0);
+    m_store->addItem(tr("Sold on Steam"), int(GameFlag::SoldOnSteam));
+    m_store->addItem(tr("Sold on GOG"), int(GameFlag::SoldOnGog));
+    m_store->addItem(tr("In my Steam library"), int(GameFlag::InSteamLibrary));
+    m_store->addItem(tr("In my GOG library"), int(GameFlag::InGogLibrary));
+    m_store->setItemData(1, tr("Games that need a PC game sold on Steam"), Qt::ToolTipRole);
+    m_store->setItemData(2, tr("Games that need a PC game sold on GOG"), Qt::ToolTipRole);
+    m_store->setItemData(3, tr("Games whose PC game is installed through Steam on this PC"), Qt::ToolTipRole);
+    m_store->setItemData(4, tr("Games whose PC game is installed through GOG, or owned in GOG Galaxy"), Qt::ToolTipRole);
+
+    addBox(tr("&Headset:"), m_onHeadset);
+    m_onHeadset->addItem(tr("Any"), int(GameFilter::Headset::Any));
+    m_onHeadset->addItem(tr("On my headset"), int(GameFilter::Headset::OnHeadset));
+    m_onHeadset->addItem(tr("Installed by qgp"), int(GameFilter::Headset::InstalledByQgp));
+    m_onHeadset->addItem(tr("Installed outside qgp"), int(GameFilter::Headset::InstalledOutsideQgp));
+    m_onHeadset->addItem(tr("Not on my headset"), int(GameFilter::Headset::NotOnHeadset));
+
+    m_selfContained->setToolTip(tr("Games qgp installs on its own: no files from you, or only files anyone can get for free"));
+    toolBar->addWidget(m_selfContained);
+
+    QSettings settings;
+    m_store->setCurrentIndex(qMax(0, m_store->findData(settings.value(kStoreSetting, 0).toInt())));
+    m_onHeadset->setCurrentIndex(qMax(0, m_onHeadset->findData(settings.value(kHeadsetSetting, 0).toInt())));
+    m_selfContained->setChecked(settings.value(kSelfContainedSetting, false).toBool());
+    filterChanged();
+    connect(m_source, &QComboBox::currentIndexChanged, this, &MainWindow::filterChanged);
+    connect(m_store, &QComboBox::currentIndexChanged, this, &MainWindow::filterChanged);
+    connect(m_onHeadset, &QComboBox::currentIndexChanged, this, &MainWindow::filterChanged);
+    connect(m_selfContained, &QCheckBox::toggled, this, &MainWindow::filterChanged);
 }
 
-void MainWindow::showChanged()
+void MainWindow::fillSourceBox(const QList<questports::OriginPlatform>& platforms)
 {
-    const int flag = m_show->currentData().toInt();
-    m_sorted->setFilter(GameFlags::fromInt(flag));
-    QSettings().setValue(kShowSetting, flag);
+    // Keep the choice made before, or the saved one when the box is still empty.
+    const QString wanted = m_source->count() > 1 ? m_source->currentData().toString()
+                                                 : QSettings().value(kSourceSetting).toString();
+    QHash<QString, int> counts;
+    for (int row = 0; row < m_model->rowCount(); ++row)
+        ++counts[m_model->game(row).originPlatform];
+
+    const QSignalBlocker blocker(m_source);
+    m_source->clear();
+    m_source->addItem(tr("All sources"), QString());
+    for (const questports::OriginPlatform& platform : platforms) {
+        if (const int count = counts.value(platform.id))
+            m_source->addItem(tr("%1 (%2)").arg(platform.label).arg(count), platform.id);
+    }
+    m_source->setCurrentIndex(qMax(0, m_source->findData(wanted)));
+}
+
+void MainWindow::filterChanged()
+{
+    GameFilter filter;
+    filter.source = m_source->currentData().toString();
+    filter.store = GameFlags::fromInt(m_store->currentData().toInt());
+    filter.headset = GameFilter::Headset(m_onHeadset->currentData().toInt());
+    filter.selfContainedOnly = m_selfContained->isChecked();
+    m_sorted->setFilter(filter);
+
+    QSettings settings;
+    // An empty Source box (no catalog yet) must not overwrite the saved choice.
+    if (m_source->count() > 1)
+        settings.setValue(kSourceSetting, filter.source);
+    settings.setValue(kStoreSetting, filter.store.toInt());
+    settings.setValue(kHeadsetSetting, int(filter.headset));
+    settings.setValue(kSelfContainedSetting, filter.selfContainedOnly);
     m_view->scrollToTop();
 }
 
@@ -310,6 +368,8 @@ bool MainWindow::loadCatalog(const QString& path)
     }
 
     m_model->setGames(catalog->games);
+    fillSourceBox(catalog->originPlatforms);
+    filterChanged();
     findLibraries();
     findHeadsetGames();
     QSettings().setValue(QStringLiteral("catalogPath"), QFileInfo(path).absoluteFilePath());

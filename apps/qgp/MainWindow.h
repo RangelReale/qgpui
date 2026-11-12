@@ -12,10 +12,12 @@ class HeadsetConnection;
 class HeadsetDialog;
 namespace questports {
 struct Game;
-}
+struct OriginPlatform;
+} // namespace questports
 
 class QAction;
 class QModelIndex;
+class QCheckBox;
 class QComboBox;
 class QLabel;
 class QListView;
@@ -38,7 +40,9 @@ private:
     void reloadCatalog();
     void createToolBar();
     void orderChanged();
-    void showChanged();
+    void filterChanged();
+    // Fills the Source box from the catalog's platforms, with the number of games of each.
+    void fillSourceBox(const QList<questports::OriginPlatform>& platforms);
     void findLibraries();
     // Reads the current headset's packages and install records, and marks the games on it.
     void findHeadsetGames();
@@ -55,7 +59,10 @@ private:
     GameListModel* m_model;
     GameSortModel* m_sorted;
     QComboBox* m_order;
-    QComboBox* m_show;
+    QComboBox* m_source;
+    QComboBox* m_store;
+    QComboBox* m_onHeadset;
+    QCheckBox* m_selfContained;
     int m_headsetQuery = 0; // Counts headset queries, so that an older answer is dropped.
     QString m_headsetQuerySerial;
     QListView* m_view;

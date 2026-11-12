@@ -29,7 +29,7 @@ bool GameSortModel::lessThan(const QModelIndex& left, const QModelIndex& right) 
     return m_comparator.lessThan(m_source->game(left.row()), m_source->game(right.row()));
 }
 
-void GameSortModel::setFilter(GameFlags filter)
+void GameSortModel::setFilter(const GameFilter& filter)
 {
     if (filter == m_filter)
         return;
@@ -45,5 +45,28 @@ void GameSortModel::refilter()
 
 bool GameSortModel::filterAcceptsRow(int sourceRow, const QModelIndex&) const
 {
-    return !m_filter || (m_source->flags(sourceRow) & m_filter);
+    return accepts(m_source->game(sourceRow), m_source->flags(sourceRow));
+}
+
+bool GameSortModel::accepts(const questports::Game& game, GameFlags flags) const
+{
+    if (!m_filter.source.isEmpty() && game.originPlatform != m_filter.source)
+        return false;
+    if (m_filter.store && !(flags & m_filter.store))
+        return false;
+    if (m_filter.selfContainedOnly && !(flags & GameFlag::SelfContained))
+        return false;
+    switch (m_filter.headset) {
+    case GameFilter::Headset::Any:
+        return true;
+    case GameFilter::Headset::OnHeadset:
+        return flags.testFlag(GameFlag::OnHeadset);
+    case GameFilter::Headset::InstalledByQgp:
+        return flags.testFlag(GameFlag::InstalledByQgp);
+    case GameFilter::Headset::InstalledOutsideQgp:
+        return flags.testFlag(GameFlag::InstalledOutsideQgp);
+    case GameFilter::Headset::NotOnHeadset:
+        return !flags.testFlag(GameFlag::OnHeadset);
+    }
+    return true;
 }

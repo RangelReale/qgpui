@@ -8,8 +8,20 @@
 
 class GameListModel;
 
-// Shows a GameListModel in one of the questports::GameOrder orders, optionally only the games
-// with a given flag.
+// Which games to show. A game must match every part.
+struct GameFilter
+{
+    enum class Headset { Any, OnHeadset, InstalledByQgp, InstalledOutsideQgp, NotOnHeadset };
+
+    QString source;        // An origin platform id; empty for any.
+    GameFlags store;       // One of the store flags; empty for any.
+    Headset headset = Headset::Any;
+    bool selfContainedOnly = false;
+
+    bool operator==(const GameFilter&) const = default;
+};
+
+// Shows a GameListModel in one of the questports::GameOrder orders, filtered by a GameFilter.
 class GameSortModel : public QSortFilterProxyModel
 {
     Q_OBJECT
@@ -20,9 +32,9 @@ public:
     questports::GameOrder order() const { return m_order; }
     void setOrder(questports::GameOrder order);
 
-    // Shows only games with this flag; no flag shows every game.
-    GameFlags filter() const { return m_filter; }
-    void setFilter(GameFlags filter);
+    const GameFilter& filter() const { return m_filter; }
+    void setFilter(const GameFilter& filter);
+    bool accepts(const questports::Game& game, GameFlags flags) const;
     // Applies the filter again, after the source's store flags changed.
     void refilter();
 
@@ -34,5 +46,5 @@ private:
     GameListModel* m_source;
     questports::GameOrder m_order = questports::GameOrder::Title;
     questports::GameComparator m_comparator{m_order};
-    GameFlags m_filter;
+    GameFilter m_filter;
 };

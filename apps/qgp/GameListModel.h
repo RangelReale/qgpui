@@ -43,7 +43,7 @@ private:
     QList<questports::Game> m_games;
     void flagsChanged();
 
-    QList<GameFlags> m_selling; // By row.
+    QList<GameFlags> m_selling; // By row: the flags from the recipe alone.
     QHash<QString, GameFlags> m_holding;
     QHash<QString, GameFlags> m_onHeadset;
     QMultiHash<QUrl, int> m_rowsByCover;

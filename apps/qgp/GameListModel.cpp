@@ -17,7 +17,7 @@ void GameListModel::setGames(QList<questports::Game> games)
     m_selling.clear();
     for (int row = 0; row < m_games.size(); ++row) {
         m_rowsByCover.insert(m_games[row].coverUrl, row);
-        m_selling.append(storesSelling(m_games[row]));
+        m_selling.append(storesSelling(m_games[row]) | selfContained(m_games[row]));
     }
     endResetModel();
 }

@@ -2,6 +2,7 @@
 
 #include "gamestores/Finder.h"
 
+#include <QHash>
 #include <QJsonArray>
 #include <QUrlQuery>
 
@@ -38,6 +39,34 @@ GameFlags headsetFlags(const questports::Game& game, const QSet<QString>& instal
     if (package.isEmpty() || !installed.contains(package))
         return {};
     return GameFlag::OnHeadset | (recorded.contains(package) ? GameFlag::InstalledByQgp : GameFlag::InstalledOutsideQgp);
+}
+
+GameFlags selfContained(const questports::Game& game)
+{
+    // Guided and manual recipes leave work to the user outside qgp, such as running the port's
+    // own installer on their game files.
+    if (!game.hasRecipe() || game.recipe.value(QLatin1StringView("support")).toString() != QLatin1StringView("automatic"))
+        return {};
+    for (const QJsonValue& apk : game.recipe.value(QLatin1StringView("apks")).toArray()) {
+        if (apk.toObject().value(QLatin1StringView("source")).toString() == QLatin1StringView("manual"))
+            return {};
+    }
+    QHash<QString, bool> freeGroups; // Group -> one of its inputs is free.
+    for (const QJsonValue& value : game.recipe.value(QLatin1StringView("inputs")).toArray()) {
+        const QJsonObject input = value.toObject();
+        const bool required = input.value(QLatin1StringView("required")).toBool(true);
+        const bool free = input.value(QLatin1StringView("free")).toBool();
+        if (required && !free)
+            return {};
+        const QString group = input.value(QLatin1StringView("group")).toString();
+        if (!group.isEmpty())
+            freeGroups[group] = freeGroups.value(group) || free;
+    }
+    for (bool free : std::as_const(freeGroups)) {
+        if (!free)
+            return {};
+    }
+    return GameFlag::SelfContained;
 }
 
 GameFlags storesSelling(const questports::Game& game)
