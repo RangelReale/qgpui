@@ -28,6 +28,7 @@
 #include <QLabel>
 #include <QListView>
 #include <QLocale>
+#include <QMap>
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QScrollBar>
@@ -46,6 +47,54 @@ const QString kSourceSetting = QStringLiteral("filter/source");
 const QString kStoreSetting = QStringLiteral("filter/store");
 const QString kHeadsetSetting = QStringLiteral("filter/headset");
 const QString kSelfContainedSetting = QStringLiteral("filter/selfContained");
+const QString kRunsOnSetting = QStringLiteral("filter/runsOn");
+const QString kVrStyleSetting = QStringLiteral("filter/vrStyle");
+const QString kNoPcNeededSetting = QStringLiteral("filter/noPcNeeded");
+const QString kCategorySetting = QStringLiteral("filter/category");
+const QString kDeveloperSetting = QStringLiteral("filter/developer");
+const QString kStatusSetting = QStringLiteral("filter/status");
+const QString kMoreFiltersSetting = QStringLiteral("filter/more");
+
+// The site's names for its port types, in the order of its Type box.
+const QList<std::pair<QString, const char*>> kCategories = {
+    {QStringLiteral("source_port"), QT_TRANSLATE_NOOP("MainWindow", "Source ports")},
+    {QStringLiteral("decompilation"), QT_TRANSLATE_NOOP("MainWindow", "Decomps")},
+    {QStringLiteral("engine_recreation"), QT_TRANSLATE_NOOP("MainWindow", "Engine recreations")},
+    {QStringLiteral("emulator"), QT_TRANSLATE_NOOP("MainWindow", "Emulators")},
+    {QStringLiteral("wrapper"), QT_TRANSLATE_NOOP("MainWindow", "Wrappers")},
+    {QStringLiteral("vr_injection"), QT_TRANSLATE_NOOP("MainWindow", "VR mods")},
+    {QStringLiteral("game_mod"), QT_TRANSLATE_NOOP("MainWindow", "Game mods")},
+};
+
+const QList<std::pair<QString, const char*>> kStatuses = {
+    {QStringLiteral("released"), QT_TRANSLATE_NOOP("MainWindow", "Released")},
+    {QStringLiteral("playable_beta"), QT_TRANSLATE_NOOP("MainWindow", "Playable beta")},
+    {QStringLiteral("in_development"), QT_TRANSLATE_NOOP("MainWindow", "In development")},
+};
+
+// A box's choice: the value it filters by, and its text.
+using Choice = std::pair<QString, QString>;
+
+// Fills a box with "any" and choices. Keeps the choice made before, or the saved one when the box
+// is still empty.
+void fillChoiceBox(QComboBox* box, const QString& anyText, const QList<Choice>& choices, const QString& setting)
+{
+    const QString wanted = box->count() > 1 ? box->currentData().toString() : QSettings().value(setting).toString();
+    const QSignalBlocker blocker(box);
+    box->clear();
+    box->addItem(anyText, QString());
+    for (const auto& [id, text] : choices)
+        box->addItem(text, id);
+    box->setCurrentIndex(qMax(0, box->findData(wanted)));
+}
+
+// Saves a box's choice, unless the box is still empty (no catalog yet).
+void saveChoice(QSettings& settings, const QComboBox* box, const QString& setting)
+{
+    if (box->count() > 1)
+        settings.setValue(setting, box->currentData().toString());
+}
+
 QString orderLabel(questports::GameOrder order)
 {
     switch (order) {
@@ -57,6 +106,16 @@ QString orderLabel(questports::GameOrder order)
         return MainWindow::tr("Recently released");
     }
     return {};
+}
+
+// Adds a label and its box to a toolbar. Returns the toolbar's actions for both.
+QList<QAction*> addBox(QToolBar* toolBar, const QString& text, QComboBox* box)
+{
+    auto* label = new QLabel(text, toolBar);
+    label->setBuddy(box);
+    label->setContentsMargins(12, 0, 4, 0);
+    box->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    return {toolBar->addWidget(label), toolBar->addWidget(box)};
 }
 
 // Covers are mostly Steam header images (460x215) or 16:9; this fits both without much border.
@@ -92,6 +151,12 @@ MainWindow::MainWindow(QWidget* parent)
     , m_store(new QComboBox(this))
     , m_onHeadset(new QComboBox(this))
     , m_selfContained(new QCheckBox(tr("Self-&contained only"), this))
+    , m_runsOn(new QComboBox(this))
+    , m_vrStyle(new QComboBox(this))
+    , m_noPcNeeded(new QCheckBox(tr("&No PC needed"), this))
+    , m_category(new QComboBox(this))
+    , m_developer(new QComboBox(this))
+    , m_portStatus(new QComboBox(this))
     , m_view(new GameListView(this))
     , m_status(new QLabel(this))
     , m_headset(new HeadsetConnection(this))
@@ -180,21 +245,13 @@ void MainWindow::createToolBar()
     m_sorted->setOrder(questports::gameOrderFromKey(m_order->currentData().toString()));
     connect(m_order, &QComboBox::currentIndexChanged, this, &MainWindow::orderChanged);
 
-    auto addBox = [this, toolBar](const QString& text, QComboBox* box) {
-        auto* label = new QLabel(text, toolBar);
-        label->setBuddy(box);
-        label->setContentsMargins(12, 0, 4, 0);
-        toolBar->addWidget(label);
-        box->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-        toolBar->addWidget(box);
-    };
     toolBar->addSeparator();
 
     // Source: filled when a catalog loads, from its platforms.
-    addBox(tr("&Source:"), m_source);
+    addBox(toolBar, tr("&Source:"), m_source);
     m_source->addItem(tr("All sources"), QString());
 
-    addBox(tr("S&tore:"), m_store);
+    addBox(toolBar, tr("S&tore:"), m_store);
     m_store->addItem(tr("Any"), 0);
     m_store->addItem(tr("Sold on Steam"), int(GameFlag::SoldOnSteam));
     m_store->addItem(tr("Sold on GOG"), int(GameFlag::SoldOnGog));
@@ -205,7 +262,7 @@ void MainWindow::createToolBar()
     m_store->setItemData(3, tr("Games whose PC game is installed through Steam on this PC"), Qt::ToolTipRole);
     m_store->setItemData(4, tr("Games whose PC game is installed through GOG, or owned in GOG Galaxy"), Qt::ToolTipRole);
 
-    addBox(tr("&Headset:"), m_onHeadset);
+    addBox(toolBar, tr("&Headset:"), m_onHeadset);
     m_onHeadset->addItem(tr("Any"), int(GameFilter::Headset::Any));
     m_onHeadset->addItem(tr("On my headset"), int(GameFilter::Headset::OnHeadset));
     m_onHeadset->addItem(tr("Installed by qgp"), int(GameFilter::Headset::InstalledByQgp));
@@ -219,30 +276,145 @@ void MainWindow::createToolBar()
     m_store->setCurrentIndex(qMax(0, m_store->findData(settings.value(kStoreSetting, 0).toInt())));
     m_onHeadset->setCurrentIndex(qMax(0, m_onHeadset->findData(settings.value(kHeadsetSetting, 0).toInt())));
     m_selfContained->setChecked(settings.value(kSelfContainedSetting, false).toBool());
+
+    createFilterBar();
     filterChanged();
-    connect(m_source, &QComboBox::currentIndexChanged, this, &MainWindow::filterChanged);
-    connect(m_store, &QComboBox::currentIndexChanged, this, &MainWindow::filterChanged);
-    connect(m_onHeadset, &QComboBox::currentIndexChanged, this, &MainWindow::filterChanged);
-    connect(m_selfContained, &QCheckBox::toggled, this, &MainWindow::filterChanged);
+    for (QComboBox* box : {m_source, m_store, m_onHeadset, m_runsOn, m_vrStyle, m_category, m_developer, m_portStatus})
+        connect(box, &QComboBox::currentIndexChanged, this, &MainWindow::filterChanged);
+    for (QCheckBox* box : {m_selfContained, m_noPcNeeded})
+        connect(box, &QCheckBox::toggled, this, &MainWindow::filterChanged);
 }
 
-void MainWindow::fillSourceBox(const QList<questports::OriginPlatform>& platforms)
+void MainWindow::createFilterBar()
 {
-    // Keep the choice made before, or the saved one when the box is still empty.
-    const QString wanted = m_source->count() > 1 ? m_source->currentData().toString()
-                                                 : QSettings().value(kSourceSetting).toString();
-    QHash<QString, int> counts;
-    for (int row = 0; row < m_model->rowCount(); ++row)
-        ++counts[m_model->game(row).originPlatform];
+    addToolBarBreak();
+    QToolBar* toolBar = addToolBar(tr("Filters"));
+    toolBar->setObjectName(QStringLiteral("filtersToolBar"));
+    toolBar->setMovable(false);
+    toolBar->setToolButtonStyle(Qt::ToolButtonTextOnly);
 
-    const QSignalBlocker blocker(m_source);
-    m_source->clear();
-    m_source->addItem(tr("All sources"), QString());
-    for (const questports::OriginPlatform& platform : platforms) {
-        if (const int count = counts.value(platform.id))
-            m_source->addItem(tr("%1 (%2)").arg(platform.label).arg(count), platform.id);
+    // The boxes are filled when a catalog loads.
+    addBox(toolBar, tr("&Runs on:"), m_runsOn);
+    m_runsOn->setToolTip(tr("Games that run on this headset model"));
+    m_runsOn->addItem(tr("All headsets"), QString());
+    addBox(toolBar, tr("&VR style:"), m_vrStyle);
+    m_vrStyle->addItem(tr("Any"), QString());
+    m_noPcNeeded->setToolTip(tr("Games the headset alone can install, without a PC, as QuestPorts judges it"));
+    auto* spacer = new QWidget(toolBar);
+    spacer->setFixedWidth(12);
+    toolBar->addWidget(spacer);
+    toolBar->addWidget(m_noPcNeeded);
+    toolBar->addSeparator();
+
+    // Rarely used, so hidden until asked for, as on the site.
+    m_moreFiltersAction = toolBar->addAction(tr("&More filters"));
+    m_moreFiltersAction->setCheckable(true);
+    m_moreFiltersAction->setToolTip(tr("Filter by type, developer and status"));
+    m_moreFilters << addBox(toolBar, tr("T&ype:"), m_category);
+    m_category->addItem(tr("All types"), QString());
+    m_moreFilters << addBox(toolBar, tr("&Developer:"), m_developer);
+    m_developer->addItem(tr("All developers"), QString());
+    // Some names are long; the list still shows them whole.
+    m_developer->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+    m_developer->setMinimumContentsLength(20);
+    m_moreFilters << addBox(toolBar, tr("St&atus:"), m_portStatus);
+    m_portStatus->addItem(tr("All statuses"), QString());
+    for (const auto& [id, text] : kStatuses)
+        m_portStatus->addItem(tr(text), id);
+    toolBar->addSeparator();
+    m_resetFiltersAction = toolBar->addAction(tr("R&eset"), this, &MainWindow::resetFilters);
+    m_resetFiltersAction->setToolTip(tr("Show every game again"));
+
+    QSettings settings;
+    m_noPcNeeded->setChecked(settings.value(kNoPcNeededSetting, false).toBool());
+    m_portStatus->setCurrentIndex(qMax(0, m_portStatus->findData(settings.value(kStatusSetting).toString())));
+    m_moreFiltersAction->setChecked(settings.value(kMoreFiltersSetting, false).toBool());
+    connect(m_moreFiltersAction, &QAction::toggled, this, [this](bool open) {
+        QSettings().setValue(kMoreFiltersSetting, open);
+        updateMoreFilters();
+    });
+}
+
+void MainWindow::fillCatalogBoxes(const questports::Catalog& catalog)
+{
+    QHash<QString, int> platforms;
+    QHash<QString, int> styles;
+    QHash<QString, int> categories;
+    QMap<QString, QString> developers; // Lower case -> the first spelling, sorted without case.
+    int noPcNeeded = 0;
+    for (const questports::Game& game : catalog.games) {
+        ++platforms[game.originPlatform];
+        ++styles[game.vrStyle];
+        ++categories[game.category];
+        if (!game.developer.isEmpty() && !developers.contains(game.developer.toLower()))
+            developers.insert(game.developer.toLower(), game.developer);
+        noPcNeeded += game.noPcNeeded ? 1 : 0;
     }
-    m_source->setCurrentIndex(qMax(0, m_source->findData(wanted)));
+    auto counted = [](const QString& text, int count) { return tr("%1 (%2)").arg(text).arg(count); };
+
+    QList<Choice> choices;
+    for (const questports::OriginPlatform& platform : catalog.originPlatforms) {
+        if (const int count = platforms.value(platform.id))
+            choices.append({platform.id, counted(platform.label, count)});
+    }
+    fillChoiceBox(m_source, tr("All sources"), choices, kSourceSetting);
+
+    choices.clear();
+    for (const QString& headset : catalog.headsets) {
+        const bool listed = std::any_of(catalog.games.cbegin(), catalog.games.cend(),
+                                        [&](const questports::Game& game) { return game.headsets.contains(headset); });
+        if (listed)
+            choices.append({headset, headset});
+    }
+    fillChoiceBox(m_runsOn, tr("All headsets"), choices, kRunsOnSetting);
+
+    choices.clear();
+    for (const questports::VrStyle& style : catalog.vrStyles) {
+        if (const int count = styles.value(style.id))
+            choices.append({style.id, counted(style.label, count)});
+    }
+    fillChoiceBox(m_vrStyle, tr("Any"), choices, kVrStyleSetting);
+
+    choices.clear();
+    for (const auto& [id, text] : kCategories) {
+        if (const int count = categories.value(id))
+            choices.append({id, counted(tr(text), count)});
+    }
+    fillChoiceBox(m_category, tr("All types"), choices, kCategorySetting);
+
+    choices.clear();
+    for (const QString& developer : std::as_const(developers))
+        choices.append({developer, developer});
+    fillChoiceBox(m_developer, tr("All developers"), choices, kDeveloperSetting);
+
+    m_noPcNeeded->setText(counted(tr("&No PC needed"), noPcNeeded));
+}
+
+void MainWindow::resetFilters()
+{
+    for (QComboBox* box : {m_source, m_store, m_onHeadset, m_runsOn, m_vrStyle, m_category, m_developer, m_portStatus}) {
+        const QSignalBlocker blocker(box);
+        box->setCurrentIndex(0);
+    }
+    for (QCheckBox* box : {m_selfContained, m_noPcNeeded}) {
+        const QSignalBlocker blocker(box);
+        box->setChecked(false);
+    }
+    filterChanged();
+}
+
+void MainWindow::updateMoreFilters()
+{
+    const GameFilter& filter = m_sorted->filter();
+    const int used = int(!filter.category.isEmpty()) + int(!filter.developer.isEmpty()) + int(!filter.status.isEmpty());
+    // A filter in use stays in sight, so that a hidden one cannot empty the list.
+    if (used > 0 && !m_moreFiltersAction->isChecked()) {
+        m_moreFiltersAction->setChecked(true); // Calls this again.
+        return;
+    }
+    m_moreFiltersAction->setText(used > 0 ? tr("&More filters (%1)").arg(used) : tr("&More filters"));
+    for (QAction* action : std::as_const(m_moreFilters))
+        action->setVisible(m_moreFiltersAction->isChecked());
 }
 
 void MainWindow::filterChanged()
@@ -252,15 +424,28 @@ void MainWindow::filterChanged()
     filter.store = GameFlags::fromInt(m_store->currentData().toInt());
     filter.headset = GameFilter::Headset(m_onHeadset->currentData().toInt());
     filter.selfContainedOnly = m_selfContained->isChecked();
+    filter.runsOn = m_runsOn->currentData().toString();
+    filter.vrStyle = m_vrStyle->currentData().toString();
+    filter.noPcNeededOnly = m_noPcNeeded->isChecked();
+    filter.category = m_category->currentData().toString();
+    filter.developer = m_developer->currentData().toString();
+    filter.status = m_portStatus->currentData().toString();
     m_sorted->setFilter(filter);
+    m_resetFiltersAction->setEnabled(!(filter == GameFilter{}));
+    updateMoreFilters();
 
     QSettings settings;
-    // An empty Source box (no catalog yet) must not overwrite the saved choice.
-    if (m_source->count() > 1)
-        settings.setValue(kSourceSetting, filter.source);
+    // Boxes the catalog fills must not overwrite the saved choice while they are empty.
+    saveChoice(settings, m_source, kSourceSetting);
+    saveChoice(settings, m_runsOn, kRunsOnSetting);
+    saveChoice(settings, m_vrStyle, kVrStyleSetting);
+    saveChoice(settings, m_category, kCategorySetting);
+    saveChoice(settings, m_developer, kDeveloperSetting);
     settings.setValue(kStoreSetting, filter.store.toInt());
     settings.setValue(kHeadsetSetting, int(filter.headset));
     settings.setValue(kSelfContainedSetting, filter.selfContainedOnly);
+    settings.setValue(kNoPcNeededSetting, filter.noPcNeededOnly);
+    settings.setValue(kStatusSetting, filter.status);
     m_view->scrollToTop();
 }
 
@@ -368,7 +553,7 @@ bool MainWindow::loadCatalog(const QString& path)
     }
 
     m_model->setGames(catalog->games);
-    fillSourceBox(catalog->originPlatforms);
+    fillCatalogBoxes(*catalog);
     filterChanged();
     findLibraries();
     findHeadsetGames();

@@ -17,6 +17,13 @@ struct GameFilter
     GameFlags store;       // One of the store flags; empty for any.
     Headset headset = Headset::Any;
     bool selfContainedOnly = false;
+    // The site's filters.
+    QString runsOn;        // A headset label the game must list, such as "Quest 3"; empty for any.
+    QString vrStyle;       // A VR style id; empty for any.
+    bool noPcNeededOnly = false;
+    QString category;      // A port type, such as "emulator"; empty for any.
+    QString developer;     // Compared without case; empty for any.
+    QString status;        // "released", "playable_beta" or "in_development"; empty for any.
 
     bool operator==(const GameFilter&) const = default;
 };

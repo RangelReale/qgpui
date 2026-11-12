@@ -5,6 +5,7 @@
 #include <QJsonObject>
 #include <QList>
 #include <QString>
+#include <QStringList>
 #include <QUrl>
 
 #include <optional>
@@ -35,6 +36,8 @@ struct Game
     QString title;
     QUrl coverUrl; // Empty when the row has no cover.
     QString developer;
+    QString category; // The port's type: "source_port", "decompilation", "emulator"...
+    QString status;   // "released", "playable_beta" or "in_development".
     QDateTime addedAt;    // When the game was added to QuestPorts (created_at).
     QDateTime releasedAt; // The port's latest GitHub release (last_github_update); invalid when unknown.
 
@@ -43,6 +46,10 @@ struct Game
     QJsonArray campaigns; // PORT_EXPANSIONS[slug]; empty when the game has none.
     QJsonObject resolved; // Values computed by the site's functions.
     QString originPlatform; // resolved.originPlatform, such as "pc" or "n64"; empty when unknown.
+    QString vrStyle;        // resolved.vrStyle, such as "motion" or "cockpit"; empty in older catalogs.
+    QStringList headsets;   // resolved.headsets: the headsets it runs on, such as "Quest 3".
+    // resolved.noPcInstall is "yes": the headset alone can install it (the site's "No PC needed").
+    bool noPcNeeded = false;
     QJsonObject recipe;   // qgp's install recipe (data/recipes/<slug>.json); empty when there is none.
     QList<Drift> drift;   // Payload values that changed since the recipe was written.
 
@@ -57,12 +64,21 @@ struct OriginPlatform
     QString label;
 };
 
+// A VR style of the site's catalog filter ("cockpit", "Cockpit & driving").
+struct VrStyle
+{
+    QString id;
+    QString label;
+};
+
 struct Catalog
 {
     QDateTime generatedAt;        // When the catalog was built.
     QDateTime payloadGeneratedAt; // When the payload it was built from was generated.
     QList<Game> games;            // In payload order: by title, then slug.
     QList<OriginPlatform> originPlatforms; // In the site's order; empty in older catalogs.
+    QList<VrStyle> vrStyles;               // In the site's order; empty in older catalogs.
+    QStringList headsets;                  // The site's headset labels, in its order.
 };
 
 // Reads a catalog. Returns nothing, and sets *errorMessage when it is given, if the data is not a

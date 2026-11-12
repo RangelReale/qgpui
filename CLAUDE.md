@@ -33,7 +33,7 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
 - `local/`: ignored by git. Holds uncommitted working files, such as the generated payload and
   current keys or passwords. Never commit its contents.
 - `libs/questports/`: reads the catalog that `tools/questports-payload` writes (`Catalog`, `Game`,
-  `Drift`): each game with its recipe and drift. Needs only Qt Core.
+  `Drift`): each game with its recipe, its drift and the fields the site's filters use. Needs only Qt Core.
 - `libs/gamestores/`: finds the PC installs that recipes ask for. `SteamLibrary` reads every library
   in `libraryfolders.vdf` (KeyValues, parsed by `parseVdf`) and its `appmanifest_*.acf` files.
   `GogLibrary` merges the registry and GOG Galaxy's SQLite database (installs and ownership; it
@@ -60,7 +60,10 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   PC's Steam or GOG library, from `GameFinder` when the catalog loads), Headset (on the current
   headset, installed by qgp, installed outside qgp, i.e. with no entry in the headset's install
   records, or not on it) and Self-contained only (an automatic recipe, no manual APK, and every
-  required input and each input group free). `GameFlags` computes the flags;
+  required input and each input group free). A second row holds the site's own filters: Runs
+  on (`resolved.headsets`), VR style (`resolved.vrStyle`), No PC needed (`resolved.noPcInstall`)
+  and, behind More filters as on the site, Type, Developer and Status (from the port row); a
+  hidden filter in use opens More filters, and Reset clears every filter. `GameFlags` computes the flags;
   `MainWindow::findHeadsetGames` reads the headset when it changes and after an install. Each
   box's choice is kept in `QSettings` (`main.cpp` sets the organization name, without which
   QSettings stores nothing on Windows). The game dialog

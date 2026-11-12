@@ -11,6 +11,8 @@ QByteArray catalogJson(const QByteArray& games, const QByteArray& version = "1")
 {
     return R"({"format":"qgp-catalog","version":)" + version +
            R"(,"originPlatforms":[{"id":"pc","label":"PC"},{"id":"n64","label":"Nintendo 64"}])" +
+           R"(,"vrStyles":[{"id":"motion","label":"Full VR"},{"id":"seated","label":"Seated"}])" +
+           R"(,"headsets":["Quest 2","Quest 3"])" +
            R"(,"generatedAt":"2026-11-12T10:00:00.000Z",)"
            R"("sources":{"payload":{"generatedAt":"2026-11-11T12:00:00.000Z"},"recipes":{"count":1}},)"
            R"("games":)" + games + "}";
@@ -29,10 +31,11 @@ private slots:
         // The URL is written "https:\/\/" because moc reads "//" inside a raw string as a comment.
         const auto catalog = parseCatalog(catalogJson(R"([
             {"slug":"avp-vr","port":{"title":"AvP VR","cover_image_url":"https:\/\/x.test/avp.jpg",
-                                     "developer":"Bassquake","created_at":"2026-10-11T16:35:37.471366+00:00",
+                                     "developer":"Bassquake","category":"source_port","status":"released","created_at":"2026-10-11T16:35:37.471366+00:00",
                                      "last_github_update":"2026-10-18T16:07:19+00:00"},
              "install":{"packageName":"com.example.avp"},"campaigns":null,
-             "resolved":{"installType":"apk_and_assets","originPlatform":"pc"},
+             "resolved":{"installType":"apk_and_assets","originPlatform":"pc","vrStyle":"motion",
+                         "headsets":["Quest 2","Quest 3"],"noPcInstall":"yes"},
              "recipe":{"status":"draft","steps":[{"do":"install-apk"}]},
              "drift":[{"field":"version","recipe":"v1","payload":"v2"},
                       {"field":"targetPath","recipe":null,"payload":"/sdcard/AvP/"}]},
@@ -46,6 +49,10 @@ private slots:
         QCOMPARE(catalog->originPlatforms.size(), 2);
         QCOMPARE(catalog->originPlatforms[1].id, QStringLiteral("n64"));
         QCOMPARE(catalog->originPlatforms[1].label, QStringLiteral("Nintendo 64"));
+        QCOMPARE(catalog->vrStyles.size(), 2);
+        QCOMPARE(catalog->vrStyles[1].id, QStringLiteral("seated"));
+        QCOMPARE(catalog->vrStyles[1].label, QStringLiteral("Seated"));
+        QCOMPARE(catalog->headsets, QStringList({QStringLiteral("Quest 2"), QStringLiteral("Quest 3")}));
 
         const Game& avp = catalog->games[0];
         QCOMPARE(avp.slug, QStringLiteral("avp-vr"));
@@ -59,6 +66,11 @@ private slots:
         QVERIFY(avp.campaigns.isEmpty());
         QCOMPARE(avp.resolved.value(QLatin1StringView("installType")).toString(), QStringLiteral("apk_and_assets"));
         QCOMPARE(avp.originPlatform, QStringLiteral("pc"));
+        QCOMPARE(avp.vrStyle, QStringLiteral("motion"));
+        QCOMPARE(avp.headsets, QStringList({QStringLiteral("Quest 2"), QStringLiteral("Quest 3")}));
+        QVERIFY(avp.noPcNeeded);
+        QCOMPARE(avp.category, QStringLiteral("source_port"));
+        QCOMPARE(avp.status, QStringLiteral("released"));
         QVERIFY(avp.hasRecipe());
         QCOMPARE(avp.recipe.value(QLatin1StringView("status")).toString(), QStringLiteral("draft"));
         QCOMPARE(avp.drift.size(), 2);
@@ -79,6 +91,10 @@ private slots:
         QVERIFY(!bare.hasRecipe());
         QVERIFY(bare.drift.isEmpty());
         QVERIFY(bare.originPlatform.isEmpty());
+        QVERIFY(bare.vrStyle.isEmpty());
+        QVERIFY(bare.headsets.isEmpty());
+        QVERIFY(!bare.noPcNeeded);
+        QVERIFY(bare.category.isEmpty());
     }
 
     void rejectsBadCatalogs_data()

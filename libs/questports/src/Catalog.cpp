@@ -90,6 +90,14 @@ std::optional<Catalog> parseCatalog(const QByteArray& json, QString* errorMessag
                                         platform.value(QLatin1StringView("label")).toString()});
     }
 
+    for (const QJsonValue& value : root.value(QLatin1StringView("vrStyles")).toArray()) {
+        const QJsonObject style = value.toObject();
+        catalog.vrStyles.append({style.value(QLatin1StringView("id")).toString(),
+                                 style.value(QLatin1StringView("label")).toString()});
+    }
+    for (const QJsonValue& value : root.value(QLatin1StringView("headsets")).toArray())
+        catalog.headsets.append(value.toString());
+
     const QJsonArray games = gamesValue.toArray();
     catalog.games.reserve(games.size());
     for (qsizetype i = 0; i < games.size(); ++i) {
@@ -102,12 +110,18 @@ std::optional<Catalog> parseCatalog(const QByteArray& json, QString* errorMessag
         game.resolved = entry.value(QLatin1StringView("resolved")).toObject();
         game.recipe = entry.value(QLatin1StringView("recipe")).toObject();
         game.originPlatform = game.resolved.value(QLatin1StringView("originPlatform")).toString();
+        game.vrStyle = game.resolved.value(QLatin1StringView("vrStyle")).toString();
+        for (const QJsonValue& headset : game.resolved.value(QLatin1StringView("headsets")).toArray())
+            game.headsets.append(headset.toString());
+        game.noPcNeeded = game.resolved.value(QLatin1StringView("noPcInstall")).toString() == QLatin1StringView("yes");
         game.drift = driftList(entry.value(QLatin1StringView("drift")).toArray());
         game.title = game.port.value(QLatin1StringView("title")).toString();
         const QString cover = game.port.value(QLatin1StringView("cover_image_url")).toString();
         if (!cover.isEmpty())
             game.coverUrl = QUrl(cover);
         game.developer = game.port.value(QLatin1StringView("developer")).toString();
+        game.category = game.port.value(QLatin1StringView("category")).toString();
+        game.status = game.port.value(QLatin1StringView("status")).toString();
         game.addedAt = timestamp(game.port.value(QLatin1StringView("created_at")));
         game.releasedAt = timestamp(game.port.value(QLatin1StringView("last_github_update")));
 

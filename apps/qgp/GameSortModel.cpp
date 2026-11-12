@@ -56,6 +56,18 @@ bool GameSortModel::accepts(const questports::Game& game, GameFlags flags) const
         return false;
     if (m_filter.selfContainedOnly && !(flags & GameFlag::SelfContained))
         return false;
+    if (!m_filter.runsOn.isEmpty() && !game.headsets.contains(m_filter.runsOn))
+        return false;
+    if (!m_filter.vrStyle.isEmpty() && game.vrStyle != m_filter.vrStyle)
+        return false;
+    if (m_filter.noPcNeededOnly && !game.noPcNeeded)
+        return false;
+    if (!m_filter.category.isEmpty() && game.category != m_filter.category)
+        return false;
+    if (!m_filter.developer.isEmpty() && game.developer.compare(m_filter.developer, Qt::CaseInsensitive) != 0)
+        return false;
+    if (!m_filter.status.isEmpty() && game.status != m_filter.status)
+        return false;
     switch (m_filter.headset) {
     case GameFilter::Headset::Any:
         return true;

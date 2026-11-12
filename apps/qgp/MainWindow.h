@@ -11,8 +11,8 @@ class GameSortModel;
 class HeadsetConnection;
 class HeadsetDialog;
 namespace questports {
+struct Catalog;
 struct Game;
-struct OriginPlatform;
 } // namespace questports
 
 class QAction;
@@ -39,10 +39,16 @@ private:
     void openCatalog();
     void reloadCatalog();
     void createToolBar();
+    // The second row: the site's filters, with Type, Developer and Status behind More filters.
+    void createFilterBar();
     void orderChanged();
     void filterChanged();
-    // Fills the Source box from the catalog's platforms, with the number of games of each.
-    void fillSourceBox(const QList<questports::OriginPlatform>& platforms);
+    // Clears every filter. The order stays.
+    void resetFilters();
+    // Shows or hides the boxes behind More filters, and counts the ones in use on its button.
+    void updateMoreFilters();
+    // Fills the boxes whose choices come from the catalog, with the number of games of each.
+    void fillCatalogBoxes(const questports::Catalog& catalog);
     void findLibraries();
     // Reads the current headset's packages and install records, and marks the games on it.
     void findHeadsetGames();
@@ -63,6 +69,15 @@ private:
     QComboBox* m_store;
     QComboBox* m_onHeadset;
     QCheckBox* m_selfContained;
+    QComboBox* m_runsOn;
+    QComboBox* m_vrStyle;
+    QCheckBox* m_noPcNeeded;
+    QComboBox* m_category;
+    QComboBox* m_developer;
+    QComboBox* m_portStatus;
+    QAction* m_moreFiltersAction = nullptr;
+    QList<QAction*> m_moreFilters; // The toolbar actions of the boxes behind More filters.
+    QAction* m_resetFiltersAction = nullptr;
     int m_headsetQuery = 0; // Counts headset queries, so that an older answer is dropped.
     QString m_headsetQuerySerial;
     QListView* m_view;
