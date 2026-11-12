@@ -34,6 +34,12 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   current keys or passwords. Never commit its contents.
 - `libs/questports/`: reads the catalog that `tools/questports-payload` writes (`Catalog`, `Game`,
   `Drift`): each game with its recipe and drift. Needs only Qt Core.
+- `libs/gamestores/`: finds the PC installs that recipes ask for. `SteamLibrary` reads every library
+  in `libraryfolders.vdf` (KeyValues, parsed by `parseVdf`) and its `appmanifest_*.acf` files.
+  `GogLibrary` merges the registry and GOG Galaxy's SQLite database (installs and ownership; it
+  opens a temporary copy). `GameFinder::find` takes a recipe's `pc-install` input and matches by
+  ID, then by folder name, then by the input's `detect` files in every installed game. Qt Core and
+  Qt Sql (SQLite driver).
 - `apps/<name>/`: shipped applications.
 - `apps/qgp/`: the main app, Qt Widgets. The main window shows the catalog's games in a `QListView`
   in icon mode: the cover, with the title below. A toolbar's Order box picks a
@@ -68,6 +74,9 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
 - `tst_qadb_live` runs against the real adb server and is skipped by default. Set `QADB_LIVE=1`
   for server requests, `QADB_LIVE_SERIAL=<serial>` for read-only device requests, and
   `QADB_LIVE_WRITE=1` to also push and pull a file in `/data/local/tmp`.
+- `tst_gamestores_live` reads this PC's Steam and GOG libraries and matches every recipe against
+  them, printing what it finds. It is skipped unless `QGP_STORES_LIVE=1`. Read its output with
+  `ctest -V`.
 - adb may not be on `PATH`. `qadb::AdbServer::findAdb()` also looks in the Android SDK, at
   `%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe`.
 - `CLAUDE.local.md` (ignored by git), when present, records where this machine keeps Qt, adb and

@@ -5,6 +5,8 @@ copying files.
 
 - [`apps/qgp`](apps/qgp): the main application. For now it shows the QuestPorts games as a grid of
   covers.
+- [`libs/gamestores`](libs/gamestores): finds the games installed from Steam and GOG on this PC, and
+  the GOG games the user owns.
 - [`libs/qadb`](libs/qadb/README.md): a Qt 6 client library for the adb server.
 - [`libs/questports`](libs/questports): reads the qgp catalog, which holds the QuestPorts games and
   their install recipes.
@@ -15,9 +17,9 @@ copying files.
 
 ## Build
 
-Requirements: CMake 3.25, Qt 6.8 (Core, Network, Widgets, Test), a C++20 compiler. Set `QT_ROOT` to
-the folder that holds Qt in aqtinstall's layout (for example `QT_ROOT=C:\Qt` with Qt in
-`C:\Qt\6.8.3\msvc2022_64`).
+Requirements: CMake 3.25, Qt 6.8 (Core, Network, Sql, Widgets, Test), a C++20 compiler. Set
+`QT_ROOT` to the folder that holds Qt in aqtinstall's layout (for example `QT_ROOT=C:\Qt` with Qt
+in `C:\Qt\6.8.3\msvc2022_64`).
 
 ```bash
 cmake --preset windows

@@ -23,7 +23,7 @@ option(QGP_BUILD_TESTS "Build the tests" ON)
 option(QGP_BUILD_TOOLS "Build the developer tools in tools/" ON)
 option(QGP_BUILD_APPS "Build the applications in apps/" ON)
 
-find_package(Qt6 6.8 REQUIRED COMPONENTS Core Network)
+find_package(Qt6 6.8 REQUIRED COMPONENTS Core Network Sql)
 if(QGP_BUILD_TESTS)
     find_package(Qt6 6.8 REQUIRED COMPONENTS Test)
 endif()
