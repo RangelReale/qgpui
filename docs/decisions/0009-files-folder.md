@@ -44,3 +44,7 @@ The same action writes `qgp - what goes here.txt` into the game folder of every 
 - A shared file needs to exist once. When it is found in several places outside the game folder, the first path in sorted order is taken.
 - An update finds the same files again, so the user picks nothing twice.
 - The search reads the file system only. It does not check hashes or disc headers; the installer still does that.
+
+## Open question
+
+How long should the guide be? It now gives each input's label, help text, place and what qgp recognises it by, with a short intro and closing note. A shorter guide with one line per input (label, file names or endings, input folder) was considered. Decide once users have read real guides.
