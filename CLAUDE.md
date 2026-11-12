@@ -76,7 +76,8 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   headsets, searches over mDNS, pairs or connects over Wi-Fi, and switches a USB headset to Wi-Fi. Opening a game (double-click, Enter,
   Game > Open, context menu) shows `GameDialog`, where every action on a game starts (decision
   0010): its inputs as `InputResolver` finds them (Steam and GOG, then the files folder) with a
-  Choose button each, Open Files Folder (creates the game's folder and its
+  Choose button each and, below each, what it needs in the words of the files folder's guide
+  (`FilesFolder::inputGuide`), Open Files Folder (creates the game's folder and its
   `qgp - what goes here.txt`), and Install, which fetches the APK, runs `installer::Runner` with
   a progress bar, Continue for tell steps and a log, then records the install with
   `HeadsetRecordSync`. File > Files Folder changes the files folder (`QSettings`). The icons in `apps/qgp/icons/` are temporary;

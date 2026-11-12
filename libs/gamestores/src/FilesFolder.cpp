@@ -255,66 +255,90 @@ QString indented(const QString& text)
 
 } // namespace
 
+QStringList FilesFolder::inputGuide(const QJsonArray& inputs, int index, const QString& slug) const
+{
+    if (index < 0 || index >= inputs.size())
+        return {};
+    const QJsonObject input = inputs.at(index).toObject();
+    const QString id = input.value(QLatin1StringView("id")).toString();
+    QStringList lines;
+
+    const QString help = input.value(QLatin1StringView("help")).toString();
+    if (!help.isEmpty())
+        lines.append(help);
+
+    QString where;
+    if (slug.isEmpty()) {
+        where = inputsNeedingFolders(inputs).contains(id) ? QStringLiteral("Put in the folder \"%1\"").arg(id)
+                                                          : QStringLiteral("Put here");
+    } else {
+        const QString folder = inputsNeedingFolders(inputs).contains(id) ? slug + u'/' + id : slug;
+        where = QStringLiteral("Put in the folder \"%1\"").arg(QDir::toNativeSeparators(folder));
+    }
+    const QStringList names = stringList(input.value(QLatin1StringView("names")));
+    const QStringList extensions = stringList(input.value(QLatin1StringView("extensions")));
+    if (input.value(QLatin1StringView("kind")).toString() == QLatin1StringView("pc-install")) {
+        const QString root = input.value(QLatin1StringView("root")).toString();
+        const QStringList detect = stringList(input.value(QLatin1StringView("detect")));
+        QString line = root.isEmpty()
+                           ? QStringLiteral("%1: the game's folder, or a copy of it").arg(where)
+                           : QStringLiteral("%1: the game's folder, or the folder \"%2\" inside it").arg(where, root);
+        if (!detect.isEmpty())
+            line += QStringLiteral(". qgp recognises it by %1").arg(joinWith(detect, QStringLiteral("and")));
+        lines.append(line + u'.');
+    } else if (!names.isEmpty()) {
+        lines.append(QStringLiteral("%1: %2.").arg(where, joinWith(names, QStringLiteral("and"))));
+    } else if (!extensions.isEmpty()) {
+        const QString endings = joinWith(extensions, QStringLiteral("or"));
+        lines.append(input.value(QLatin1StringView("multiple")).toBool()
+                         ? QStringLiteral("%1: the files ending in %2.").arg(where, endings)
+                         : QStringLiteral("%1: one file ending in %2.").arg(where, endings));
+    }
+
+    if (input.value(QLatin1StringView("keepArchived")).toBool())
+        lines.append(QStringLiteral("Keep zip files zipped."));
+    const QJsonObject tool = input.value(QLatin1StringView("preparedWith")).toObject();
+    if (!tool.isEmpty()) {
+        lines.append(QStringLiteral("Made with %1: %2")
+                         .arg(tool.value(QLatin1StringView("tool")).toString(),
+                              tool.value(QLatin1StringView("url")).toString()));
+    }
+    return lines;
+}
+
+QString FilesFolder::sharedFilesNote(const QJsonArray& inputs) const
+{
+    const bool anyNames = std::any_of(inputs.begin(), inputs.end(), [](const QJsonValue& value) {
+        const QJsonObject input = value.toObject();
+        return input.value(QLatin1StringView("kind")).toString() != QLatin1StringView("pc-install") &&
+               !stringList(input.value(QLatin1StringView("names"))).isEmpty();
+    });
+    if (!anyNames)
+        return {};
+    return QStringLiteral("qgp also finds files with these exact names anywhere in %1. "
+                          "A file that several games use, such as naomi.zip, is needed only once.")
+        .arg(QDir::toNativeSeparators(m_root));
+}
+
 QString FilesFolder::guideText(const QString& title, const QJsonArray& inputs) const
 {
-    const QStringList own = inputsNeedingFolders(inputs);
-    bool anyNames = false;
-
     QString text = title + u'\n' + QString(title.size(), u'=') + QStringLiteral("\n\n");
     text += QStringLiteral("qgp looks in this folder for the files below when it installs the game. "
                            "It also looks in the folders inside this one.\n");
 
-    int number = 0;
-    for (const QJsonValue& value : inputs) {
-        const QJsonObject input = value.toObject();
-        const QString id = input.value(QLatin1StringView("id")).toString();
+    for (int i = 0; i < inputs.size(); ++i) {
+        const QJsonObject input = inputs.at(i).toObject();
         const bool optional = !input.value(QLatin1StringView("required")).toBool(true);
         text += QStringLiteral("\n%1. %2%3\n")
-                    .arg(QString::number(++number), input.value(QLatin1StringView("label")).toString(),
+                    .arg(QString::number(i + 1), input.value(QLatin1StringView("label")).toString(),
                          optional ? QStringLiteral(" (optional)") : QString());
-
-        const QString help = input.value(QLatin1StringView("help")).toString();
-        if (!help.isEmpty())
-            text += indented(help);
-
-        const QString where = own.contains(id) ? QStringLiteral("Put in the folder \"%1\"").arg(id)
-                                               : QStringLiteral("Put here");
-        const QStringList names = stringList(input.value(QLatin1StringView("names")));
-        const QStringList extensions = stringList(input.value(QLatin1StringView("extensions")));
-        if (input.value(QLatin1StringView("kind")).toString() == QLatin1StringView("pc-install")) {
-            const QString root = input.value(QLatin1StringView("root")).toString();
-            const QStringList detect = stringList(input.value(QLatin1StringView("detect")));
-            QString line = root.isEmpty()
-                               ? QStringLiteral("%1: the game's folder, or a copy of it").arg(where)
-                               : QStringLiteral("%1: the game's folder, or the folder \"%2\" inside it").arg(where, root);
-            if (!detect.isEmpty())
-                line += QStringLiteral(". qgp recognises it by %1").arg(joinWith(detect, QStringLiteral("and")));
-            text += indented(line + u'.');
-        } else if (!names.isEmpty()) {
-            anyNames = true;
-            text += indented(QStringLiteral("%1: %2.").arg(where, joinWith(names, QStringLiteral("and"))));
-        } else if (!extensions.isEmpty()) {
-            const QString endings = joinWith(extensions, QStringLiteral("or"));
-            text += indented(input.value(QLatin1StringView("multiple")).toBool()
-                                 ? QStringLiteral("%1: the files ending in %2.").arg(where, endings)
-                                 : QStringLiteral("%1: one file ending in %2.").arg(where, endings));
-        }
-
-        if (input.value(QLatin1StringView("keepArchived")).toBool())
-            text += indented(QStringLiteral("Keep zip files zipped."));
-        const QJsonObject tool = input.value(QLatin1StringView("preparedWith")).toObject();
-        if (!tool.isEmpty()) {
-            text += indented(QStringLiteral("Made with %1: %2")
-                                 .arg(tool.value(QLatin1StringView("tool")).toString(),
-                                      tool.value(QLatin1StringView("url")).toString()));
-        }
+        for (const QString& line : inputGuide(inputs, i))
+            text += indented(line);
     }
 
-    if (anyNames) {
-        text += QStringLiteral("\nqgp also finds files with these exact names anywhere in %1. "
-                               "A file that several games use, such as naomi.zip, is needed only once.\n")
-                    .arg(QDir::toNativeSeparators(m_root));
-    }
+    const QString shared = sharedFilesNote(inputs);
+    if (!shared.isEmpty())
+        text += u'\n' + shared + u'\n';
     text += QStringLiteral("\nqgp wrote this file and rewrites it each time you create the folder. "
                            "qgp ignores it when it looks for files, and never copies it to the headset.\n");
     return text;

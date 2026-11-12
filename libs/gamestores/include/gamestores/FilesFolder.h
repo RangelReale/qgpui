@@ -55,6 +55,16 @@ public:
     // help, where to put it and what qgp recognises it by.
     QString guideText(const QString& title, const QJsonArray& inputs) const;
 
+    // The guide's lines for inputs[index]: its help, where to put it and what qgp recognises it
+    // by, whether to keep zip files zipped, and the tool it is made with. With slug empty, the
+    // lines speak from inside the game folder ("Put here"); otherwise they name the game folder
+    // relative to the files folder, as the game dialog shows them.
+    QStringList inputGuide(const QJsonArray& inputs, int index, const QString& slug = {}) const;
+
+    // The guide's note that files with exact names are found anywhere in the files folder, or an
+    // empty string when no input has names.
+    QString sharedFilesNote(const QJsonArray& inputs) const;
+
     // Creates the game folder and the input folders that inputsNeedingFolders names, if they are
     // missing. When the game has inputs, it also writes the guide (kGuideFileName) into the game
     // folder, replacing an older one. Returns false, and sets *errorMessage when it is given, if a

@@ -261,8 +261,22 @@ void GameDialog::showInputs()
         delete item;
     }
 
-    for (int row = 0; row < m_inputs.size(); ++row) {
-        const ResolvedInput& resolved = m_inputs.at(row);
+    // What each input needs, in the words of the files folder's guide.
+    const gamestores::FilesFolder files(filesRoot());
+    QJsonArray inputsJson;
+    for (const ResolvedInput& resolved : std::as_const(m_inputs))
+        inputsJson.append(resolved.input.json);
+    const auto guideLabel = [this](const QString& text) {
+        auto* label = new QLabel(text, m_filesBox);
+        label->setWordWrap(true);
+        label->setTextInteractionFlags(Qt::TextSelectableByMouse);
+        label->setForegroundRole(QPalette::PlaceholderText);
+        return label;
+    };
+
+    for (int index = 0; index < m_inputs.size(); ++index) {
+        const int row = index * 2;
+        const ResolvedInput& resolved = m_inputs.at(index);
         const installer::Input& input = resolved.input;
 
         QString note;
@@ -274,7 +288,6 @@ void GameDialog::showInputs()
             note += tr(" (free)");
         auto* label = new QLabel(QStringLiteral("<b>%1</b>%2").arg(input.label.toHtmlEscaped(), note), m_filesBox);
         label->setWordWrap(true);
-        label->setToolTip(input.help);
 
         QString state;
         switch (resolved.state) {
@@ -318,21 +331,24 @@ void GameDialog::showInputs()
         });
         if (resolved.state != ResolvedInput::State::Found && input.required)
             status->setStyleSheet(QStringLiteral("color: palette(link)"));
-        QStringList details;
-        if (!input.help.isEmpty())
-            details.append(input.help);
         if (!resolved.candidates.isEmpty())
-            details.append(resolved.candidates.join(u'\n'));
-        status->setToolTip(details.join(QStringLiteral("\n\n")));
+            status->setToolTip(resolved.candidates.join(u'\n'));
 
         auto* choose = new QPushButton(tr("Choose..."), m_filesBox);
-        connect(choose, &QPushButton::clicked, this, [this, row] { chooseInput(row); });
+        connect(choose, &QPushButton::clicked, this, [this, index] { chooseInput(index); });
         choose->setEnabled(!m_running);
 
         m_filesGrid->addWidget(label, row, 0);
         m_filesGrid->addWidget(status, row, 1);
         m_filesGrid->addWidget(choose, row, 2, Qt::AlignTop);
+        const QStringList guide = files.inputGuide(inputsJson, index, m_game.slug);
+        if (!guide.isEmpty())
+            m_filesGrid->addWidget(guideLabel(guide.join(u'\n')), row + 1, 0, 1, 2);
     }
+
+    const QString shared = files.sharedFilesNote(inputsJson);
+    if (!shared.isEmpty())
+        m_filesGrid->addWidget(guideLabel(shared), int(m_inputs.size()) * 2, 0, 1, 3);
 }
 
 void GameDialog::chooseInput(int index)

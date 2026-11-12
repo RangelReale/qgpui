@@ -206,6 +206,25 @@ private slots:
         QVERIFY2(text.contains(QStringLiteral("anywhere in ")), qPrintable(text));
     }
 
+    // The game dialog shows the same lines, naming the game's folder.
+    void inputGuideWithSlug()
+    {
+        const FilesFolder folder(root());
+        const QJsonArray list = inputs("[{'id':'english','kind':'file','label':'English disc','help':'Your own disc.',"
+                                       "'extensions':['.cue','.bin'],'multiple':true},"
+                                       "{'id':'spanish','kind':'file','label':'Spanish disc','extensions':['.cue','.bin']},"
+                                       "{'id':'roms','kind':'file','label':'ROM sets','names':['a.zip']}]");
+        const QString sep = QDir::toNativeSeparators(QStringLiteral("/"));
+        QCOMPARE(folder.inputGuide(list, 0, QStringLiteral("mgs")),
+                 (QStringList{QStringLiteral("Your own disc."),
+                              QStringLiteral("Put in the folder \"mgs%1english\": the files ending in .cue or .bin.").arg(sep)}));
+        QCOMPARE(folder.inputGuide(list, 2, QStringLiteral("mgs")),
+                 QStringList{QStringLiteral("Put in the folder \"mgs\": a.zip.")});
+        QVERIFY(folder.inputGuide(list, 3).isEmpty());
+        QVERIFY(!folder.sharedFilesNote(list).isEmpty());
+        QVERIFY(folder.sharedFilesNote(QJsonArray{list.at(0)}).isEmpty());
+    }
+
     // The guide is never one of an input's files.
     void guideIsNotAFile()
     {
