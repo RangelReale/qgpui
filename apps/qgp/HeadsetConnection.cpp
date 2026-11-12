@@ -322,6 +322,16 @@ qadb::Reply* HeadsetConnection::addWirelessHeadset(const QString& address, const
     return m_client->connectDevice(host, port);
 }
 
+qadb::Reply* HeadsetConnection::switchToWifi(const QString& serial)
+{
+    qadb::Reply* reply = m_client->switchToWifi(serial);
+    connect(reply, &qadb::Reply::finished, this, [this, reply] {
+        if (reply->isSuccess())
+            setCurrentSerial(reply->outputText());
+    });
+    return reply;
+}
+
 QString HeadsetConnection::displayName(const qadb::DeviceInfo& device)
 {
     QString name = device.model;

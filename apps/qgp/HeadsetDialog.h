@@ -29,6 +29,7 @@ private:
     void useSelected();
     void search();
     void addWireless();
+    void switchToWifi();
 
     HeadsetConnection* m_connection;
     QLabel* m_statusIcon;
@@ -38,6 +39,8 @@ private:
     QListWidget* m_list;
     QPushButton* m_search;
     QPushButton* m_use;
+    QPushButton* m_toWifi;
+    bool m_switching = false;
     QLabel* m_message;
     QToolButton* m_wirelessToggle;
     QWidget* m_wireless;

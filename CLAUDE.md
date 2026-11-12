@@ -1,4 +1,4 @@
-﻿# qgp
+# qgp
 
 Tools for Meta Quest headsets over adb: finding headsets, managing connections, installing APKs and
 copying files. C++20, Qt 6, CMake. The main app, `apps/qgp`, is at an early stage. The rest is the `qadb`

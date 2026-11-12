@@ -66,6 +66,10 @@ public:
     // (host or host:port). A headset that connects within a short time becomes the current one.
     // The reply belongs to the caller.
     qadb::Reply* addWirelessHeadset(const QString& address, const QString& code);
+    // Moves a headset on a USB cable to Wi-Fi (adb tcpip and connect). On success the Wi-Fi
+    // connection becomes the current headset, and the cable can be unplugged. The reply belongs
+    // to the caller.
+    qadb::Reply* switchToWifi(const QString& serial);
 
     // "Quest 3", from the device's model.
     static QString displayName(const qadb::DeviceInfo& device);

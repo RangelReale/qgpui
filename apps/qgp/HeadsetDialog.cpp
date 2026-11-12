@@ -43,6 +43,7 @@ HeadsetDialog::HeadsetDialog(HeadsetConnection* connection, QWidget* parent)
     , m_list(new QListWidget(this))
     , m_search(plainButton(tr("&Search Again"), this))
     , m_use(plainButton(tr("&Use This Headset"), this))
+    , m_toWifi(plainButton(tr("Switch to Wi-&Fi"), this))
     , m_message(new QLabel(this))
     , m_wirelessToggle(new QToolButton(this))
     , m_wireless(new QWidget(this))
@@ -73,6 +74,9 @@ HeadsetDialog::HeadsetDialog(HeadsetConnection* connection, QWidget* parent)
     auto* listButtons = new QHBoxLayout;
     listButtons->addWidget(m_search);
     listButtons->addStretch(1);
+    m_toWifi->setToolTip(tr("Keep using the selected headset after you unplug the USB cable. The headset and "
+                            "this computer must be on the same network."));
+    listButtons->addWidget(m_toWifi);
     listButtons->addWidget(m_use);
 
     // Adding a headset over Wi-Fi, hidden until asked for.
@@ -136,6 +140,7 @@ HeadsetDialog::HeadsetDialog(HeadsetConnection* connection, QWidget* parent)
     connect(m_retryAdb, &QPushButton::clicked, m_connection, &HeadsetConnection::retryAdb);
     connect(m_search, &QPushButton::clicked, this, &HeadsetDialog::search);
     connect(m_use, &QPushButton::clicked, this, &HeadsetDialog::useSelected);
+    connect(m_toWifi, &QPushButton::clicked, this, &HeadsetDialog::switchToWifi);
     connect(m_list, &QListWidget::itemActivated, this, &HeadsetDialog::useSelected);
     connect(m_list, &QListWidget::currentItemChanged, this, &HeadsetDialog::updateButtons);
     connect(m_wirelessToggle, &QToolButton::toggled, this, [this](bool on) {
@@ -231,6 +236,13 @@ void HeadsetDialog::updateButtons()
     m_use->setEnabled(!serial.isEmpty() && serial != m_connection->currentSerial());
 
     const bool running = m_connection->isAdbRunning();
+    bool onlineUsb = false;
+    for (const qadb::DeviceInfo& device : m_connection->devices()) {
+        if (device.serial == serial)
+            onlineUsb = device.isOnline() && !device.isNetwork();
+    }
+    m_toWifi->setEnabled(running && onlineUsb && !m_switching);
+
     m_search->setEnabled(running && !m_connection->isScanning());
     m_add->setText(m_code->text().isEmpty() ? tr("&Connect") : tr("&Pair"));
     m_add->setEnabled(running && !m_address->text().trimmed().isEmpty() &&
@@ -279,4 +291,27 @@ void HeadsetDialog::addWireless()
         }
         updateButtons();
     });
+}
+
+void HeadsetDialog::switchToWifi()
+{
+    const QListWidgetItem* item = m_list->currentItem();
+    const QString serial = item ? item->data(Qt::UserRole).toString() : QString();
+    if (serial.isEmpty() || !m_toWifi->isEnabled())
+        return;
+
+    m_switching = true;
+    m_message->setText(tr("Switching to Wi-Fi..."));
+    qadb::Reply* reply = m_connection->switchToWifi(serial);
+    connect(reply, &qadb::Reply::finished, this, [this, reply] {
+        reply->deleteLater();
+        m_switching = false;
+        if (reply->isSuccess()) {
+            m_message->setText(tr("Connected over Wi-Fi at %1. You can unplug the USB cable.").arg(reply->outputText()));
+        } else {
+            m_message->setText(tr("Could not switch to Wi-Fi: %1").arg(reply->errorString()));
+        }
+        updateButtons();
+    });
+    updateButtons();
 }
