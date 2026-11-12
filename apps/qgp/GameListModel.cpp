@@ -6,27 +6,28 @@
 
 namespace {
 
-// Draws "Update" in a band across the bottom of a cover.
-void markUpdate(QPixmap& cover)
+struct Tag {
+    QString text;
+    QColor color;
+};
+
+// The tag for a QuestPorts port status, or no text for an unknown one.
+Tag statusTag(const QString& status)
 {
-    if (cover.isNull())
-        return;
-    QPainter painter(&cover);
-    const QRectF bounds(QPointF(0, 0), cover.deviceIndependentSize());
-    QFont font = painter.font();
-    font.setBold(true);
-    painter.setFont(font);
-    const qreal height = painter.fontMetrics().height() * 1.5;
-    const QRectF band(bounds.left(), bounds.bottom() - height, bounds.width(), height);
-    painter.fillRect(band, QColor(21, 101, 192, 225));
-    painter.setPen(Qt::white);
-    painter.drawText(band, Qt::AlignCenter, GameListModel::tr("Update"));
+    if (status == QLatin1StringView("released"))
+        return {GameListModel::tr("Released"), QColor(106, 27, 154, 235)};
+    if (status == QLatin1StringView("playable_beta"))
+        return {GameListModel::tr("Playable beta"), QColor(230, 81, 0, 235)};
+    if (status == QLatin1StringView("in_development"))
+        return {GameListModel::tr("In development"), QColor(97, 97, 97, 235)};
+    return {};
 }
 
-// Draws a rounded tag in the cover's top-left corner. Further tags would go below it.
-void markTag(QPixmap& cover, const QString& text, const QColor& color)
+// Draws rounded tags in a row from the cover's top-left corner, wrapping to a new row when one
+// does not fit.
+void markTags(QPixmap& cover, const QList<Tag>& tags)
 {
-    if (cover.isNull())
+    if (cover.isNull() || tags.isEmpty())
         return;
     QPainter painter(&cover);
     painter.setRenderHint(QPainter::Antialiasing);
@@ -36,12 +37,23 @@ void markTag(QPixmap& cover, const QString& text, const QColor& color)
     const QFontMetricsF metrics(font);
     const qreal height = metrics.height() * 1.3;
     const qreal margin = 6;
-    const QRectF pill(margin, margin, metrics.horizontalAdvance(text) + height, height);
-    painter.setPen(Qt::NoPen);
-    painter.setBrush(color);
-    painter.drawRoundedRect(pill, height / 2, height / 2);
-    painter.setPen(Qt::white);
-    painter.drawText(pill, Qt::AlignCenter, text);
+    const qreal coverWidth = cover.deviceIndependentSize().width();
+    qreal left = margin;
+    qreal top = margin;
+    for (const Tag& tag : tags) {
+        const qreal width = metrics.horizontalAdvance(tag.text) + height;
+        if (left > margin && left + width > coverWidth - margin) {
+            left = margin;
+            top += height + margin / 2;
+        }
+        const QRectF pill(left, top, width, height);
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(tag.color);
+        painter.drawRoundedRect(pill, height / 2, height / 2);
+        painter.setPen(Qt::white);
+        painter.drawText(pill, Qt::AlignCenter, tag.text);
+        left = pill.right() + margin / 2;
+    }
 }
 
 } // namespace
@@ -99,10 +111,14 @@ QVariant GameListModel::data(const QModelIndex& index, int role) const
     case Qt::DecorationRole: {
         QPixmap cover = m_covers->cover(game.coverUrl);
         const GameFlags flags = this->flags(index.row());
+        QList<Tag> tags;
         if (flags & (GameFlag::InstalledByQgp | GameFlag::InstalledOutsideQgp))
-            markTag(cover, tr("Installed"), QColor(46, 125, 50, 235));
+            tags.append({tr("Installed"), QColor(46, 125, 50, 235)});
         if (flags & GameFlag::UpdateAvailable)
-            markUpdate(cover);
+            tags.append({tr("Update"), QColor(21, 101, 192, 235)});
+        if (const Tag status = statusTag(game.status); !status.text.isEmpty())
+            tags.append(status);
+        markTags(cover, tags);
         return cover;
     }
     case SlugRole:

@@ -70,7 +70,8 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   `GameFlags` computes the flags; `MainWindow::findHeadsetGames` reads the headset when it changes
   and after an install, and `checkForUpdate` compares each game on it with its APK's newest
   release (decision 0011); a game on the headset gets an Installed tag on its cover, and one with
-  an update an Update band. Each
+  an update an Update tag beside it; every game also gets a tag for its port status, one colour
+  each. Each
   box's choice is kept in `QSettings` (`main.cpp` sets the organization name, without which
   QSettings stores nothing on Windows). The game dialog
   links to the game's QuestPorts page, and each `pc-install` input to its Steam and GOG pages
