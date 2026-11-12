@@ -41,6 +41,8 @@ QIcon appIcon()
 int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
+    // QSettings stores nothing on Windows without an organization name.
+    QApplication::setOrganizationName(QStringLiteral("qgp"));
     QApplication::setApplicationName(QStringLiteral("qgp"));
     QApplication::setApplicationDisplayName(QStringLiteral("qgp"));
     QApplication::setWindowIcon(appIcon());
