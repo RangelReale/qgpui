@@ -23,12 +23,24 @@
       "kind": "pc-install",
       "label": "Carmageddon (PC)",
       "help": "Your installed PC copy of Carmageddon (Steam Max Pack, GOG or the original CD). qgp copies its DATA folder.",
-      "stores": [{ "store": "steam" }, { "store": "gog" }],
-      "detect": ["DATA/GENERAL.TXT"]
+      "stores": [
+        {
+          "store": "steam"
+        },
+        {
+          "store": "gog",
+          "appId": "1207659047"
+        }
+      ],
+      "detect": [
+        "DATA/GENERAL.TXT"
+      ]
     }
   ],
   "steps": [
-    { "do": "install-apk" },
+    {
+      "do": "install-apk"
+    },
     {
       "do": "launch",
       "why": "Android creates Android/data/com.github.maranone.questcarnage/files on the first launch."
@@ -45,7 +57,9 @@
     },
     {
       "do": "verify",
-      "files": ["/sdcard/Android/data/com.github.maranone.questcarnage/files/DATA/GENERAL.TXT"]
+      "files": [
+        "/sdcard/Android/data/com.github.maranone.questcarnage/files/DATA/GENERAL.TXT"
+      ]
     }
   ],
   "notes": "The guide says later tags can be PC-only (b004 is PCVRCarnage.zip, pico-test is a Pico build); qgp skips releases without a matching asset and picks b003. The legacy path /sdcard/questcarnage/DATA also works. Steam app ID and install folder names are not given. File name case on CD installs may differ."

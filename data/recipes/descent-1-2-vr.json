@@ -29,7 +29,8 @@
           "store": "steam"
         },
         {
-          "store": "gog"
+          "store": "gog",
+          "appId": "1207663083"
         }
       ],
       "detect": [
@@ -47,7 +48,8 @@
           "store": "steam"
         },
         {
-          "store": "gog"
+          "store": "gog",
+          "appId": "1207663093"
         }
       ],
       "detect": [

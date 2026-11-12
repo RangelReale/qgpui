@@ -23,12 +23,22 @@
       "kind": "pc-install",
       "label": "Ultima IV: Quest of the Avatar (free on GOG)",
       "help": "Your Ultima IV install folder from GOG, where it is free. qgp copies the whole folder.",
-      "stores": [{ "store": "gog", "installDir": "Ultima 4" }],
-      "detect": ["AVATAR.EXE"]
+      "stores": [
+        {
+          "store": "gog",
+          "appId": "1207658962",
+          "installDir": "Ultima 4"
+        }
+      ],
+      "detect": [
+        "AVATAR.EXE"
+      ]
     }
   ],
   "steps": [
-    { "do": "install-apk" },
+    {
+      "do": "install-apk"
+    },
     {
       "do": "launch",
       "why": "Android creates Android/data/com.SwivelChairGames.ANKHVR/files on the first launch."
@@ -36,16 +46,26 @@
     {
       "do": "push",
       "input": "u4",
-      "map": [{ "to": "/sdcard/Android/data/com.SwivelChairGames.ANKHVR/files/u4/" }]
+      "map": [
+        {
+          "to": "/sdcard/Android/data/com.SwivelChairGames.ANKHVR/files/u4/"
+        }
+      ]
     },
     {
       "do": "shell",
-      "args": ["chmod", "666", "/sdcard/Android/data/com.SwivelChairGames.ANKHVR/files/u4/*.SAV"],
+      "args": [
+        "chmod",
+        "666",
+        "/sdcard/Android/data/com.SwivelChairGames.ANKHVR/files/u4/*.SAV"
+      ],
       "why": "Save files copied from a PC must be writable. The guide gives this command for copied .SAV files."
     },
     {
       "do": "verify",
-      "files": ["/sdcard/Android/data/com.SwivelChairGames.ANKHVR/files/u4/AVATAR.EXE"]
+      "files": [
+        "/sdcard/Android/data/com.SwivelChairGames.ANKHVR/files/u4/AVATAR.EXE"
+      ]
     },
     {
       "do": "tell",

@@ -23,19 +23,45 @@
       "kind": "pc-install",
       "label": "Little Big Adventure 2 data folder",
       "help": "The folder of your own LBA2 (GOG, Steam or retail CD) that holds lba2.hqr, with music, video and vox next to it. If qgp does not find it, pick that folder.",
-      "stores": [{ "store": "steam", "appId": "398000" }, { "store": "gog" }],
-      "detect": ["lba2.hqr"]
+      "stores": [
+        {
+          "store": "steam",
+          "appId": "398000"
+        },
+        {
+          "store": "gog",
+          "appId": "1207658974"
+        }
+      ],
+      "detect": [
+        "lba2.hqr"
+      ]
     }
   ],
   "steps": [
-    { "do": "install-apk" },
+    {
+      "do": "install-apk"
+    },
     {
       "do": "grant",
       "appop": "MANAGE_EXTERNAL_STORAGE",
       "why": "The author's installer grants it with appops so the game can read /sdcard/lba2cc/."
     },
-    { "do": "push", "input": "lba2", "map": [{ "to": "/sdcard/lba2cc/" }] },
-    { "do": "verify", "files": ["/sdcard/lba2cc/lba2.hqr"] },
+    {
+      "do": "push",
+      "input": "lba2",
+      "map": [
+        {
+          "to": "/sdcard/lba2cc/"
+        }
+      ]
+    },
+    {
+      "do": "verify",
+      "files": [
+        "/sdcard/lba2cc/lba2.hqr"
+      ]
+    },
     {
       "do": "tell",
       "text": "Open Little Big Adventure 2 from Library > Unknown Sources. If the game cannot read its data, allow All files access for it in the Quest settings."

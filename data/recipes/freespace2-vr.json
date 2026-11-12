@@ -28,7 +28,8 @@
       "help": "Your installed FreeSpace 2 from GOG or Steam.",
       "stores": [
         {
-          "store": "gog"
+          "store": "gog",
+          "appId": "5"
         },
         {
           "store": "steam"

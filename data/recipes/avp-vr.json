@@ -29,7 +29,8 @@
           "appId": "3730"
         },
         {
-          "store": "gog"
+          "store": "gog",
+          "appId": "1207665883"
         }
       ],
       "detect": [

@@ -32,7 +32,8 @@
           "store": "steam"
         },
         {
-          "store": "gog"
+          "store": "gog",
+          "appId": "1435829353"
         }
       ],
       "root": "arena2",

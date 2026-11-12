@@ -28,20 +28,39 @@
       "label": "Star Wars: X-Wing vs TIE Fighter - Balance of Power Campaigns",
       "help": "Your installed copy of the game with Balance of Power. qgp copies the whole folder (about 400 MB).",
       "stores": [
-        { "store": "steam", "appId": "361690", "installDir": "STAR WARS X-Wing vs TIE Fighter" },
-        { "store": "gog" }
+        {
+          "store": "steam",
+          "appId": "361690",
+          "installDir": "STAR WARS X-Wing vs TIE Fighter"
+        },
+        {
+          "store": "gog",
+          "appId": "1421404508"
+        }
       ],
-      "detect": ["BalanceOfPower"]
+      "detect": [
+        "BalanceOfPower"
+      ]
     }
   ],
   "steps": [
-    { "do": "install-apk" },
+    {
+      "do": "install-apk"
+    },
     {
       "do": "grant",
       "appop": "MANAGE_EXTERNAL_STORAGE",
       "why": "The guide has the user allow access to all files when the app asks."
     },
-    { "do": "push", "input": "game", "map": [{ "to": "/sdcard/OpenXvT/" }] },
+    {
+      "do": "push",
+      "input": "game",
+      "map": [
+        {
+          "to": "/sdcard/OpenXvT/"
+        }
+      ]
+    },
     {
       "do": "tell",
       "text": "Open OpenXvT VR from Library > Unknown Sources. If it asks for access to all files, allow it."

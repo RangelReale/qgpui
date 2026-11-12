@@ -28,7 +28,8 @@
           "store": "steam"
         },
         {
-          "store": "gog"
+          "store": "gog",
+          "appId": "1207658657"
         }
       ],
       "detect": [

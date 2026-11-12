@@ -24,8 +24,18 @@
       "kind": "pc-install",
       "label": "Serious Sam Classic: The Second Encounter",
       "help": "Your installed copy of Serious Sam Classic: The Second Encounter from Steam or GOG. qgp copies its .gro files.",
-      "stores": [{ "store": "steam" }, { "store": "gog" }],
-      "detect": ["SE1_00.gro"]
+      "stores": [
+        {
+          "store": "steam"
+        },
+        {
+          "store": "gog",
+          "appId": "1207658877"
+        }
+      ],
+      "detect": [
+        "SE1_00.gro"
+      ]
     },
     {
       "id": "tfe",
@@ -34,33 +44,58 @@
       "help": "Your installed copy of Serious Sam Classic: The First Encounter from Steam or GOG. qgp copies its .gro files.",
       "required": false,
       "stores": [
-        { "store": "steam", "installDir": "Serious Sam Classic The First Encounter" },
-        { "store": "gog" }
+        {
+          "store": "steam",
+          "installDir": "Serious Sam Classic The First Encounter"
+        },
+        {
+          "store": "gog",
+          "appId": "1207658876"
+        }
       ],
-      "detect": ["1_00.gro"]
+      "detect": [
+        "1_00.gro"
+      ]
     }
   ],
   "steps": [
-    { "do": "install-apk" },
+    {
+      "do": "install-apk"
+    },
     {
       "do": "grant",
       "appop": "MANAGE_EXTERNAL_STORAGE",
       "why": "The guide has the user grant All files access on the first launch."
     },
-    { "do": "launch", "why": "The first launch creates the game folders and then closes." },
+    {
+      "do": "launch",
+      "why": "The first launch creates the game folders and then closes."
+    },
     {
       "do": "push",
       "input": "tse",
-      "map": [{ "from": "*.gro", "to": "/sdcard/Android/data/com.github.maranone.questsam/files/" }]
+      "map": [
+        {
+          "from": "*.gro",
+          "to": "/sdcard/Android/data/com.github.maranone.questsam/files/"
+        }
+      ]
     },
     {
       "do": "push",
       "input": "tfe",
-      "map": [{ "from": "*.gro", "to": "/sdcard/Android/data/com.github.maranone.questsam/files/" }]
+      "map": [
+        {
+          "from": "*.gro",
+          "to": "/sdcard/Android/data/com.github.maranone.questsam/files/"
+        }
+      ]
     },
     {
       "do": "verify",
-      "files": ["/sdcard/Android/data/com.github.maranone.questsam/files/SE1_00.gro"]
+      "files": [
+        "/sdcard/Android/data/com.github.maranone.questsam/files/SE1_00.gro"
+      ]
     },
     {
       "do": "tell",
