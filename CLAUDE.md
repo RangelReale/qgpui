@@ -74,7 +74,7 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   each. Each
   box's choice is kept in `QSettings` (`main.cpp` sets the organization name, without which
   QSettings stores nothing on Windows). The game dialog's header shows badges (on the headset,
-  update, source, type, port status), the port's `base_game_store` highlighted, the recipe's
+  update, source, type, port status), the recipe's
   `otherWays` (the port's own installers, with links) highlighted, and one line of
   links: the game's QuestPorts page, and the Steam and GOG pages of each `pc-install` input
   (GOG through its product API). `CoverCache` downloads covers through a
@@ -89,7 +89,7 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   0010): its inputs as `InputResolver` finds them (Steam and GOG, then the files folder) with a
   Choose button each and, below each, what it needs in the words of the files folder's guide
   (`FilesFolder::inputGuide`), Open Files Folder (creates the game's folder and its
-  `qgp - what goes here.txt`), and Install, which fetches the APK, runs `installer::Runner` with
+  `qgp - what goes here.txt`), the port's `base_game_store` highlighted just above Install, and Install, which fetches the APK, runs `installer::Runner` with
   a progress bar, Continue for tell steps and a log, then records the install with
   `HeadsetRecordSync` and shows the result in a coloured banner. Details shows the port's `troubleshooting_notes`, when it has any, and `planInstall`'s commands. File > Files Folder changes the files folder (`QSettings`). File > Settings (`SettingsDialog`)
   holds the other preferences, such as keeping the headset awake during installs. The icons in `apps/qgp/icons/` are temporary;
