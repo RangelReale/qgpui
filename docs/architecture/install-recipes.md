@@ -55,7 +55,16 @@ How the runner treats pushes into `Android/data`, and why, is in [decision 0003]
 | `apks` | Where the APKs come from. The first one is the game's main app. |
 | `inputs` | Files the user supplies. |
 | `steps` | What qgp does, in order. |
+| `otherWays` | Optional. Ways to install the game that qgp does not run, such as the port's own installer or build kit: a `label`, an https `url` and a `help` text each. |
 | `notes` | For maintainers. Not shown to users. |
+
+### Other ways to install
+
+Many ports ship their own installer: a Windows program, a `.bat` file or a build kit that installs the APK and copies the game's files. A user who has read the port's guide expects it, and some of these installers need fewer steps than qgp's route. galaxyquest's installer, for example, takes the disc image itself, while qgp needs the folder that the converter makes from it. `otherWays` names these installers. The game dialog shows each one in its header with a link and the `help` text, so the user can choose. qgp never runs them.
+
+`installer::parseRecipe` rejects a link that is not an https address, because the dialog opens it in the browser.
+
+On 2026-11-12, the payload's install guides named 15 such installers: animal-crossing-vr, descent-1-2-vr, descent-3-vr (for the CDs), galaxyquest, gothic2-vr, gran-turismo-2-vr, gta-sa-vr-quest, harry-potter-vr, iron-lung-vr (SideQuest), openxwa-vr, outlaws-vr, red-dead-redemption-vr, road-rash-jailbreak-vr, vice-city-vr-quest and victory-heat-rally-vr. Scripts that only push files, as qgp does (questsam, questcarnage, lba2-vr), and developer scripts (openmw-vr, jurassic-park-arcade-vr, wipeout-rewrite-vr) are not listed.
 
 ### APK sources
 
