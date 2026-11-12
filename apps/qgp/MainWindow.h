@@ -13,7 +13,7 @@ class QLabel;
 class QListView;
 class QToolButton;
 
-// The main window: every game of the QuestPorts payload as a cover with its title below.
+// The main window: every game of the qgp catalog as a cover with its title below.
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -21,13 +21,13 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget* parent = nullptr);
 
-    // Loads the payload at path and shows its games. Returns false, and shows why in the status bar,
+    // Loads the catalog at path and shows its games. Returns false, and shows why in the status bar,
     // when the file cannot be read.
-    bool loadPayload(const QString& path);
+    bool loadCatalog(const QString& path);
 
 private:
-    void openPayload();
-    void reloadPayload();
+    void openCatalog();
+    void reloadCatalog();
     void createToolBar();
     void orderChanged();
     void showHeadsetDialog();
@@ -43,5 +43,5 @@ private:
     HeadsetDialog* m_headsetDialog = nullptr;
     QAction* m_headsetAction = nullptr;
     QToolButton* m_headsetStatus;
-    QString m_payloadPath;
+    QString m_catalogPath;
 };

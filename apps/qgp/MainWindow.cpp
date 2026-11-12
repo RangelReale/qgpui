@@ -25,6 +25,8 @@
 #include <QToolBar>
 #include <QToolButton>
 
+#include <algorithm>
+
 namespace {
 
 const QString kOrderSetting = QStringLiteral("order");
@@ -94,8 +96,8 @@ MainWindow::MainWindow(QWidget* parent)
     setCentralWidget(m_view);
 
     QMenu* file = menuBar()->addMenu(tr("&File"));
-    file->addAction(tr("&Open Payload..."), QKeySequence::Open, this, &MainWindow::openPayload);
-    file->addAction(tr("&Reload"), QKeySequence::Refresh, this, &MainWindow::reloadPayload);
+    file->addAction(tr("&Open Catalog..."), QKeySequence::Open, this, &MainWindow::openCatalog);
+    file->addAction(tr("&Reload"), QKeySequence::Refresh, this, &MainWindow::reloadCatalog);
     file->addSeparator();
     file->addAction(tr("E&xit"), QKeySequence::Quit, this, &QWidget::close);
 
@@ -172,9 +174,9 @@ void MainWindow::updateHeadsetStatus()
     m_headsetAction->setToolTip(toolTip);
 }
 
-bool MainWindow::loadPayload(const QString& path)
+bool MainWindow::loadCatalog(const QString& path)
 {
-    m_payloadPath = path;
+    m_catalogPath = path;
     QString error;
     const auto catalog = questports::loadCatalog(path, &error);
     if (!catalog) {
@@ -184,27 +186,30 @@ bool MainWindow::loadPayload(const QString& path)
     }
 
     m_model->setGames(catalog->games);
-    QSettings().setValue(QStringLiteral("payloadPath"), QFileInfo(path).absoluteFilePath());
+    QSettings().setValue(QStringLiteral("catalogPath"), QFileInfo(path).absoluteFilePath());
     const qsizetype count = catalog->games.size();
+    const auto recipes = std::count_if(catalog->games.cbegin(), catalog->games.cend(),
+                                       [](const questports::Game& game) { return game.hasRecipe(); });
     const QString games = count == 1 ? tr("1 game") : tr("%1 games").arg(count);
-    m_status->setText(tr("%1 from %2, built %3")
-                          .arg(games, QDir::toNativeSeparators(QFileInfo(path).absoluteFilePath()),
+    m_status->setText(tr("%1 (%2 with a recipe) from %3, built %4")
+                          .arg(games, QString::number(recipes),
+                               QDir::toNativeSeparators(QFileInfo(path).absoluteFilePath()),
                                QLocale().toString(catalog->generatedAt.toLocalTime(), QLocale::ShortFormat)));
     return true;
 }
 
-void MainWindow::openPayload()
+void MainWindow::openCatalog()
 {
-    const QString path = QFileDialog::getOpenFileName(this, tr("Open Payload"), QFileInfo(m_payloadPath).path(),
-                                                      tr("QuestPorts payload (*.json);;All files (*)"));
+    const QString path = QFileDialog::getOpenFileName(this, tr("Open Catalog"), QFileInfo(m_catalogPath).path(),
+                                                      tr("qgp catalog (*.json);;All files (*)"));
     if (path.isEmpty())
         return;
-    if (!loadPayload(path))
-        QMessageBox::warning(this, tr("Open Payload"), m_status->text());
+    if (!loadCatalog(path))
+        QMessageBox::warning(this, tr("Open Catalog"), m_status->text());
 }
 
-void MainWindow::reloadPayload()
+void MainWindow::reloadCatalog()
 {
-    if (!m_payloadPath.isEmpty())
-        loadPayload(m_payloadPath);
+    if (!m_catalogPath.isEmpty())
+        loadCatalog(m_catalogPath);
 }

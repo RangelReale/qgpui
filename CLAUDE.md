@@ -2,7 +2,7 @@
 
 Tools for Meta Quest headsets over adb: finding headsets, managing connections, installing APKs and
 copying files. C++20, Qt 6, CMake. The main app, `apps/qgp`, is at an early stage. The rest is the `qadb`
-library, a payload reader and two developer tools.
+library, a catalog reader and two developer tools.
 
 ## Worktrees
 
@@ -11,8 +11,8 @@ before the first edit; it creates the feature branch and its checkout under `.cl
 (ignored by git). Leave the worktree with `ExitWorktree` when the work is merged or abandoned.
 
 A new worktree has no `build/` and no `local/`. Configure it with `cmake --preset windows` before
-building. To run qgp against the payload, copy `local/questports-payload.json` from the main
-checkout, or run `task payload` in the worktree.
+building. To run qgp against the catalog, copy `local/qgp-catalog.json` from the main checkout, or
+copy `local/questports-payload.json` and run `task catalog`, or run `task payload` and `task catalog`.
 
 ## Layout
 
@@ -32,10 +32,10 @@ checkout, or run `task payload` in the worktree.
   the steps. See `docs/install-recipes.md`.
 - `local/`: ignored by git. Holds uncommitted working files, such as the generated payload and
   current keys or passwords. Never commit its contents.
-- `libs/questports/`: reads the payload that `tools/questports-payload` writes (`Catalog`,
-  `Game`). Needs only Qt Core.
+- `libs/questports/`: reads the catalog that `tools/questports-payload` writes (`Catalog`, `Game`,
+  `Drift`): each game with its recipe and drift. Needs only Qt Core.
 - `apps/<name>/`: shipped applications.
-- `apps/qgp/`: the main app, Qt Widgets. The main window shows the payload's games in a `QListView`
+- `apps/qgp/`: the main app, Qt Widgets. The main window shows the catalog's games in a `QListView`
   in icon mode: the cover, with the title below. A toolbar's Order box picks a
   `questports::GameOrder`; `GameSortModel` applies it and `QSettings` remembers it. `CoverCache` downloads covers through a
   `QNetworkDiskCache` and fits them into one size. `HeadsetConnection` starts the adb server

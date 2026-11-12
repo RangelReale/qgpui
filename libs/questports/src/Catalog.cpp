@@ -22,7 +22,31 @@ QDateTime timestamp(const QJsonValue& value)
     return QDateTime::fromString(value.toString(), Qt::ISODateWithMs);
 }
 
+// Null and missing values give a null QString.
+QString optionalString(const QJsonValue& value)
+{
+    return value.isString() ? value.toString() : QString();
+}
+
+QList<Drift> driftList(const QJsonArray& array)
+{
+    QList<Drift> list;
+    list.reserve(array.size());
+    for (const QJsonValue& value : array) {
+        const QJsonObject entry = value.toObject();
+        list.append({entry.value(QLatin1StringView("field")).toString(),
+                     optionalString(entry.value(QLatin1StringView("recipe"))),
+                     optionalString(entry.value(QLatin1StringView("payload")))});
+    }
+    return list;
+}
+
 } // namespace
+
+bool Drift::isSerious() const
+{
+    return field == QLatin1StringView("packageName") || field == QLatin1StringView("targetPath");
+}
 
 std::optional<Catalog> parseCatalog(const QByteArray& json, QString* errorMessage)
 {
@@ -33,25 +57,32 @@ std::optional<Catalog> parseCatalog(const QByteArray& json, QString* errorMessag
                                       .arg(parseError.errorString())
                                       .arg(parseError.offset));
     if (!document.isObject())
-        return fail(errorMessage, QStringLiteral("The payload is not a JSON object."));
+        return fail(errorMessage, QStringLiteral("The catalog is not a JSON object."));
 
     const QJsonObject root = document.object();
     const QString format = root.value(QLatin1StringView("format")).toString();
-    if (format != QLatin1StringView(kPayloadFormat))
-        return fail(errorMessage, QStringLiteral("Not a QuestPorts payload (format \"%1\").").arg(format));
+    if (format == QLatin1StringView("qgp-questports-payload"))
+        return fail(errorMessage, QStringLiteral("This is a QuestPorts payload, not a qgp catalog. Build the "
+                                                 "catalog from it with \"task catalog\"."));
+    if (format != QLatin1StringView(kCatalogFormat))
+        return fail(errorMessage, QStringLiteral("Not a qgp catalog (format \"%1\").").arg(format));
     const int version = root.value(QLatin1StringView("version")).toInt(-1);
-    if (version != kPayloadVersion)
-        return fail(errorMessage, QStringLiteral("Unsupported payload version %1; this build reads version %2.")
+    if (version != kCatalogVersion)
+        return fail(errorMessage, QStringLiteral("Unsupported catalog version %1; this build reads version %2.")
                                       .arg(version)
-                                      .arg(kPayloadVersion));
+                                      .arg(kCatalogVersion));
 
     const QJsonValue gamesValue = root.value(QLatin1StringView("games"));
     if (!gamesValue.isArray())
-        return fail(errorMessage, QStringLiteral("The payload has no games list."));
+        return fail(errorMessage, QStringLiteral("The catalog has no games list."));
 
     Catalog catalog;
-    catalog.generatedAt = QDateTime::fromString(root.value(QLatin1StringView("generatedAt")).toString(),
-                                                Qt::ISODateWithMs);
+    catalog.generatedAt = timestamp(root.value(QLatin1StringView("generatedAt")));
+    catalog.payloadGeneratedAt = timestamp(root.value(QLatin1StringView("sources"))
+                                               .toObject()
+                                               .value(QLatin1StringView("payload"))
+                                               .toObject()
+                                               .value(QLatin1StringView("generatedAt")));
 
     const QJsonArray games = gamesValue.toArray();
     catalog.games.reserve(games.size());
@@ -63,6 +94,8 @@ std::optional<Catalog> parseCatalog(const QByteArray& json, QString* errorMessag
         game.install = entry.value(QLatin1StringView("install")).toObject();
         game.campaigns = entry.value(QLatin1StringView("campaigns")).toArray();
         game.resolved = entry.value(QLatin1StringView("resolved")).toObject();
+        game.recipe = entry.value(QLatin1StringView("recipe")).toObject();
+        game.drift = driftList(entry.value(QLatin1StringView("drift")).toArray());
         game.title = game.port.value(QLatin1StringView("title")).toString();
         const QString cover = game.port.value(QLatin1StringView("cover_image_url")).toString();
         if (!cover.isEmpty())

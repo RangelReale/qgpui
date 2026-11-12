@@ -10,20 +10,20 @@
 
 namespace {
 
-// Where to read the payload when the command line names none: the file opened last, else
-// questports-payload.json in the app's data folder, else (in a development build) the repository's
-// local/ folder, where tools/questports-payload writes it.
-QString defaultPayloadPath()
+// Where to read the catalog when the command line names none: the file opened last, else
+// qgp-catalog.json in the app's data folder, else (in a development build) the repository's local/
+// folder, where tools/questports-payload's build-catalog writes it.
+QString defaultCatalogPath()
 {
-    const QString last = QSettings().value(QStringLiteral("payloadPath")).toString();
+    const QString last = QSettings().value(QStringLiteral("catalogPath")).toString();
     if (!last.isEmpty() && QFileInfo::exists(last))
         return last;
 
     const QString appData = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation))
-                                .filePath(QStringLiteral("questports-payload.json"));
-#ifdef QGP_DEV_PAYLOAD
-    if (!QFileInfo::exists(appData) && QFileInfo::exists(QStringLiteral(QGP_DEV_PAYLOAD)))
-        return QStringLiteral(QGP_DEV_PAYLOAD);
+                                .filePath(QStringLiteral("qgp-catalog.json"));
+#ifdef QGP_DEV_CATALOG
+    if (!QFileInfo::exists(appData) && QFileInfo::exists(QStringLiteral(QGP_DEV_CATALOG)))
+        return QStringLiteral(QGP_DEV_CATALOG);
 #endif
     return appData;
 }
@@ -48,13 +48,13 @@ int main(int argc, char* argv[])
     QCommandLineParser parser;
     parser.setApplicationDescription(QStringLiteral("Meta Quest game ports manager."));
     parser.addHelpOption();
-    parser.addPositionalArgument(QStringLiteral("payload"), QStringLiteral("QuestPorts payload file to open."),
-                                 QStringLiteral("[payload]"));
+    parser.addPositionalArgument(QStringLiteral("catalog"), QStringLiteral("qgp catalog file to open."),
+                                 QStringLiteral("[catalog]"));
     parser.process(app);
 
     const QStringList args = parser.positionalArguments();
     MainWindow window;
-    window.loadPayload(args.isEmpty() ? defaultPayloadPath() : args.first());
+    window.loadCatalog(args.isEmpty() ? defaultCatalogPath() : args.first());
     window.resize(1400, 900);
     window.show();
     return QApplication::exec();

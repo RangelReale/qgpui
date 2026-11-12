@@ -6,7 +6,8 @@ copying files.
 - [`apps/qgp`](apps/qgp): the main application. For now it shows the QuestPorts games as a grid of
   covers.
 - [`libs/qadb`](libs/qadb/README.md): a Qt 6 client library for the adb server.
-- [`libs/questports`](libs/questports): reads the QuestPorts payload.
+- [`libs/questports`](libs/questports): reads the qgp catalog, which holds the QuestPorts games and
+  their install recipes.
 - [`tools/adbmanager`](tools/adbmanager): a debug window for trying qadb on a real headset.
 - [`tools/questports-payload`](tools/questports-payload/README.md): builds one JSON file with the
   QuestPorts game list and each game's install requirements (Node).
@@ -31,7 +32,7 @@ and `task distclean` do the same for the current OS (`task --list` shows all tas
 The app is `build/windows/bin/Debug/qgp.exe` and the debug tool is
 `build/windows/bin/Debug/adbmanager.exe`.
 
-The app reads the payload that `tools/questports-payload` builds. It takes the file from its command
-line, or else the file opened last, or else `questports-payload.json` in its data folder
-(`%APPDATA%\qgp` on Windows). Development builds also look in `local/` in the repository, where the
+The app reads the catalog that `tools/questports-payload` builds with `build-catalog` (`task
+catalog`). It takes the file from its command line, or else the file opened last, or else
+`qgp-catalog.json` in its data folder (`%APPDATA%\qgp` on Windows). Development builds also look in `local/` in the repository, where the
 tool writes it by default.

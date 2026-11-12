@@ -1,5 +1,5 @@
-# qgp: the main application. Shows the QuestPorts games from the payload that
-# tools/questports-payload builds.
+# qgp: the main application. Shows the QuestPorts games from the catalog that
+# tools/questports-payload builds (build-catalog).
 qt_add_executable(qgp WIN32 MACOSX_BUNDLE
     main.cpp
     MainWindow.h MainWindow.cpp
@@ -29,11 +29,11 @@ qt_add_resources(qgp icons
 target_link_libraries(qgp PRIVATE qgp::questports qgp::qadb Qt6::Widgets Qt6::Network)
 target_compile_definitions(qgp PRIVATE QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 
-# Development builds fall back to the payload in the repository's local/ folder.
-option(QGP_DEV_PAYLOAD "Fall back to local/questports-payload.json in the source tree" ON)
-if(QGP_DEV_PAYLOAD)
+# Development builds fall back to the catalog in the repository's local/ folder.
+option(QGP_DEV_CATALOG "Fall back to local/qgp-catalog.json in the source tree" ON)
+if(QGP_DEV_CATALOG)
     target_compile_definitions(qgp PRIVATE
-        QGP_DEV_PAYLOAD="${PROJECT_SOURCE_DIR}/local/questports-payload.json")
+        QGP_DEV_CATALOG="${PROJECT_SOURCE_DIR}/local/qgp-catalog.json")
 endif()
 
 # Copy the Qt runtime next to the executable so it runs from the build tree.

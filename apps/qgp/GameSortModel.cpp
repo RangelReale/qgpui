@@ -10,7 +10,7 @@ GameSortModel::GameSortModel(GameListModel* source, QObject* parent)
     // Covers arriving change only the decoration; do not re-sort for them.
     setDynamicSortFilter(false);
     sort(0);
-    // A reset (a new payload) clears the sort; apply it again.
+    // A reset (a new catalog) clears the sort; apply it again.
     connect(source, &QAbstractItemModel::modelReset, this, [this] { sort(0); });
 }
 

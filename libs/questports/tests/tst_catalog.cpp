@@ -7,10 +7,12 @@ using namespace questports;
 
 namespace {
 
-QByteArray payload(const QByteArray& games, const QByteArray& version = "1")
+QByteArray catalogJson(const QByteArray& games, const QByteArray& version = "1")
 {
-    return R"({"format":"qgp-questports-payload","version":)" + version +
-           R"(,"generatedAt":"2026-11-11T12:00:00.000Z","games":)" + games + "}";
+    return R"({"format":"qgp-catalog","version":)" + version +
+           R"(,"generatedAt":"2026-11-12T10:00:00.000Z",)"
+           R"("sources":{"payload":{"generatedAt":"2026-11-11T12:00:00.000Z"},"recipes":{"count":1}},)"
+           R"("games":)" + games + "}";
 }
 
 } // namespace
@@ -24,16 +26,21 @@ private slots:
     {
         QString error;
         // The URL is written "https:\/\/" because moc reads "//" inside a raw string as a comment.
-        const auto catalog = parseCatalog(payload(R"([
+        const auto catalog = parseCatalog(catalogJson(R"([
             {"slug":"avp-vr","port":{"title":"AvP VR","cover_image_url":"https:\/\/x.test/avp.jpg",
                                      "developer":"Bassquake","created_at":"2026-10-11T16:35:37.471366+00:00",
                                      "last_github_update":"2026-10-18T16:07:19+00:00"},
              "install":{"packageName":"com.example.avp"},"campaigns":null,
-             "resolved":{"installType":"apk_and_assets"}},
-            {"slug":"bare","port":{"title":"Bare","cover_image_url":null},"install":null,"campaigns":[{"id":"a"}]}
+             "resolved":{"installType":"apk_and_assets"},
+             "recipe":{"status":"draft","steps":[{"do":"install-apk"}]},
+             "drift":[{"field":"version","recipe":"v1","payload":"v2"},
+                      {"field":"targetPath","recipe":null,"payload":"/sdcard/AvP/"}]},
+            {"slug":"bare","port":{"title":"Bare","cover_image_url":null},"install":null,"campaigns":[{"id":"a"}],
+             "recipe":null,"drift":[]}
         ])"), &error);
         QVERIFY2(catalog, qPrintable(error));
-        QCOMPARE(catalog->generatedAt, QDateTime(QDate(2026, 11, 11), QTime(12, 0), QTimeZone::UTC));
+        QCOMPARE(catalog->generatedAt, QDateTime(QDate(2026, 11, 12), QTime(10, 0), QTimeZone::UTC));
+        QCOMPARE(catalog->payloadGeneratedAt, QDateTime(QDate(2026, 11, 11), QTime(12, 0), QTimeZone::UTC));
         QCOMPARE(catalog->games.size(), 2);
 
         const Game& avp = catalog->games[0];
@@ -47,6 +54,16 @@ private slots:
         QCOMPARE(avp.install.value(QLatin1StringView("packageName")).toString(), QStringLiteral("com.example.avp"));
         QVERIFY(avp.campaigns.isEmpty());
         QCOMPARE(avp.resolved.value(QLatin1StringView("installType")).toString(), QStringLiteral("apk_and_assets"));
+        QVERIFY(avp.hasRecipe());
+        QCOMPARE(avp.recipe.value(QLatin1StringView("status")).toString(), QStringLiteral("draft"));
+        QCOMPARE(avp.drift.size(), 2);
+        QCOMPARE(avp.drift[0].field, QStringLiteral("version"));
+        QCOMPARE(avp.drift[0].recipe, QStringLiteral("v1"));
+        QCOMPARE(avp.drift[0].payload, QStringLiteral("v2"));
+        QVERIFY(!avp.drift[0].isSerious());
+        QVERIFY(avp.drift[1].recipe.isNull());
+        QCOMPARE(avp.drift[1].payload, QStringLiteral("/sdcard/AvP/"));
+        QVERIFY(avp.drift[1].isSerious());
 
         const Game& bare = catalog->games[1];
         QVERIFY(bare.coverUrl.isEmpty());
@@ -54,9 +71,11 @@ private slots:
         QVERIFY(!bare.releasedAt.isValid());
         QVERIFY(!bare.hasInstall());
         QCOMPARE(bare.campaigns.size(), 1);
+        QVERIFY(!bare.hasRecipe());
+        QVERIFY(bare.drift.isEmpty());
     }
 
-    void rejectsBadPayloads_data()
+    void rejectsBadCatalogs_data()
     {
         QTest::addColumn<QByteArray>("json");
         QTest::addColumn<QString>("message");
@@ -65,15 +84,17 @@ private slots:
         QTest::newRow("not object") << QByteArray("[]") << QStringLiteral("not a JSON object");
         QTest::newRow("format") << QByteArray(R"({"format":"other","version":1,"games":[]})")
                                 << QStringLiteral("format \"other\"");
-        QTest::newRow("version") << payload("[]", "2") << QStringLiteral("Unsupported payload version 2");
-        QTest::newRow("no games") << QByteArray(R"({"format":"qgp-questports-payload","version":1})")
+        QTest::newRow("payload") << QByteArray(R"({"format":"qgp-questports-payload","version":1,"games":[]})")
+                                 << QStringLiteral("task catalog");
+        QTest::newRow("version") << catalogJson("[]", "2") << QStringLiteral("Unsupported catalog version 2");
+        QTest::newRow("no games") << QByteArray(R"({"format":"qgp-catalog","version":1})")
                                   << QStringLiteral("no games list");
-        QTest::newRow("no slug") << payload(R"([{"port":{"title":"T"}}])") << QStringLiteral("Game 0 has no slug");
-        QTest::newRow("no title") << payload(R"([{"slug":"s","port":{}}])")
+        QTest::newRow("no slug") << catalogJson(R"([{"port":{"title":"T"}}])") << QStringLiteral("Game 0 has no slug");
+        QTest::newRow("no title") << catalogJson(R"([{"slug":"s","port":{}}])")
                                   << QStringLiteral("\"s\" has no title");
     }
 
-    void rejectsBadPayloads()
+    void rejectsBadCatalogs()
     {
         QFETCH(QByteArray, json);
         QFETCH(QString, message);
@@ -86,10 +107,10 @@ private slots:
     {
         QTemporaryDir dir;
         QVERIFY(dir.isValid());
-        const QString path = dir.filePath(QStringLiteral("payload.json"));
+        const QString path = dir.filePath(QStringLiteral("catalog.json"));
         QFile file(path);
         QVERIFY(file.open(QIODevice::WriteOnly));
-        file.write(payload(R"([{"slug":"s","port":{"title":"T"}}])"));
+        file.write(catalogJson(R"([{"slug":"s","port":{"title":"T"}}])"));
         file.close();
 
         QVERIFY(loadCatalog(path));
