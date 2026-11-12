@@ -17,3 +17,10 @@ qgp_add_qt_test(tst_installer_runner
             ${PROJECT_SOURCE_DIR}/libs/qadb/tests/FakeAdbServer.cpp
     LIBRARIES qgp::installer Qt6::Network)
 target_include_directories(tst_installer_runner PRIVATE ${PROJECT_SOURCE_DIR}/libs/qadb/tests)
+
+# Installs one recipe on a real headset. Skipped unless QGP_INSTALL_LIVE_SERIAL and
+# QGP_INSTALL_LIVE_SLUG are set; see tst_live.cpp.
+qgp_add_qt_test(tst_installer_live
+    SOURCES tst_live.cpp
+    LIBRARIES qgp::installer)
+target_compile_definitions(tst_installer_live PRIVATE QGP_RECIPES_DIR="${PROJECT_SOURCE_DIR}/data/recipes")
