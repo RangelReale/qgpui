@@ -14,6 +14,9 @@
 
 #include <optional>
 
+namespace installer {
+class KeepAwake;
+}
 namespace qadb {
 class Client;
 class DeviceTracker;
@@ -43,6 +46,8 @@ public:
     Q_ENUM(Status)
 
     explicit HeadsetConnection(QObject* parent = nullptr);
+    // Releases a kept-awake headset, waiting a moment for the release to reach it.
+    ~HeadsetConnection() override;
 
     // Connects to the adb server, and starts it if needed.
     void start();
@@ -63,6 +68,14 @@ public:
     QString statusText() const;
     // What the user can do about the status, or an empty string when there is nothing to do.
     QString statusAdvice() const;
+
+    // Keeps the current headset's screen on (installer::KeepAwake) until turned off or qgp exits.
+    // It follows the current headset: a headset that becomes current is kept awake, and one that
+    // stops being current is released. Off when qgp starts.
+    bool keepsAwake() const { return m_keepAwakeWanted; }
+    void setKeepAwake(bool on);
+    // A small open eye, for the keep-awake button.
+    static QIcon keepAwakeIcon();
 
     // Looks for wireless headsets on the local network and connects to the ones it finds.
     // Emits scanFinished.
@@ -92,6 +105,9 @@ signals:
     // message describes the result for the user. pairingAddress is the address of a headset
     // that offers pairing, or empty.
     void scanFinished(const QString& message, const QString& pairingAddress);
+    void keepAwakeChanged(bool on);
+    // A keep-awake broadcast failed on the current headset.
+    void keepAwakeFailed(const QString& errorMessage);
 
 private:
     void startServer();
@@ -101,6 +117,8 @@ private:
     // Reads ro.serialno of online devices not read yet, then selectByHardwareSerial().
     void lookUpHardwareSerials();
     void selectByHardwareSerial();
+    // Starts or stops m_keepAwake to match m_keepAwakeWanted and the current headset.
+    void updateKeepAwake();
 
     qadb::Client* m_client;
     qadb::DeviceTracker* m_tracker;
@@ -118,4 +136,6 @@ private:
     // Until then, the next headset that comes online becomes the current one.
     QDeadlineTimer m_adoptUntil;
     QList<QString> m_onlineBefore;
+    bool m_keepAwakeWanted = false;
+    QPointer<installer::KeepAwake> m_keepAwake; // On the current headset, while it is ready.
 };

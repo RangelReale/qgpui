@@ -51,7 +51,7 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   newest release without downloading it, one GitHub request per repository, kept for an hour. Install records live on each
   headset in `/sdcard/qgp/installs.json`; `InstallRecords` is the PC's cache of them (keyed by the
   headset's `ro.serialno`, then the package), and `HeadsetRecordSync` keeps the two in step.
-  `KeepAwake` keeps a Quest's screen on with the proximity-sensor broadcast (decision 0012).
+  `KeepAwake` keeps a Quest's screen on with the proximity-sensor broadcast (decisions 0012, 0013).
   Its runner, sync and keep-awake tests use qadb's `FakeAdbServer`.
 - `apps/<name>/`: shipped applications.
 - `apps/qgp/`: the main app, Qt Widgets. The main window shows the catalog's games in a `QListView`
@@ -75,7 +75,9 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   (GOG through its product API). `CoverCache` downloads covers through a
   `QNetworkDiskCache` and fits them into one size. `HeadsetConnection` starts the adb server
   if needed, tracks devices and remembers the current headset (`QSettings`) by adb serial and by
-  hardware serial, so that it is found again when its wireless debugging port changes; the toolbar's
+  hardware serial, so that it is found again when its wireless debugging port changes. It also holds
+  the toolbar's keep-awake button (an eye icon next to Headset), which keeps the current headset's
+  screen on until turned off and overrides the install setting. The toolbar's
   Headset button and the status bar's red/green indicator open `HeadsetDialog`, which lists
   headsets, searches over mDNS, pairs or connects over Wi-Fi, and switches a USB headset to Wi-Fi. Opening a game (double-click, Enter,
   Game > Open, context menu) shows `GameDialog`, where every action on a game starts (decision

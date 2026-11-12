@@ -236,6 +236,7 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     layout->addWidget(buttons);
     resize(720, sizeHint().height());
 
+    connect(m_headset, &HeadsetConnection::keepAwakeChanged, this, &GameDialog::updateKeepAwake);
     connect(m_headset, &HeadsetConnection::statusChanged, this, [this] {
         showHeadsetState();
         updateButtons();
@@ -573,7 +574,23 @@ void GameDialog::install()
     showInputs(); // Disables the Choose buttons.
     updateButtons();
     log(tr("Installing %1 on %2.").arg(m_game.title, m_serial));
-    if (SettingsDialog::keepAwakeWhileInstalling()) {
+    if (SettingsDialog::keepAwakeWhileInstalling() && m_headset->keepsAwake())
+        log(tr("The headset's screen is already kept on by the toolbar's keep-awake button."));
+    updateKeepAwake();
+    fetchApk(0);
+}
+
+void GameDialog::updateKeepAwake()
+{
+    // The toolbar's keep-awake button, when on, holds the headset on its own.
+    const bool wanted = m_running && SettingsDialog::keepAwakeWhileInstalling() && !m_headset->keepsAwake();
+    if (m_keepAwake && !wanted) {
+        // Leave the headset awake when the button took over.
+        if (m_headset->keepsAwake())
+            m_keepAwake->abandon();
+        delete m_keepAwake;
+    }
+    if (wanted && !m_keepAwake) {
         m_keepAwake = new installer::KeepAwake(m_headset->client(), m_serial, this);
         connect(m_keepAwake, &installer::KeepAwake::failed, this, [this](const QString& errorMessage) {
             log(tr("Could not keep the headset's screen on: %1").arg(errorMessage));
@@ -581,7 +598,6 @@ void GameDialog::install()
         m_keepAwake->start();
         log(tr("Keeping the headset's screen on until the install ends."));
     }
-    fetchApk(0);
 }
 
 void GameDialog::fetchApk(int index)
@@ -754,8 +770,7 @@ void GameDialog::finishInstall(bool success, const QString& message)
         m_runner->disconnect(this);
         m_runner->deleteLater();
     }
-    // Hands the screen back to the proximity sensor.
-    delete m_keepAwake;
+    updateKeepAwake(); // Hands the screen back to the proximity sensor.
     m_tellArea->hide();
     m_progress->setRange(0, 1);
     m_progress->setValue(success ? 1 : 0);

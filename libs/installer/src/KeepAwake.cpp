@@ -35,19 +35,25 @@ void KeepAwake::start()
     m_timer.start();
 }
 
-void KeepAwake::stop()
+qadb::Reply* KeepAwake::stop()
 {
     if (!m_active)
-        return;
+        return nullptr;
     m_active = false;
     m_timer.stop();
-    broadcast(kReleaseAwakeAction);
+    return broadcast(kReleaseAwakeAction);
 }
 
-void KeepAwake::broadcast(const char* action)
+void KeepAwake::abandon()
+{
+    m_active = false;
+    m_timer.stop();
+}
+
+qadb::Reply* KeepAwake::broadcast(const char* action)
 {
     if (!m_client)
-        return;
+        return nullptr;
     auto* reply = m_client->shell(m_serial, {QStringLiteral("am"), QStringLiteral("broadcast"), QStringLiteral("-a"),
                                              QString::fromLatin1(action)});
     // The reply belongs to the client, so the release still goes out when this object is gone.
@@ -66,6 +72,7 @@ void KeepAwake::broadcast(const char* action)
         self->m_reportedFailure = true;
         emit self->failed(error.isEmpty() ? tr("am broadcast failed") : error);
     });
+    return reply;
 }
 
 } // namespace installer

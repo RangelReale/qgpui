@@ -77,6 +77,9 @@ private:
     void fetchApk(int index);
     void runSteps();
     void recordInstall();
+    // Starts or stops m_keepAwake: on while an install runs, if the setting is on and the toolbar's
+    // keep-awake button is off.
+    void updateKeepAwake();
     void cancel();
     void finishInstall(bool success, const QString& message);
     void log(const QString& text);

@@ -35,3 +35,4 @@ Why qgp is built this way. One numbered record per decision, with its context an
 | [0010](decisions/0010-game-dialog-first.md) | Every action on a game starts in its game dialog |
 | [0011](decisions/0011-checking-for-updates.md) | Check the headset's games for updates on their own |
 | [0012](decisions/0012-keeping-the-headset-awake.md) | Keep the headset awake during installs, when the user asks |
+| [0013](decisions/0013-keep-awake-button.md) | A toolbar button keeps the headset awake on demand |

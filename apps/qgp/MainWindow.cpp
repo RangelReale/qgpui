@@ -237,6 +237,17 @@ void MainWindow::createToolBar()
 
     m_headsetAction = toolBar->addAction(tr("&Headset"), this, &MainWindow::showHeadsetDialog);
     m_headsetAction->setToolTip(tr("Connect a headset"));
+
+    m_keepAwakeAction = toolBar->addAction(HeadsetConnection::keepAwakeIcon(), tr("Keep Awake"));
+    m_keepAwakeAction->setCheckable(true);
+    m_keepAwakeAction->setToolTip(tr("Keep the headset's screen on, even when it is taken off, until you turn this off"));
+    if (auto* button = qobject_cast<QToolButton*>(toolBar->widgetForAction(m_keepAwakeAction)))
+        button->setToolButtonStyle(Qt::ToolButtonIconOnly);
+    connect(m_keepAwakeAction, &QAction::toggled, m_headset, &HeadsetConnection::setKeepAwake);
+    connect(m_headset, &HeadsetConnection::keepAwakeChanged, m_keepAwakeAction, &QAction::setChecked);
+    connect(m_headset, &HeadsetConnection::keepAwakeFailed, this, [this](const QString& errorMessage) {
+        statusBar()->showMessage(tr("Could not keep the headset's screen on: %1").arg(errorMessage), 10000);
+    });
     toolBar->addSeparator();
 
     auto* label = new QLabel(tr("&Order:"), toolBar);

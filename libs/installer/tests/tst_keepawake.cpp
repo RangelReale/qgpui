@@ -79,6 +79,19 @@ private slots:
         QTRY_COMPARE_WITH_TIMEOUT(count(kReleaseAwakeAction), 1, 5000);
     }
 
+    void abandonSendsNoRelease()
+    {
+        {
+            KeepAwake awake(m_client, kSerial);
+            awake.start();
+            awake.abandon();
+            QVERIFY(!awake.isActive());
+        }
+        QTRY_COMPARE_WITH_TIMEOUT(count(kKeepAwakeAction), 1, 5000);
+        QTest::qWait(100);
+        QCOMPARE(count(kReleaseAwakeAction), 0);
+    }
+
     void stopWithoutStartSendsNothing()
     {
         {

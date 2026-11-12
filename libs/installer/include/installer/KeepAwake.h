@@ -6,7 +6,8 @@
 
 namespace qadb {
 class Client;
-}
+class Reply;
+} // namespace qadb
 
 namespace installer {
 
@@ -29,8 +30,12 @@ public:
     ~KeepAwake() override;
 
     void start();
-    void stop();
+    // Returns the release's reply, which belongs to the client, or nullptr when not active.
+    qadb::Reply* stop();
+    // Stops renewing without the release, for when another KeepAwake takes over the headset.
+    void abandon();
     bool isActive() const { return m_active; }
+    QString serial() const { return m_serial; }
 
     int renewInterval() const { return m_timer.interval(); }
     void setRenewInterval(int msec) { m_timer.setInterval(msec); }
@@ -40,7 +45,7 @@ signals:
     void failed(const QString& errorMessage);
 
 private:
-    void broadcast(const char* action);
+    qadb::Reply* broadcast(const char* action);
 
     qadb::Client* m_client;
     QString m_serial;
