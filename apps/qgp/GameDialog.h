@@ -26,6 +26,7 @@ class QWidget;
 namespace installer {
 class ApkFetcher;
 struct InstallRecord;
+class KeepAwake;
 class ReleaseLookup;
 class Runner;
 } // namespace installer
@@ -78,6 +79,9 @@ private:
     void fetchApk(int index);
     void runSteps();
     void recordInstall();
+    // Starts or stops m_keepAwake: on while an install runs, if the setting is on and the toolbar's
+    // keep-awake button is off.
+    void updateKeepAwake();
     void cancel();
     // How an install ended. Warning: the game is installed, but something after it failed.
     enum class Outcome { Success, Warning, Failure };
@@ -121,5 +125,6 @@ private:
     QString m_asset;
     QPointer<installer::ApkFetcher> m_fetcher;
     QPointer<installer::Runner> m_runner;
+    QPointer<installer::KeepAwake> m_keepAwake; // While an install runs, if the setting is on.
     QNetworkAccessManager* m_network = nullptr;
 };

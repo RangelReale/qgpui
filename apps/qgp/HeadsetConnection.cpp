@@ -1,11 +1,15 @@
 #include "HeadsetConnection.h"
 
+#include "installer/KeepAwake.h"
 #include "qadb/AdbServer.h"
 #include "qadb/Client.h"
 #include "qadb/DeviceTracker.h"
 #include "qadb/Reply.h"
 
+#include <QGuiApplication>
 #include <QPainter>
+#include <QPainterPath>
+#include <QPalette>
 #include <QPen>
 #include <QPixmap>
 #include <QSettings>
@@ -50,6 +54,7 @@ HeadsetConnection::HeadsetConnection(QObject* parent)
     m_name = settings.value(kNameSetting).toString();
     m_hardwareSerial = settings.value(kHardwareSetting).toString();
 
+    connect(this, &HeadsetConnection::statusChanged, this, &HeadsetConnection::updateKeepAwake);
     connect(m_tracker, &qadb::DeviceTracker::connectedChanged, this, [this](bool connected) {
         if (connected) {
             m_startTried = false;
@@ -423,6 +428,67 @@ QString HeadsetConnection::stateDescription(const qadb::DeviceInfo& device)
     default:
         return tr("Not ready (%1)").arg(device.stateText);
     }
+}
+
+HeadsetConnection::~HeadsetConnection()
+{
+    // Before the client goes with the other children. main() has released the headset already
+    // (KeepAwake::releaseAll), so this sends nothing.
+    delete m_keepAwake;
+}
+
+void HeadsetConnection::setKeepAwake(bool on)
+{
+    if (on == m_keepAwakeWanted)
+        return;
+    m_keepAwakeWanted = on;
+    updateKeepAwake();
+    emit keepAwakeChanged(on);
+}
+
+void HeadsetConnection::updateKeepAwake()
+{
+    const bool wanted = m_keepAwakeWanted && isReady();
+    if (m_keepAwake && (!wanted || m_keepAwake->serial() != m_serial))
+        delete m_keepAwake; // Releases the headset.
+    if (wanted && !m_keepAwake) {
+        m_keepAwake = new installer::KeepAwake(m_client, m_serial, this);
+        connect(m_keepAwake, &installer::KeepAwake::failed, this, &HeadsetConnection::keepAwakeFailed);
+        connect(m_keepAwake, &installer::KeepAwake::stateChanged, this, &HeadsetConnection::keepAwakeStateChanged);
+        m_keepAwake->start();
+    }
+    emit keepAwakeStateChanged();
+}
+
+bool HeadsetConnection::isKeptAwakeElsewhere() const
+{
+    return m_keepAwake && m_keepAwake->state() == installer::KeepAwake::State::Deferring;
+}
+
+QIcon HeadsetConnection::keepAwakeIcon()
+{
+    QIcon icon;
+    for (int size : {16, 24, 32}) {
+        QPixmap pixmap(size, size);
+        pixmap.fill(Qt::transparent);
+        QPainter painter(&pixmap);
+        painter.setRenderHint(QPainter::Antialiasing);
+        const QColor color = QGuiApplication::palette().color(QPalette::ButtonText);
+        painter.setPen(QPen(color, size / 12.0));
+        // The eye's outline: two arcs that meet at the corners.
+        const qreal left = size * 0.08, right = size * 0.92, middle = size / 2.0;
+        QPainterPath outline;
+        outline.moveTo(left, middle);
+        outline.quadTo(middle, size * 0.08, right, middle);
+        outline.quadTo(middle, size * 0.92, left, middle);
+        painter.drawPath(outline);
+        painter.setBrush(color);
+        painter.setPen(Qt::NoPen);
+        painter.drawEllipse(QPointF(middle, middle), size * 0.16, size * 0.16);
+        painter.end();
+        icon.addPixmap(pixmap);
+    }
+    return icon;
 }
 
 QIcon HeadsetConnection::statusIcon(bool ok)

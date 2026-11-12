@@ -3,12 +3,14 @@
 #include "CoverCache.h"
 #include "GameFlags.h"
 #include "HeadsetConnection.h"
+#include "SettingsDialog.h"
 
 #include "gamestores/FilesFolder.h"
 #include "gamestores/Finder.h"
 #include "installer/ApkFetcher.h"
 #include "installer/HeadsetRecords.h"
 #include "installer/InstallPlan.h"
+#include "installer/KeepAwake.h"
 #include "installer/ReleaseLookup.h"
 #include "installer/Runner.h"
 #include "installer/Updates.h"
@@ -265,6 +267,7 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     layout->addWidget(buttons);
     resize(720, sizeHint().height());
 
+    connect(m_headset, &HeadsetConnection::keepAwakeChanged, this, &GameDialog::updateKeepAwake);
     connect(m_headset, &HeadsetConnection::statusChanged, this, [this] {
         showHeadsetState();
         updateButtons();
@@ -637,7 +640,35 @@ void GameDialog::install()
     showInputs(); // Disables the Choose buttons.
     updateButtons();
     log(tr("Installing %1 on %2.").arg(m_game.title, m_serial));
+    if (SettingsDialog::keepAwakeWhileInstalling() && m_headset->keepsAwake())
+        log(tr("The headset's screen is already kept on by the toolbar's keep-awake button."));
+    updateKeepAwake();
     fetchApk(0);
+}
+
+void GameDialog::updateKeepAwake()
+{
+    // The toolbar's keep-awake button, when on, holds the headset on its own.
+    const bool wanted = m_running && SettingsDialog::keepAwakeWhileInstalling() && !m_headset->keepsAwake();
+    if (m_keepAwake && !wanted) {
+        // Leave the headset awake when the button took over.
+        if (m_headset->keepsAwake())
+            m_keepAwake->abandon();
+        delete m_keepAwake;
+    }
+    if (wanted && !m_keepAwake) {
+        m_keepAwake = new installer::KeepAwake(m_headset->client(), m_serial, this);
+        connect(m_keepAwake, &installer::KeepAwake::failed, this, [this](const QString& errorMessage) {
+            log(tr("Could not keep the headset's screen on: %1").arg(errorMessage));
+        });
+        connect(m_keepAwake, &installer::KeepAwake::stateChanged, this, [this](installer::KeepAwake::State state) {
+            if (state == installer::KeepAwake::State::Holding)
+                log(tr("Keeping the headset's screen on until the install ends."));
+            else if (state == installer::KeepAwake::State::Deferring)
+                log(tr("Another app on the headset already keeps its screen on; qgp leaves it alone."));
+        });
+        m_keepAwake->start();
+    }
 }
 
 void GameDialog::fetchApk(int index)
@@ -810,6 +841,7 @@ void GameDialog::finishInstall(Outcome outcome, const QString& message)
         m_runner->disconnect(this);
         m_runner->deleteLater();
     }
+    updateKeepAwake(); // Hands the screen back to the proximity sensor.
     m_tellArea->hide();
     m_progressArea->hide();
     const QString text = outcome == Outcome::Failure ? tr("The install failed: %1").arg(message)

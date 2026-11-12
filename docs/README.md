@@ -8,7 +8,7 @@ What was found out, with the evidence: notes on external systems and on measurem
 
 - [QuestPorts data sources](research/questports-data-sources.md): where QuestPorts keeps its game list and install requirements, and how to read them.
 - [Install processes](research/install-processes.md): the 145 games sorted by where their data comes from and how it reaches the headset.
-- [How a Quest answers adb](research/quest-adb-behaviour.md): grants, pushes into `Android/data`, packages, storage and identity, measured on a Quest 3.
+- [How a Quest answers adb](research/quest-adb-behaviour.md): grants, pushes into `Android/data`, packages, storage, identity and keeping the screen on, measured on a Quest 3.
 
 ## [`architecture/`](architecture)
 
@@ -35,3 +35,6 @@ Why qgp is built this way. One numbered record per decision, with its context an
 | [0010](decisions/0010-game-dialog-first.md) | Every action on a game starts in its game dialog |
 | [0011](decisions/0011-checking-for-updates.md) | Check the headset's games for updates on their own |
 | [0012](decisions/0012-single-instance.md) | Run one qgp per user; a second start activates the first |
+| [0013](decisions/0013-keeping-the-headset-awake.md) | Keep the headset awake during installs, when the user asks |
+| [0014](decisions/0014-keep-awake-button.md) | A toolbar button keeps the headset awake on demand |
+| [0015](decisions/0015-sharing-the-keep-awake-override.md) | Leave another app's keep-awake alone, and release on exit |

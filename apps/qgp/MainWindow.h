@@ -65,6 +65,7 @@ private:
                         const QHash<QString, installer::InstallRecord>& recorded, int query);
     void showHeadsetDialog();
     void updateHeadsetStatus();
+    void updateKeepAwakeAction();
     void chooseFilesFolder();
     void openGame();
     void openGameAt(const QModelIndex& index);
@@ -97,6 +98,7 @@ private:
     installer::ReleaseLookup* m_releases; // Shared with the game dialogs.
     HeadsetDialog* m_headsetDialog = nullptr;
     QAction* m_headsetAction = nullptr;
+    QAction* m_keepAwakeAction = nullptr;
     QAction* m_openGameAction = nullptr;
     QHash<QString, QPointer<GameDialog>> m_gameDialogs;
     QToolButton* m_headsetStatus;
