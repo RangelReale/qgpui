@@ -55,11 +55,17 @@
     {
       "do": "shell",
       "args": [
+        "find",
+        "/sdcard/Android/data/com.SwivelChairGames.ANKHVR/files/u4",
+        "-name",
+        "*.SAV",
+        "-exec",
         "chmod",
         "666",
-        "/sdcard/Android/data/com.SwivelChairGames.ANKHVR/files/u4/*.SAV"
+        "{}",
+        "+"
       ],
-      "why": "Save files copied from a PC must be writable. The guide gives this command for copied .SAV files."
+      "why": "Save files copied from a PC must be writable. The guide gives chmod 666 for copied .SAV files; find does the matching, because qgp quotes every argument, and succeeds when there are none."
     },
     {
       "do": "verify",
@@ -72,5 +78,5 @@
       "text": "Open ANKH-VR from Library > Unknown Sources."
     }
   ],
-  "notes": "The GOG install folder name is a guess. File names are case sensitive on the Quest, so the push must keep their case. The chmod fails when there are no .SAV files (a new game creates them writable); qgp should treat that failure as harmless, or the step should be skipped when no .SAV was pushed. The asset is really named ANHK-VR.apk. Releases before 0.2.15 are pre-releases."
+  "notes": "The GOG install folder name is a guess. File names are case sensitive on the Quest, so the push must keep their case. The asset is really named ANHK-VR.apk. Releases before 0.2.15 are pre-releases."
 }

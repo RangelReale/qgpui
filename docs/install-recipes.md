@@ -105,7 +105,7 @@ A folder that is not a store install, such as an arcade dump, is a `pc-install` 
 | `launch` | Starts the main app and waits (`waitSeconds`, default 10). It then force-stops the app, unless `stop` is false. `why` says what the launch is for. |
 | `push` | Pushes an input's files. Each `map` entry takes `from` and sends it `to` a path under `/sdcard/`. `from` is a glob below the input's root, or one of its `names`. Without `from`, every file of the input is pushed. A `to` that ends in `/` is a folder; any other `to` is the file's new path. A glob drops the folders before its first wildcard and keeps the rest of each path: `misc/**` to `/sdcard/X/misc/` sends `misc/a/b.txt` to `/sdcard/X/misc/a/b.txt`, and `*.pak` sends files flat. Below `/sdcard/Android/data/`, qgp creates folders with `mkdir -p`, pushes file by file and opens new folders to the app; see [Tested on a headset](#tested-on-a-headset). |
 | `verify` | Checks over adb that the listed files exist. |
-| `shell` | Runs one command with `adb shell`; `args` holds the command and its arguments. Used for `chmod`, `content call`, `am force-stop` and marker files. `why` is required. |
+| `shell` | Runs one command with `adb shell`; `args` holds the command and its arguments. Used for `chmod`, `content call`, `am force-stop` and marker files. `why` is required. Each argument is quoted, so the device shell expands no wildcards: use `find ... -name '*.SAV' -exec ...` instead of `chmod 666 *.SAV`. A non-zero exit code stops the install. |
 | `tell` | Shows the user what to do in the headset. |
 
 ### Checks beyond the schema
