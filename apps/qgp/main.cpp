@@ -1,4 +1,5 @@
 #include "MainWindow.h"
+#include "SingleInstance.h"
 
 #include <QApplication>
 #include <QCommandLineParser>
@@ -55,9 +56,27 @@ int main(int argc, char* argv[])
     parser.process(app);
 
     const QStringList args = parser.positionalArguments();
+    // The other instance has another working folder, so pass it an absolute path.
+    const QString catalogArg = args.isEmpty() ? QString() : QFileInfo(args.first()).absoluteFilePath();
+
+    SingleInstance instance;
+    if (!instance.claim(catalogArg))
+        return 0;
+
     MainWindow window;
-    window.loadCatalog(args.isEmpty() ? defaultCatalogPath() : args.first());
+    window.loadCatalog(catalogArg.isEmpty() ? defaultCatalogPath() : catalogArg);
     window.resize(1400, 900);
     window.show();
+
+    // A second start brings this window to the front, and opens the catalog it was given.
+    QObject::connect(&instance, &SingleInstance::activated, &window, [&window](const QString& catalog) {
+        if (!catalog.isEmpty())
+            window.loadCatalog(catalog);
+        if (window.isMinimized())
+            window.showNormal();
+        window.show();
+        window.raise();
+        window.activateWindow();
+    });
     return QApplication::exec();
 }

@@ -34,3 +34,4 @@ Why qgp is built this way. One numbered record per decision, with its context an
 | [0009](decisions/0009-files-folder.md) | Look for the user's files in one files folder, by game slug |
 | [0010](decisions/0010-game-dialog-first.md) | Every action on a game starts in its game dialog |
 | [0011](decisions/0011-checking-for-updates.md) | Check the headset's games for updates on their own |
+| [0012](decisions/0012-single-instance.md) | Run one qgp per user; a second start activates the first |
