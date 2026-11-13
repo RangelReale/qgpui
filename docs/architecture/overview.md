@@ -38,6 +38,10 @@ data/recipes/<slug>.json (QGPUI's own, hand-written) ─────────
 
 Before installing, the dialog's Details button opens two tabs. The first shows the port's step-by-step installation guide from QuestPorts, the Markdown of the port row's `installation_guide`, drawn by `GuideView` in the site's colours, with the port's troubleshooting notes below it. The second shows every step and command the install runs, with the files as they are found at that moment. `installer::planInstall` builds that list. The Runner builds its grant, launch, force-stop and folder commands with the same functions, so the list matches what runs.
 
+## Uninstalling a game
+
+The game dialog shows Uninstall when the game is on the current headset ([decision 0025](../decisions/0025-uninstalling-a-game.md)). After the user confirms, it runs `pm uninstall` through `qadb`, which also deletes the game's `Android/data` and `Android/obb` folders. `installer::HeadsetRecordSync::remove` then drops the game's record from the headset's list and the PC's copy. The result shows in the same banner as an install's.
+
 ## Updates
 
 Each time the app reads the current headset, it checks the games on it for updates ([decision 0011](../decisions/0011-checking-for-updates.md)). `installer::ReleaseLookup` finds the newest release of each game's first APK, asking GitHub once per repository, and `installer::updateStatus` compares it with the package on the headset and its install record ([decision 0006](../decisions/0006-update-detection.md)). A game with an update is marked on its cover, and its game dialog offers Update instead of Install. An update is an ordinary install of the newer release.
