@@ -1,6 +1,6 @@
 # 0019: Release from a version tag, with a catalog in the installer
 
-- Status: accepted
+- Status: accepted; the separate catalog file is replaced by [0023](0023-no-catalog-release-asset.md)
 - Date: 2026-11-12
 
 ## Context

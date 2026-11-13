@@ -244,7 +244,8 @@ jobs:
     permissions:
       contents: write
     steps:
-      # Every artifact of the run, including the unsigned bundle; only the three files below go up.
+      # Every artifact of the run, including the unsigned bundle and the catalog; only the installer
+      # and the disk image go up. The catalog ships inside them, not as a file of its own.
       - uses: actions/download-artifact@v4
         with:
           merge-multiple: true
@@ -258,11 +259,10 @@ jobs:
           VERSION: ${{ needs.prepare.outputs.version }}
         run: |
           ls -l dist
-          for file in "qgpui-$VERSION-setup.exe" "qgpui-$VERSION-macos.dmg" qgpui-catalog.json; do
+          for file in "qgpui-$VERSION-setup.exe" "qgpui-$VERSION-macos.dmg"; do
             [ -f "dist/$file" ] || { echo "::error::The release has no $file."; exit 1; }
           done
           if ! gh release view "$TAG" > /dev/null 2>&1; then
             gh release create "$TAG" --verify-tag --title "QGPUI $VERSION" --generate-notes
           fi
-          gh release upload "$TAG" "dist/qgpui-$VERSION-setup.exe" "dist/qgpui-$VERSION-macos.dmg" \
-            dist/qgpui-catalog.json --clobber
+          gh release upload "$TAG" "dist/qgpui-$VERSION-setup.exe" "dist/qgpui-$VERSION-macos.dmg" --clobber
