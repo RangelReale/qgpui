@@ -12,9 +12,9 @@ before the first edit; it creates the feature branch and its checkout under `.cl
 
 `master` is protected on GitHub: it changes only through a pull request whose CI checks pass, and
 the rule has no bypass. Do not merge into `master` locally, because the push is rejected. Push the
-branch, open a pull request, and merge it with `gh pr merge --merge` once CI passes. Run `gh` from
-the worktree and pass the PR number: `--delete-branch` tries to check out `master`, which the main
-checkout holds, so delete the remote branch with `git push origin --delete <branch>` afterwards.
+branch, open a pull request, and merge it with `gh pr merge <number> --merge` (or auto-merge) once
+CI passes. GitHub deletes the remote branch after the merge. Do not pass `--delete-branch` in a
+worktree: it tries to check out `master`, which the main checkout holds.
 
 A new worktree has no `build/` and no `local/`. Configure it with `cmake --preset windows` before
 building. To run QGPUI against the catalog, copy `local/qgpui-catalog.json` from the main checkout, or
