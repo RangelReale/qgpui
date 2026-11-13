@@ -37,6 +37,8 @@ private:
     QString m_mohaa;   // Steam 999, a game no recipe names by ID.
     QString m_gogQuake; // GOG pack install, no ID in the recipe.
     QString m_fs2;      // GOG 5, files missing.
+    QString m_epicMorrowind; // Epic, complete, no ID in the recipe.
+    QString m_epicAmnesia;   // Epic, incomplete.
 
     GameFinder makeFinder()
     {
@@ -48,7 +50,10 @@ private:
         gog.add({QStringLiteral("1440166133"), QStringLiteral("Quake"), m_gogQuake, {}, true});
         gog.add({QStringLiteral("5"), QStringLiteral("Freespace 2"), m_fs2, {}, true});
         gog.add({QStringLiteral("1207658962"), QStringLiteral("Ultima IV"), {}, {}, true}); // Owned only.
-        return GameFinder(std::move(steam), gog);
+        EpicLibrary epic;
+        epic.add({QStringLiteral("Morrowind"), QStringLiteral("Morrowind GOTY"), m_epicMorrowind, true});
+        epic.add({QStringLiteral("Amnesia"), QStringLiteral("Amnesia"), m_epicAmnesia, false}); // Still downloading.
+        return GameFinder(std::move(steam), gog, epic);
     }
 
 private slots:
@@ -81,6 +86,31 @@ private slots:
         touch(m_gogQuake + QStringLiteral("/id1/pak1.pak"));
         m_fs2 = QDir::cleanPath(m_tmp.filePath(QStringLiteral("GOG Games/Freespace 2")));
         QDir().mkpath(m_fs2);
+
+        m_epicMorrowind = QDir::cleanPath(m_tmp.filePath(QStringLiteral("Epic Games/Morrowind")));
+        touch(m_epicMorrowind + QStringLiteral("/Data Files/Morrowind.esm"));
+        m_epicAmnesia = QDir::cleanPath(m_tmp.filePath(QStringLiteral("Epic Games/Amnesia")));
+        touch(m_epicAmnesia + QStringLiteral("/Amnesia.exe"));
+    }
+
+    void findsEpicInstalls()
+    {
+        const GameFinder finder = makeFinder();
+        // By content: the recipe lists Epic without an ID.
+        auto found = finder.find(input("{'stores':[{'store':'epic'}],'detect':['Data Files/Morrowind.esm']}"));
+        QCOMPARE(found.size(), 1);
+        QCOMPARE(found[0].status, Location::Status::Installed);
+        QCOMPARE(found[0].store, QStringLiteral("epic"));
+        QCOMPARE(found[0].productId, QStringLiteral("Morrowind"));
+        QCOMPARE(found[0].path, m_epicMorrowind);
+
+        // By app name, but the launcher marks the install incomplete.
+        found = finder.find(input("{'stores':[{'store':'epic','appId':'Amnesia'}],'detect':['Amnesia.exe']}"));
+        QCOMPARE(found.size(), 1);
+        QCOMPARE(found[0].status, Location::Status::Incomplete);
+
+        // Step 3 reports only complete installs.
+        QVERIFY(finder.find(input("{'detect':['Amnesia.exe']}")).isEmpty());
     }
 
     void findsBySteamIdAndByContent()
