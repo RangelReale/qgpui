@@ -17,8 +17,9 @@ namespace {
 constexpr int kReleaseWaitMsecs = 2000;
 
 // Where to read the catalog when the command line names none: the file opened last, else
-// qgpui-catalog.json in the app's data folder, else (in a development build) the repository's local/
-// folder, where tools/questports-payload's build-catalog writes it.
+// qgpui-catalog.json in the app's data folder, else the one the installer put next to qgpui.exe,
+// else (in a development build) the repository's local/ folder, where tools/questports-payload's
+// build-catalog writes it.
 QString defaultCatalogPath()
 {
     const QString last = QSettings().value(QStringLiteral("catalogPath")).toString();
@@ -27,8 +28,15 @@ QString defaultCatalogPath()
 
     const QString appData = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation))
                                 .filePath(QStringLiteral("qgpui-catalog.json"));
+    if (QFileInfo::exists(appData))
+        return appData;
+
+    const QString shipped =
+        QDir(QCoreApplication::applicationDirPath()).filePath(QStringLiteral("qgpui-catalog.json"));
+    if (QFileInfo::exists(shipped))
+        return shipped;
 #ifdef QGPUI_DEV_CATALOG
-    if (!QFileInfo::exists(appData) && QFileInfo::exists(QStringLiteral(QGPUI_DEV_CATALOG)))
+    if (QFileInfo::exists(QStringLiteral(QGPUI_DEV_CATALOG)))
         return QStringLiteral(QGPUI_DEV_CATALOG);
 #endif
     return appData;
@@ -51,11 +59,13 @@ int main(int argc, char* argv[])
     QApplication::setOrganizationName(QStringLiteral("qgpui"));
     QApplication::setApplicationName(QStringLiteral("qgpui"));
     QApplication::setApplicationDisplayName(QStringLiteral("QGPUI"));
+    QApplication::setApplicationVersion(QStringLiteral(QGPUI_VERSION));
     QApplication::setWindowIcon(appIcon());
 
     QCommandLineParser parser;
     parser.setApplicationDescription(QStringLiteral("Meta Quest game ports manager."));
     parser.addHelpOption();
+    parser.addVersionOption();
     parser.addPositionalArgument(QStringLiteral("catalog"), QStringLiteral("QGPUI catalog file to open."),
                                  QStringLiteral("[catalog]"));
     parser.process(app);

@@ -33,7 +33,8 @@ qt_add_resources(qgpui icons
 )
 
 target_link_libraries(qgpui PRIVATE qgpui::questports qgpui::gamestores qgpui::installer qgpui::qadb Qt6::Widgets Qt6::Network)
-target_compile_definitions(qgpui PRIVATE QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
+target_compile_definitions(qgpui PRIVATE QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII
+    QGPUI_VERSION="${PROJECT_VERSION}")
 
 # Development builds fall back to the catalog in the repository's local/ folder.
 option(QGPUI_DEV_CATALOG "Fall back to local/qgpui-catalog.json in the source tree" ON)
@@ -84,4 +85,22 @@ if(QGPUI_PLATFORM_TOOLS)
                     $<TARGET_FILE_DIR:qgpui>/platform-tools
             VERBATIM)
     endif()
+endif()
+
+# `cmake --install` lays out the app as it ships: qgpui.exe with the Qt and MSVC runtimes beside it
+# and adb in platform-tools/. packaging/windows/qgpui.iss builds the installer from that folder.
+if(WIN32)
+    install(TARGETS qgpui RUNTIME DESTINATION .)
+    install(CODE "
+        execute_process(
+            COMMAND \"$<TARGET_FILE:Qt6::windeployqt>\" --no-translations --no-compiler-runtime
+                    --no-system-d3d-compiler --no-opengl-sw \"\${CMAKE_INSTALL_PREFIX}/qgpui.exe\"
+            COMMAND_ERROR_IS_FATAL ANY)
+    ")
+    if(_qgpui_adb_paths)
+        install(FILES ${_qgpui_adb_paths} DESTINATION platform-tools)
+    endif()
+    set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION .)
+    set(CMAKE_INSTALL_UCRT_LIBRARIES OFF)
+    include(InstallRequiredSystemLibraries)
 endif()
