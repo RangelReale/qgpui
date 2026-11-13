@@ -572,7 +572,7 @@ ShellReply* Client::shell(const QString& serial, const QString& command)
     detail::runLater(reply, [this, reply, serial, command] {
         if (reply->isFinished())
             return;
-        ClientOps::withFeatures(this, reply, serial, [=](const QStringList& features) {
+        ClientOps::withFeatures(this, reply, serial, [=, this](const QStringList& features) {
             const bool v2 = features.contains(QStringLiteral("shell_v2"));
             const QByteArray service =
                 (v2 ? QByteArrayLiteral("shell,v2,raw:") : QByteArrayLiteral("shell:"))
@@ -723,7 +723,7 @@ Reply* Client::switchToWifi(const QString& serial, quint16 port)
         if (reply->isFinished())
             return;
         ShellReply* ip = shell(serial, QStringLiteral("ip -f inet addr show wlan0"));
-        ClientOps::chain(reply, ip, [=] {
+        ClientOps::chain(reply, ip, [=, this] {
             static const QRegularExpression inet(QStringLiteral("inet (\\d+\\.\\d+\\.\\d+\\.\\d+)"));
             const QRegularExpressionMatch match = inet.match(ip->outputText());
             if (!match.hasMatch()) {
@@ -733,7 +733,7 @@ Reply* Client::switchToWifi(const QString& serial, quint16 port)
             }
             const QString host = match.captured(1);
             Reply* tcpip = enableTcpip(serial, port);
-            ClientOps::chain(reply, tcpip, [=] {
+            ClientOps::chain(reply, tcpip, [=, this] {
                 connectWithRetry(this, reply, host, port, kWifiConnectAttempts);
             });
         });
@@ -951,7 +951,7 @@ Reply* Client::install(const QString& serial, const QString& apkPath, const Inst
                      QStringLiteral("Cannot read %1").arg(apkPath));
             return;
         }
-        ClientOps::withFeatures(this, reply, serial, [=](const QStringList& features) {
+        ClientOps::withFeatures(this, reply, serial, [=, this](const QStringList& features) {
             if (features.contains(QStringLiteral("cmd")))
                 ClientOps::installStreamed(this, reply, serial, apkPath, options);
             else
@@ -1021,7 +1021,9 @@ PackageInfoReply* Client::packageInfo(const QString& serial, const QString& pack
         ClientOps::chain(reply, dump, [=] {
             RA::setOutput(reply, dump->output());
             const auto info = protocol::parsePackageDump(packageName, dump->output());
-            RA::setPackageInfo(reply, info.has_value(), info.value_or(PackageInfo{packageName}));
+            PackageInfo missing;
+            missing.packageName = packageName;
+            RA::setPackageInfo(reply, info.has_value(), info.value_or(missing));
             RA::finish(reply);
         });
     });

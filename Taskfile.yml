@@ -66,6 +66,13 @@ tasks:
       - cmd: open "{{.BIN_DIR}}/qgpui.app" --args {{.CLI_ARGS}}
         platforms: [darwin]
 
+  bundle:
+    desc: 'macOS: make a qgpui.app and qgpui.dmg that run on other Macs (Release)'
+    platforms: [darwin]
+    cmds:
+      - task: configure-if-needed
+      - cmake --build --preset macos --target qgpui-bundle
+
   adbmanager:
     desc: Build and start the adbmanager debug window
     deps: [build]

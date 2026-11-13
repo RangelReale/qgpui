@@ -99,7 +99,7 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   a progress bar, Continue for tell steps and a log, then records the install with
   `HeadsetRecordSync` and shows the result in a coloured banner. Details shows two tabs: the port's `installation_guide` (Markdown, drawn by `GuideView` in the site's colours, with a workaround for Qt's importer putting a code block inside a list item) above its `troubleshooting_notes`, as on the port's page, and `planInstall`'s commands. File > Settings (`SettingsDialog`)
   holds the preferences: the files folder and keeping the headset awake during installs. The icons in `apps/qgpui/icons/` are temporary;
-  `make-icon.ps1` draws them (Windows PowerShell). `qgpui.rc` gives the .exe its icon. `SingleInstance`
+  `make-icon.ps1` draws them (Windows PowerShell). On macOS the app uses `icons/macos/` instead, 16 to 1024 pixels on Apple's icon grid, which `icons/macos/make-icons.sh` renders from `qgpui.svg` with `rsvg-convert`. `qgpui.rc` gives the .exe its icon. `SingleInstance`
   keeps one QGPUI per user: a second start passes its catalog argument to the first, which comes to
   the front, and quits (decision 0012).
 - `cmake/`: shared CMake functions (`qgpui_add_qt_test`).
@@ -138,6 +138,12 @@ about external systems in research, and update architecture when the code change
   root. CMake caches the Qt it found: configure with `--fresh` after changing `QT_ROOT`.
 - Presets: `windows` (Visual Studio 2022; use it locally), `windows-ninja` (needs a developer
   prompt), `macos`.
+- macOS (decision 0020): CMake builds against the newest macOS 15 SDK, because Qt 6.8 draws flat
+  push buttons with a newer one; configure with `--fresh` if the cache holds another SDK. Normal
+  builds load Qt from `QT_ROOT`. `task bundle` (target `qgpui-bundle`, `apps/qgpui/make-bundle.sh`)
+  makes a self-contained, signed `qgpui.app` and `qgpui.dmg`. Mac-only UI code sits under
+  `Q_OS_MACOS` in `MainWindow.cpp`. Check the UI on a Mac with `screencapture`: Qt's offscreen
+  platform does not use the macOS style.
 - `cmake --preset windows`, then `cmake --build --preset windows-debug` and
   `ctest --preset windows-debug`. Use `windows` instead of `windows-debug` for Release.
 - `Taskfile.yml` (go-task) wraps these: `task build`, `test`, `run`, `adbmanager`, `clean`,

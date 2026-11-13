@@ -39,8 +39,8 @@ public:
     // query fails; the schema is not documented and can change with a Galaxy update.
     bool addGalaxyDatabase(const QString& path, QString* errorMessage = nullptr);
 
-    // Galaxy's database under %PROGRAMDATA%\GOG.com\Galaxy\storage: the highest galaxy-2.*.db.
-    // Empty when there is none.
+    // Galaxy's database: the highest galaxy-2.*.db under %PROGRAMDATA%\GOG.com\Galaxy\storage on
+    // Windows, or /Users/Shared/GOG.com/Galaxy/Storage on macOS. Empty when there is none.
     static QString findGalaxyDatabase();
 
     // Reads goggame-<productId>.info in folder, the file every GOG install carries. Returns its

@@ -1,6 +1,6 @@
 # Architecture overview
 
-QGPUI installs QuestPorts games on a Meta Quest from a Windows PC. This page shows how the parts fit together. Each part has its own README or header comments for the details.
+QGPUI installs QuestPorts games on a Meta Quest from a Windows PC or a Mac. This page shows how the parts fit together. Each part has its own README or header comments for the details.
 
 ## Data flow
 

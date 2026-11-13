@@ -33,6 +33,7 @@
 #include <QHBoxLayout>
 #include <QJsonArray>
 #include <QLabel>
+#include <QResizeEvent>
 #include <QJsonDocument>
 #include <QMessageBox>
 #include <QNetworkAccessManager>
@@ -52,6 +53,24 @@
 #include <memory>
 
 namespace {
+
+// A word-wrapped label that asks its layout for the height its text takes at its actual width.
+// Layouts give a wrapped rich-text label too little height when its width changes after the
+// first layout, and the last line is cut off (seen on macOS, whose fonts are larger).
+class WrappedLabel : public QLabel
+{
+public:
+    using QLabel::QLabel;
+
+protected:
+    void resizeEvent(QResizeEvent* event) override
+    {
+        QLabel::resizeEvent(event);
+        const int needed = heightForWidth(width());
+        if (needed > 0 && needed != minimumHeight())
+            setMinimumHeight(needed);
+    }
+};
 
 const QString kFilesFolderSetting = QStringLiteral("filesFolder");
 
@@ -254,7 +273,7 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
                                 .arg(kOrange));
     baseGame->setVisible(!baseGameStore.isEmpty());
 
-    auto* about = new QLabel(this);
+    auto* about = new WrappedLabel(this);
     about->setWordWrap(true);
     QStringList lines;
     if (!m_game.developer.isEmpty())
@@ -420,7 +439,10 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     layout->addWidget(m_tellArea);
     layout->addWidget(m_log, 1);
     layout->addWidget(buttons);
-    resize(720, sizeHint().height());
+    // Wrapped labels need the height they take at this width, which can exceed sizeHint() with
+    // larger fonts, such as macOS's.
+    constexpr int kWidth = 720;
+    resize(kWidth, qMax(sizeHint().height(), heightForWidth(kWidth)));
 
     connect(m_headset, &HeadsetConnection::keepAwakeChanged, this, &GameDialog::updateKeepAwake);
     connect(m_headset, &HeadsetConnection::statusChanged, this, [this] {
@@ -468,8 +490,10 @@ void GameDialog::showInputs()
         label->setOpenExternalLinks(true);
         label->setTextInteractionFlags(Qt::TextBrowserInteraction);
         label->setForegroundRole(QPalette::PlaceholderText);
+        label->setAlignment(Qt::AlignLeft | Qt::AlignTop);
         return label;
     };
+    const QString shared = files.sharedFilesNote(inputsJson);
 
     for (int index = 0; index < m_inputs.size(); ++index) {
         const int row = index * 2;
@@ -524,15 +548,17 @@ void GameDialog::showInputs()
         m_filesGrid->addWidget(status, row, 1);
         m_filesGrid->addWidget(choose, row, 2, Qt::AlignTop); // Vertical only: it fills the column.
         const QStringList guide = files.inputGuide(inputsJson, index, m_game.slug);
+        // The last guide also takes the row of Open Files Folder when no note needs it, so that a
+        // long guide is not cut off at the height of Check Files Again's row.
+        const int rows = index == m_inputs.size() - 1 && shared.isEmpty() ? 2 : 1;
         if (!guide.isEmpty())
-            m_filesGrid->addWidget(guideLabel(guide.join(u'\n')), row + 1, 0, 1, 2);
+            m_filesGrid->addWidget(guideLabel(guide.join(u'\n')), row + 1, 0, rows, 2);
     }
 
     // The last input's guide row has the third column free: the buttons start there.
     const int end = qMax(1, int(m_inputs.size()) * 2);
     m_filesGrid->addWidget(m_checkFilesButton, end - 1, 2, Qt::AlignTop);
     m_filesGrid->addWidget(m_openFolderButton, end, 2, Qt::AlignTop);
-    const QString shared = files.sharedFilesNote(inputsJson);
     if (!shared.isEmpty())
         m_filesGrid->addWidget(guideLabel(shared), end, 0, 1, 2);
 }

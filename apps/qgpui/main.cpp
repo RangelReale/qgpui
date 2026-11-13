@@ -45,7 +45,12 @@ QString defaultCatalogPath()
 QIcon appIcon()
 {
     QIcon icon;
+#ifdef Q_OS_MACOS
+    // Also the Dock icon, which needs the large sizes.
+    for (int size : {16, 32, 64, 128, 256, 512, 1024})
+#else
     for (int size : {16, 24, 32, 48, 64, 128, 256})
+#endif
         icon.addFile(QStringLiteral(":/icons/qgpui-%1.png").arg(size), QSize(size, size));
     return icon;
 }

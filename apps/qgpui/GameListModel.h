@@ -26,6 +26,7 @@ public:
 
     void setGames(QList<questports::Game> games);
     const questports::Game& game(int row) const { return m_games.at(row); }
+    using QAbstractListModel::flags; // Item flags; the overload below returns the game's flags.
     GameFlags flags(int row) const;
     // Sets what this PC's Steam and GOG libraries hold, by slug, next to what the recipes say
     // the stores sell.
