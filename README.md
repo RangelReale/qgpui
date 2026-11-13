@@ -56,8 +56,8 @@ There is no ready-made download yet. To build QGPUI and its catalog from source,
    Click Headset on the toolbar, or the round indicator in the status bar, to see the headsets
    QGPUI found, pick one, or add one over Wi-Fi. The indicator turns green when a headset is
    connected.
-3. **Set up your files folder.** By default it is `Documents\qgpui\files`. Change it with
-   File > Files Folder. Each game's folder holds a `qgpui - what goes here.txt` that says what to
+3. **Set up your files folder.** By default it is `Documents\qgpui\files`. Change it in
+   File > Settings. Each game's folder holds a `qgpui - what goes here.txt` that says what to
    put there.
 4. **Install a game.** Double-click a game. The game dialog shows what the port needs and where
    QGPUI found it, with a Choose button for each. Details shows the port's installation guide and

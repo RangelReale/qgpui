@@ -3,6 +3,7 @@
 #include <QDialog>
 
 class QCheckBox;
+class QLineEdit;
 
 // File > Settings: preferences kept in QSettings.
 class SettingsDialog : public QDialog
@@ -19,5 +20,8 @@ public:
     void accept() override;
 
 private:
+    void chooseFilesFolder();
+
+    QLineEdit* m_filesFolder;
     QCheckBox* m_keepAwake;
 };

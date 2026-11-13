@@ -64,7 +64,6 @@ private:
     void showHeadsetDialog();
     void updateHeadsetStatus();
     void updateKeepAwakeAction();
-    void chooseFilesFolder();
     void openGame();
     void openGameAt(const QModelIndex& index);
     void updateGameActions();

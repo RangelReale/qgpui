@@ -182,7 +182,7 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     , m_filesBox(new QGroupBox(tr("Files"), this))
     , m_filesGrid(new QGridLayout)
     , m_checkFilesButton(new QPushButton(tr("Check Files &Again"), m_filesBox))
-    , m_openFolderButton(new QPushButton(tr("Open Files &Folder"), m_filesBox))
+    , m_openFolderButton(new QPushButton(tr("Custom &Files Folder..."), m_filesBox))
     , m_installButton(new QPushButton(tr("&Install"), this))
     , m_cancelButton(new QPushButton(tr("Stop"), this))
     , m_detailsButton(new QPushButton(tr("&Details..."), this))
@@ -336,7 +336,7 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     header->addLayout(headerText, 1);
 
     // Files: one row per input, with a Choose button each, and below the last one Check Files Again
-    // and Open Files Folder. The buttons fill their column, so they all have the same width.
+    // and Custom Files Folder. The buttons fill their column, so they all have the same width.
     auto* filesLayout = new QVBoxLayout(m_filesBox);
     m_filesGrid->setColumnStretch(0, 2);
     m_filesGrid->setColumnStretch(1, 3);
