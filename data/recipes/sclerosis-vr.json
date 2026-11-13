@@ -19,7 +19,7 @@
       "kind": "pc-install",
       "label": "Amnesia: The Dark Descent",
       "help": "Your installed copy of Amnesia: The Dark Descent from Steam or another store. QGPUI copies its files to the headset.",
-      "stores": [{ "store": "steam", "appId": "57300" }],
+      "stores": [{ "store": "steam", "appId": "57300" }, { "store": "epic" }],
       "detect": ["Amnesia.exe"]
     }
   ],

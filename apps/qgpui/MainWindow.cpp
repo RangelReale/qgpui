@@ -307,12 +307,16 @@ void MainWindow::createToolBar()
     m_store->addItem(tr("Any"), 0);
     m_store->addItem(tr("Sold on Steam"), int(GameFlag::SoldOnSteam));
     m_store->addItem(tr("Sold on GOG"), int(GameFlag::SoldOnGog));
+    m_store->addItem(tr("Sold on Epic"), int(GameFlag::SoldOnEpic));
     m_store->addItem(tr("In my Steam library"), int(GameFlag::InSteamLibrary));
     m_store->addItem(tr("In my GOG library"), int(GameFlag::InGogLibrary));
+    m_store->addItem(tr("In my Epic library"), int(GameFlag::InEpicLibrary));
     m_store->setItemData(1, tr("Games that need a PC game sold on Steam"), Qt::ToolTipRole);
     m_store->setItemData(2, tr("Games that need a PC game sold on GOG"), Qt::ToolTipRole);
-    m_store->setItemData(3, tr("Games whose PC game is installed through Steam on this PC"), Qt::ToolTipRole);
-    m_store->setItemData(4, tr("Games whose PC game is installed through GOG, or owned in GOG Galaxy"), Qt::ToolTipRole);
+    m_store->setItemData(3, tr("Games that need a PC game sold on the Epic Games Store"), Qt::ToolTipRole);
+    m_store->setItemData(4, tr("Games whose PC game is installed through Steam on this PC"), Qt::ToolTipRole);
+    m_store->setItemData(5, tr("Games whose PC game is installed through GOG, or owned in GOG Galaxy"), Qt::ToolTipRole);
+    m_store->setItemData(6, tr("Games whose PC game is installed through the Epic Games Launcher on this PC"), Qt::ToolTipRole);
 
     addBox(toolBar, tr("&Installed:"), m_onHeadset);
     m_onHeadset->addItem(tr("Any"), int(GameFilter::Headset::Any));
@@ -480,7 +484,7 @@ void MainWindow::filterChanged()
     m_view->scrollToTop();
 }
 
-// Reads this PC's Steam and GOG libraries and marks the games whose PC game they hold.
+// Reads this PC's Steam, GOG and Epic libraries and marks the games whose PC game they hold.
 void MainWindow::findLibraries()
 {
     QStringList warnings;
