@@ -97,7 +97,7 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   keeps one QGPUI per user: a second start passes its catalog argument to the first, which comes to
   the front, and quits (decision 0012).
 - `cmake/`: shared CMake functions (`qgpui_add_qt_test`).
-- `docs/`: documentation in three folders; `docs/README.md` lists every document.
+- `docs/`: documentation in three folders, and the README's images; `docs/README.md` lists every document.
   - `docs/research/`: what was found out, with the evidence and the date: external systems
     (QuestPorts), the games' install processes, measurements on a real headset.
   - `docs/architecture/`: how QGPUI is built now (the overview, the recipe format). Keep these in
@@ -105,6 +105,7 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   - `docs/decisions/`: one numbered record per decision (`NNNN-short-name.md`: status, date,
     context, decision, consequences). Do not edit an accepted record; write a new one that
     replaces it and says so, and change only the old record's status line to point to it.
+  - `docs/images/`: screenshots for `README.md`. Retake them when the windows they show change.
 
 ## Documentation
 
