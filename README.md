@@ -49,12 +49,13 @@ when QGPUI starts, QGPUI starts its own and stops it again when you quit.
 
 ## Getting QGPUI
 
-Download `qgpui-<version>-setup.exe` from the
-[releases page](https://github.com/RangelReale/qgpui/releases) and run it. The installer includes a
-catalog, built when the release was made. It installs for your user and needs no administrator
-rights.
+Download QGPUI from the [releases page](https://github.com/RangelReale/qgpui/releases). Both
+downloads include a catalog, built when the release was made.
 
-There is no download for the Mac yet: build QGPUI from source there.
+- **Windows:** run `qgpui-<version>-setup.exe`. It installs for your user and needs no
+  administrator rights.
+- **Mac:** open `qgpui-<version>-macos.dmg` and drag QGPUI to Applications. It runs on Apple
+  silicon and Intel Macs.
 
 To build QGPUI and its catalog from source, follow [DEVELOPMENT.md](DEVELOPMENT.md).
 

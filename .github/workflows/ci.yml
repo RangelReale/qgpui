@@ -1,5 +1,6 @@
-# Builds and tests every pull request and every push to master. The Windows job also builds the
-# installer, without a catalog, and keeps it as a workflow artifact for a week.
+# Builds and tests every pull request and every push to master, on Windows and macOS. The Windows
+# job also builds the installer, and the macOS job the disk image (signed ad hoc), both without a
+# catalog, and keeps them as workflow artifacts for a week.
 name: CI
 
 on:
@@ -46,6 +47,40 @@ jobs:
         with:
           name: qgpui-setup
           path: dist/qgpui-*-setup.exe
+          retention-days: 7
+          if-no-files-found: error
+
+  macos:
+    name: macOS build and tests
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: ./.github/actions/setup-macos-build
+
+      # Universal, for Apple silicon and Intel, as the release builds it.
+      - name: Configure
+        run: >
+          cmake --preset macos -DQGPUI_DEV_CATALOG=OFF
+          "-DQGPUI_PLATFORM_TOOLS=$QGPUI_PLATFORM_TOOLS" "-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64"
+
+      - name: Build
+        run: cmake --build --preset macos
+
+      - name: Test
+        run: ctest --preset macos
+
+      # Signed ad hoc and not notarized: the release signs and notarizes it.
+      - name: Make the disk image
+        run: |
+          sh packaging/macos/build-bundle.sh "$QGPUI_MACDEPLOYQT" build/macos/bin/Release/qgpui.app \
+            build/macos/bundle -
+          lipo -archs build/macos/bundle/QGPUI.app/Contents/MacOS/qgpui
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qgpui-macos
+          path: build/macos/bundle/qgpui.dmg
           retention-days: 7
           if-no-files-found: error
 

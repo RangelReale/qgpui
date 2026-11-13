@@ -20,9 +20,9 @@ constexpr int kReleaseWaitMsecs = 2000;
 constexpr int kStopServerWaitMsecs = 2000;
 
 // Where to read the catalog when the command line names none: the file opened last, else
-// qgpui-catalog.json in the app's data folder, else the one the installer put next to qgpui.exe,
-// else (in a development build) the repository's local/ folder, where tools/questports-payload's
-// build-catalog writes it.
+// qgpui-catalog.json in the app's data folder, else the one the installer put next to qgpui.exe
+// (on macOS, in the bundle's Contents/Resources), else (in a development build) the repository's
+// local/ folder, where tools/questports-payload's build-catalog writes it.
 QString defaultCatalogPath()
 {
     const QString last = QSettings().value(QStringLiteral("catalogPath")).toString();
@@ -34,8 +34,14 @@ QString defaultCatalogPath()
     if (QFileInfo::exists(appData))
         return appData;
 
+#ifdef Q_OS_MACOS
+    // Contents/MacOS may hold only code, so the catalog sits in Contents/Resources (decision 0022).
+    const QString shipped = QDir(QCoreApplication::applicationDirPath())
+                                .filePath(QStringLiteral("../Resources/qgpui-catalog.json"));
+#else
     const QString shipped =
         QDir(QCoreApplication::applicationDirPath()).filePath(QStringLiteral("qgpui-catalog.json"));
+#endif
     if (QFileInfo::exists(shipped))
         return shipped;
 #ifdef QGPUI_DEV_CATALOG
