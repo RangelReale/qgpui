@@ -1,0 +1,46 @@
+name: Set up the macOS build
+description: >
+  Selects the newest Xcode 16, whose macOS 15 SDK Qt 6.8 needs (decision 0020), installs Ninja and
+  Qt in aqtinstall's layout, and sets QT_ROOT, QGPUI_MACDEPLOYQT and QGPUI_PLATFORM_TOOLS (Google's
+  current platform-tools for macOS).
+
+runs:
+  using: composite
+  steps:
+    - name: Select Xcode 16
+      shell: bash
+      run: |
+        xcode=$(ls -d /Applications/Xcode_16*.app 2>/dev/null | sort -V | tail -n 1)
+        if [ -z "$xcode" ]; then
+          echo "::error::This runner has no Xcode 16, whose macOS 15 SDK Qt 6.8 needs."
+          exit 1
+        fi
+        sudo xcode-select --switch "$xcode"
+        echo "Using $xcode: $(xcrun --show-sdk-version)"
+
+    - name: Install Ninja
+      shell: bash
+      run: command -v ninja > /dev/null || brew install ninja
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.8.3'
+        host: mac
+        target: desktop
+        arch: clang_64
+        dir: ${{ runner.temp }}
+        cache: true
+
+    - name: Get adb and point the build at Qt
+      shell: bash
+      run: |
+        # install-qt-action puts Qt in <dir>/Qt/<version>/macos; the presets add the version and arch.
+        echo "QT_ROOT=$RUNNER_TEMP/Qt" >> "$GITHUB_ENV"
+        echo "QGPUI_MACDEPLOYQT=$RUNNER_TEMP/Qt/6.8.3/macos/bin/macdeployqt" >> "$GITHUB_ENV"
+        curl --fail --silent --show-error --location --retry 3 \
+          --output "$RUNNER_TEMP/platform-tools.zip" \
+          https://dl.google.com/android/repository/platform-tools-latest-darwin.zip
+        unzip -q "$RUNNER_TEMP/platform-tools.zip" -d "$RUNNER_TEMP"
+        "$RUNNER_TEMP/platform-tools/adb" version
+        echo "QGPUI_PLATFORM_TOOLS=$RUNNER_TEMP/platform-tools" >> "$GITHUB_ENV"

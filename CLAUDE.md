@@ -106,11 +106,15 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
 - `packaging/windows/`: the Inno Setup script (`qgpui.iss`) and `build-installer.ps1`, which runs
   `cmake --install` into `dist/stage` (ignored by git) and builds `dist/qgpui-<version>-setup.exe`.
   The version is the one in `project()`; `qgpui --version` prints it.
-- `.github/`: CI (`workflows/ci.yml`: build, test and installer on Windows, catalog tool tests on
-  Linux, for pull requests and `master`) and releases (`workflows/release.yml`: a `v<version>` tag
-  that matches `project()` publishes the installer, with a fresh catalog, and the catalog;
-  decision 0019). `actions/setup-windows-build` installs Qt and MSVC for the `windows-ninja`
-  preset. Lint workflow changes with `actionlint`.
+- `packaging/macos/`: `deploy-macos.sh` (a self-contained QGPUI.app, with the catalog in
+  `Contents/Resources`), `sign-macos.sh`, `package-macos.sh` (the disk image),
+  `notarise-macos.sh`, and `build-bundle.sh`, which runs the first three for `task bundle`.
+- `.github/`: CI (`workflows/ci.yml`: build, test and installer on Windows, build, test and
+  disk image on macOS, catalog tool tests on Linux, for pull requests and `master`) and releases
+  (`workflows/release.yml`: a `v<version>` tag that matches `project()` publishes the installer
+  and the notarized disk image, with a fresh catalog, and the catalog; decisions 0019 and 0022).
+  `actions/setup-windows-build` installs Qt and MSVC for the `windows-ninja` preset;
+  `actions/setup-macos-build` installs Qt, selects Xcode 16 and gets Google's platform-tools. Lint workflow changes with `actionlint`.
 - `docs/`: documentation in three folders, and the README's images; `docs/README.md` lists every document.
   - `docs/research/`: what was found out, with the evidence and the date: external systems
     (QuestPorts), the games' install processes, measurements on a real headset.
@@ -140,8 +144,10 @@ about external systems in research, and update architecture when the code change
   prompt), `macos`.
 - macOS (decision 0020): CMake builds against the newest macOS 15 SDK, because Qt 6.8 draws flat
   push buttons with a newer one; configure with `--fresh` if the cache holds another SDK. Normal
-  builds load Qt from `QT_ROOT`. `task bundle` (target `qgpui-bundle`, `apps/qgpui/make-bundle.sh`)
-  makes a self-contained, signed `qgpui.app` and `qgpui.dmg`. Mac-only UI code sits under
+  builds load Qt from `QT_ROOT`. `task bundle` (target `qgpui-bundle`,
+  `packaging/macos/build-bundle.sh`) makes a self-contained, signed `QGPUI.app` and `qgpui.dmg`.
+  The release signs with the Developer ID and notarizes in a separate job, from the secrets of the
+  GitHub environment `release` (decision 0022). Mac-only UI code sits under
   `Q_OS_MACOS` in `MainWindow.cpp`. Check the UI on a Mac with `screencapture`: Qt's offscreen
   platform does not use the macOS style.
 - `cmake --preset windows`, then `cmake --build --preset windows-debug` and

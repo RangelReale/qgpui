@@ -1,6 +1,6 @@
 # 0020: How QGPUI builds and ships on macOS
 
-- Status: accepted
+- Status: accepted; its bundle script and signing are replaced by [0022](0022-macos-release.md)
 - Date: 2026-11-12
 
 ## Context

@@ -172,20 +172,22 @@ if(WIN32)
 endif()
 
 # macOS: the qgpui-bundle target makes a copy of the app that runs on other Macs, in
-# <build>/bundle/<config>: qgpui.app with Qt inside it (macdeployqt), signed, and qgpui.dmg.
-# Normal builds skip this step and find Qt through their RPATH (decision 0020).
+# <build>/bundle/<config>: QGPUI.app with Qt inside it (macdeployqt), signed, and qgpui.dmg. It runs
+# packaging/macos/build-bundle.sh, and does not notarize; the release workflow does. Normal builds
+# skip this step and find Qt through their RPATH (decisions 0020 and 0022).
 if(APPLE)
     set(QGPUI_MACOS_SIGN_IDENTITY "-" CACHE STRING
-        "Certificate that signs the qgpui-bundle app; - signs ad hoc, which only this Mac trusts")
+        "Certificate that signs the qgpui-bundle app, such as \"Developer ID Application\"; - signs ad hoc, which only this Mac trusts")
     if(NOT TARGET Qt6::macdeployqt)
         message(WARNING "qgpui: macdeployqt was not found, so there is no qgpui-bundle target.")
     else()
         set(_qgpui_bundle_dir "${CMAKE_BINARY_DIR}/bundle/$<CONFIG>")
         add_custom_target(qgpui-bundle
-            COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/make-bundle.sh" "$<TARGET_FILE:Qt6::macdeployqt>"
-                    "$<TARGET_BUNDLE_DIR:qgpui>" "${_qgpui_bundle_dir}" "${QGPUI_MACOS_SIGN_IDENTITY}"
+            COMMAND sh "${PROJECT_SOURCE_DIR}/packaging/macos/build-bundle.sh"
+                    "$<TARGET_FILE:Qt6::macdeployqt>" "$<TARGET_BUNDLE_DIR:qgpui>" "${_qgpui_bundle_dir}"
+                    "${QGPUI_MACOS_SIGN_IDENTITY}"
             DEPENDS qgpui
-            COMMENT "Making a self-contained qgpui.app and qgpui.dmg in ${_qgpui_bundle_dir}"
+            COMMENT "Making a self-contained QGPUI.app and qgpui.dmg in ${_qgpui_bundle_dir}"
             VERBATIM)
     endif()
 endif()
