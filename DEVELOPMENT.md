@@ -95,10 +95,16 @@ GitHub Actions runs `.github/workflows/ci.yml` on every pull request and every p
 builds and tests on Windows, builds the installer (without a catalog, kept for a week as the
 `qgpui-setup` artifact), and runs the catalog tool's tests and recipe checks.
 
+`master` is protected on GitHub. Every change reaches it through a pull request, and a pull request
+can be merged only when both CI jobs pass. Nobody can push to `master` directly, force-push it or
+delete it, and nobody can bypass these rules. No approving review is needed.
+
 To release:
 
-1. Raise the version in the `project()` call in `CMakeLists.txt` and commit it to `master`.
-2. Tag that commit with the same version and push the tag:
+1. Raise the version in the `project()` call in `CMakeLists.txt` on a branch, open a pull request,
+   and merge it when CI passes.
+2. Update your `master`, tag the merged commit with the same version, and push the tag. Tags are
+   not protected:
 
    ```bash
    git tag -a v1.0.0 -m "QGPUI 1.0.0"

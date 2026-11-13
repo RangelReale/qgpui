@@ -10,6 +10,12 @@ Agents work in a git worktree in this repository, never in the main checkout. Ca
 before the first edit; it creates the feature branch and its checkout under `.claude/worktrees/`
 (ignored by git). Leave the worktree with `ExitWorktree` when the work is merged or abandoned.
 
+`master` is protected on GitHub: it changes only through a pull request whose CI checks pass, and
+the rule has no bypass. Do not merge into `master` locally, because the push is rejected. Push the
+branch, open a pull request, and merge it with `gh pr merge <number> --merge` (or auto-merge) once
+CI passes. GitHub deletes the remote branch after the merge. Do not pass `--delete-branch` in a
+worktree: it tries to check out `master`, which the main checkout holds.
+
 A new worktree has no `build/` and no `local/`. Configure it with `cmake --preset windows` before
 building. To run QGPUI against the catalog, copy `local/qgpui-catalog.json` from the main checkout, or
 copy `local/questports-payload.json` and run `task catalog`, or run `task payload` and `task catalog`.
