@@ -95,7 +95,7 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   0010): its inputs as `InputResolver` finds them (Steam and GOG, then the files folder) with a
   Choose button each and, below each, what it needs in the words of the files folder's guide
   (`FilesFolder::inputGuide`), Custom Files Folder (creates the game's folder and its
-  `qgpui - what goes here.txt`), the port's `base_game_store` highlighted just above Install, and Install, which fetches the APK, runs `installer::Runner` with
+  `qgpui - what goes here.txt`), the port's `base_game_store` highlighted just above Install, with `base_game_url` as a Store page link, and Install, which fetches the APK, runs `installer::Runner` with
   a progress bar, Continue for tell steps and a log, then records the install with
   `HeadsetRecordSync` and shows the result in a coloured banner. Details shows two tabs: the port's `installation_guide` (Markdown, drawn by `GuideView` in the site's colours, with a workaround for Qt's importer putting a code block inside a list item) above its `troubleshooting_notes`, as on the port's page, and `planInstall`'s commands. File > Settings (`SettingsDialog`)
   holds the preferences: the files folder and keeping the headset awake during installs. The icons in `apps/qgpui/icons/` are temporary;

@@ -262,16 +262,27 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
 
     // Where to get the original game (the port row's base_game_store), highlighted: most games
     // need the user's own copy. It sits just above the Install button, where the user decides.
+    // The port's base_game_url, when it is a web address, follows as a link to the store page.
     auto* baseGame = new QLabel(this);
     const QString baseGameStore = m_game.port.value(QLatin1StringView("base_game_store")).toString().trimmed();
-    baseGame->setText(tr("<b>Original game:</b> %1").arg(baseGameStore.toHtmlEscaped()));
+    const QUrl baseGameUrl(m_game.port.value(QLatin1StringView("base_game_url")).toString().trimmed());
+    const bool hasBaseGameUrl = baseGameUrl.isValid() && !baseGameUrl.host().isEmpty()
+        && (baseGameUrl.scheme() == QLatin1StringView("https") || baseGameUrl.scheme() == QLatin1StringView("http"));
+    QStringList baseGameParts;
+    if (!baseGameStore.isEmpty())
+        baseGameParts.append(baseGameStore.toHtmlEscaped());
+    if (hasBaseGameUrl)
+        baseGameParts.append(QStringLiteral("<a href=\"%1\">%2</a>")
+                                 .arg(QString::fromUtf8(baseGameUrl.toEncoded()).toHtmlEscaped(), tr("Store page")));
+    baseGame->setText(tr("<b>Original game:</b> %1").arg(baseGameParts.join(QStringLiteral(" &middot; "))));
     baseGame->setTextFormat(Qt::RichText);
     baseGame->setWordWrap(true);
-    baseGame->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    baseGame->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
+    baseGame->setOpenExternalLinks(true);
     baseGame->setStyleSheet(QStringLiteral("QLabel { background: rgba(%1, 0.15); border-left: 3px solid rgb(%1);"
                                            " padding: 4px 8px; }")
                                 .arg(kOrange));
-    baseGame->setVisible(!baseGameStore.isEmpty());
+    baseGame->setVisible(!baseGameParts.isEmpty());
 
     auto* about = new WrappedLabel(this);
     about->setWordWrap(true);
