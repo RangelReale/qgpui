@@ -25,7 +25,8 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
 - `libs/<name>/`: one folder per library, with `include/<name>/` (public headers), `src/`
   (sources and private headers) and `tests/`. Each library defines a `qgpui::<name>` alias target.
 - `libs/qadb/`: a Qt client for the adb server. See `libs/qadb/README.md`.
-- `tools/<name>/`: developer tools, not shipped.
+- `tools/<name>/`: developer tools, not shipped. `tools/release-changelog.py` checks the changelog
+  fragments in `changelog.d/` and moves them into `CHANGELOG.md` at a release.
 - `tools/adbmanager/`: a Qt Widgets window with one button per qadb feature and a log. Use it to
   try library changes against a real headset.
 - `tools/questports-payload/`: a Node tool, outside the CMake build, that joins the QuestPorts game
@@ -133,6 +134,11 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
 
 `README.md` is for the app's users: what QGPUI does, what it needs and how to use it. Keep build
 and developer instructions in `DEVELOPMENT.md`.
+
+Never edit `CHANGELOG.md` in a pull request, except a release's. A change that users see adds a
+fragment named after the branch to `changelog.d/`, as its `README.md` says (decision 0027). A
+release runs `python3 tools/release-changelog.py release X.Y.Z`, which moves the fragments into
+`CHANGELOG.md`; CI runs its `check`.
 
 Put new documents in the folder that fits and add them to `docs/README.md`. Record a design
 choice that someone could reasonably question as a new decision. Put measurements and findings

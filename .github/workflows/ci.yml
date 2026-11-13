@@ -102,3 +102,13 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run check-recipes
+
+  # Every changelog fragment must be well formed (decision 0027).
+  changelog:
+    name: Changelog fragments
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check the fragments
+        run: python3 tools/release-changelog.py check

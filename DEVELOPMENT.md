@@ -125,7 +125,7 @@ disk image and `notarise-macos.sh` notarizes it. The release workflow runs them 
 GitHub Actions runs `.github/workflows/ci.yml` on every pull request and every push to `master`. It
 builds and tests on Windows and macOS, builds the Windows installer and the macOS disk image
 (without a catalog, kept for a week as the `qgpui-setup` and `qgpui-macos` artifacts), and runs the
-catalog tool's tests and recipe checks. The CI disk image is signed ad hoc, so on another Mac it
+catalog tool's tests and recipe checks, and checks the changelog fragments. The CI disk image is signed ad hoc, so on another Mac it
 opens only after **Open Anyway** in **System Settings > Privacy & Security**.
 
 `master` is protected on GitHub. Every change reaches it through a pull request, and a pull request
@@ -134,8 +134,14 @@ delete it, and nobody can bypass these rules. No approving review is needed.
 
 To release:
 
-1. Raise the version in the `project()` call in `CMakeLists.txt` on a branch, open a pull request,
-   and merge it when CI passes.
+1. On a branch, raise the version in the `project()` call in `CMakeLists.txt`, and move the
+   changelog fragments into `CHANGELOG.md`:
+
+   ```bash
+   python3 tools/release-changelog.py release 1.0.0
+   ```
+
+   Open a pull request, and merge it when CI passes.
 2. Update your `master`, tag the merged commit with the same version, and push the tag. Tags are
    not protected:
 
