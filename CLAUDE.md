@@ -37,6 +37,9 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
 - `data/recipes/<slug>.json`: hand-written install recipes, one per game, following
   `data/recipe.schema.json`. They hold what the payload lacks: the APK source, the user's files and
   the steps. See `docs/architecture/install-recipes.md`.
+- `data/custom-games/<slug>.json`: games that are not on QuestPorts, following
+  `data/custom-game.schema.json`. `build-payload` adds them after the QuestPorts games
+  (`--no-custom` leaves them out). Every slug starts with `qgpui-` (decision 0028).
 - `local/`: ignored by git. Holds uncommitted working files, such as the generated payload and
   current keys or passwords. Never commit its contents.
 - `libs/questports/`: reads the catalog that `tools/questports-payload` writes (`Catalog`, `Game`,

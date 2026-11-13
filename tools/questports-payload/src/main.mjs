@@ -7,6 +7,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseArgs } from 'node:util'
 import { DEFAULT_SITE_URL, DEFAULT_SUPABASE_URL, PORTS_TABLE, fetchPorts, fetchPublishableKey } from './database.mjs'
+import { DEFAULT_CUSTOM_GAMES_DIR, loadCustomGames } from './custom-games.mjs'
 import { buildPayload } from './payload.mjs'
 import { DEFAULT_REPO, githubSource, loadInstallData, localSource, resolveGithubCommit } from './repository.mjs'
 
@@ -24,6 +25,8 @@ Options:
                          key found on the site's front page.
   --supabase-url <url>   Supabase project URL (default: ${DEFAULT_SUPABASE_URL}).
   --site <url>           Site to read the publishable key from (default: ${DEFAULT_SITE_URL}).
+  --custom <dir>         Custom games to add (default: data/custom-games in the repository).
+  --no-custom            Add no custom games.
   -h, --help             Show this help.
 
 Environment:
@@ -40,6 +43,8 @@ async function main() {
       key: { type: 'string' },
       'supabase-url': { type: 'string', default: DEFAULT_SUPABASE_URL },
       site: { type: 'string', default: DEFAULT_SITE_URL },
+      custom: { type: 'string', default: DEFAULT_CUSTOM_GAMES_DIR },
+      'no-custom': { type: 'boolean', default: false },
       help: { type: 'boolean', short: 'h', default: false }
     },
     strict: true
@@ -50,6 +55,22 @@ async function main() {
   }
   if (values.source && values.ref) {
     throw new Error('--ref applies to GitHub only; check out the ref in the --source folder instead.')
+  }
+
+  // Read the custom games first, so that a broken file fails before any download.
+  let customGames = []
+  let customInfo = null
+  if (!values['no-custom']) {
+    const customDir = path.resolve(values.custom)
+    const { games, errors } = await loadCustomGames(customDir)
+    const bad = Object.entries(errors)
+    if (bad.length) {
+      for (const [file, list] of bad) for (const e of list) log(`error: ${file}: ${e}`)
+      throw new Error(`${bad.length} custom game file(s) have errors; nothing written.`)
+    }
+    customGames = games
+    customInfo = { path: path.relative(repositoryRoot, customDir).replaceAll('\\', '/') || '.', games: games.map(g => g.slug) }
+    log(`Custom games: ${games.length} in ${customDir}`)
   }
 
   let source
@@ -81,9 +102,11 @@ async function main() {
     install,
     sources: {
       database: { url: values['supabase-url'], table: PORTS_TABLE, rows: ports.length },
-      repository: repositoryInfo
+      repository: repositoryInfo,
+      ...(customInfo && { custom: customInfo })
     },
-    generatedAt: new Date()
+    generatedAt: new Date(),
+    customGames
   })
 
   const { portsWithoutInstall, installWithoutPort, campaignsWithoutPort } = payload.unmatched

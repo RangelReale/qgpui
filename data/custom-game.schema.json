@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/RangelReale/qgpui/data/custom-game.schema.json",
+  "title": "QGPUI custom game",
+  "description": "A game that is not on QuestPorts, added to the payload by build-payload. See data/custom-games/README.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["format", "version", "slug", "port"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "format": { "const": "qgpui-custom-game" },
+    "version": { "const": 1 },
+    "slug": {
+      "description": "Starts with qgpui-, so that it never clashes with a QuestPorts game. The file is named <slug>.json.",
+      "type": "string",
+      "pattern": "^qgpui-[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "port": {
+      "description": "Takes the place of the game's row in the QuestPorts ports table, with the same column names. Any column may be given; slug is filled in from the file's slug.",
+      "type": "object",
+      "required": ["title"],
+      "properties": {
+        "slug": false,
+        "title": { "type": "string", "minLength": 1 },
+        "developer": { "type": "string" },
+        "developer_url": { "type": "string" },
+        "short_description": { "type": "string" },
+        "category": { "type": "string" },
+        "status": { "type": "string" },
+        "cover_image_url": { "type": "string" },
+        "supported_hardware": { "type": "array", "items": { "type": "string" } },
+        "locomotion_types": { "type": "array", "items": { "type": "string" } },
+        "has_6dof_controls": { "type": "boolean" },
+        "base_game_url": { "type": "string" },
+        "base_game_store": { "type": "string" },
+        "latest_version": { "type": ["string", "null"] },
+        "installation_guide": { "type": "string" },
+        "troubleshooting_notes": { "type": "string" },
+        "created_at": { "type": "string" },
+        "last_github_update": { "type": "string" }
+      }
+    },
+    "install": {
+      "description": "Takes the place of the game's PORT_PACKAGE_CONFIGS entry on QuestPorts, such as packageName and targetPath.",
+      "type": ["object", "null"]
+    },
+    "campaigns": {
+      "description": "Takes the place of the game's PORT_EXPANSIONS entry on QuestPorts.",
+      "type": ["array", "null"]
+    },
+    "resolved": {
+      "description": "Overrides the values that the site's functions compute from port and install.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "installType": { "type": ["string", "null"] },
+        "workflowType": { "type": ["string", "null"] },
+        "requiresExternalFiles": { "type": "boolean" },
+        "selfContainedSideload": { "type": "boolean" },
+        "originPlatform": { "type": ["string", "null"] },
+        "vrStyle": { "type": ["string", "null"] },
+        "headsets": { "type": "array", "items": { "type": "string" } },
+        "noPcInstall": { "enum": ["yes", "no", "unknown"] }
+      }
+    },
+    "notes": { "description": "For people who edit the file; not copied into the payload.", "type": "string" }
+  }
+}
