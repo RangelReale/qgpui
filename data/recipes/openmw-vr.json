@@ -25,7 +25,7 @@
       "kind": "pc-install",
       "label": "The Elder Scrolls III: Morrowind",
       "help": "Your installed copy of Morrowind, for example from Steam or GOG: the folder that contains Data Files. Tribunal and Bloodmoon are found automatically.",
-      "stores": [{ "store": "steam", "appId": "22320", "installDir": "Morrowind" }, { "store": "gog" }],
+      "stores": [{ "store": "steam", "appId": "22320", "installDir": "Morrowind" }, { "store": "gog" }, { "store": "epic" }],
       "detect": ["Data Files/Morrowind.esm"]
     }
   ],

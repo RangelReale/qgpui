@@ -6,7 +6,7 @@ describes the app for its users.
 ## Repository layout
 
 - [`apps/qgpui`](apps/qgpui): the main application, Qt Widgets.
-- [`libs/gamestores`](libs/gamestores): finds the games installed from Steam and GOG on this PC, and
+- [`libs/gamestores`](libs/gamestores): finds the games installed from Steam, GOG and Epic on this PC, and
   the GOG games the user owns.
 - [`libs/installer`](libs/installer): runs install recipes on a headset, detects updates and keeps
   install records.
@@ -96,7 +96,7 @@ variable turns them on:
 
 - `tst_qadb_live`: `QADB_LIVE=1` for server requests, `QADB_LIVE_SERIAL=<serial>` for read-only
   device requests, and `QADB_LIVE_WRITE=1` to also push and pull a file in `/data/local/tmp`.
-- `tst_gamestores_live`: `QGPUI_STORES_LIVE=1` reads this PC's Steam and GOG libraries and matches
+- `tst_gamestores_live`: `QGPUI_STORES_LIVE=1` reads this PC's Steam, GOG and Epic libraries and matches
   every recipe against them. Read its output with `ctest -V`.
 
 ## Installer

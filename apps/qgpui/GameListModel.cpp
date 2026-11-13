@@ -104,6 +104,8 @@ QVariant GameListModel::data(const QModelIndex& index, int role) const
             lines.append(tr("In your Steam library"));
         if (flags & GameFlag::InGogLibrary)
             lines.append(tr("In your GOG library"));
+        if (flags & GameFlag::InEpicLibrary)
+            lines.append(tr("In your Epic library"));
         return lines.join(u'\n');
     }
     case FlagsRole:

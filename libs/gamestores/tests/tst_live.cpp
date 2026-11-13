@@ -25,7 +25,7 @@ QString statusName(Location::Status status)
 
 } // namespace
 
-// Reads the real Steam and GOG libraries of this PC and matches every recipe's pc-install inputs
+// Reads the real Steam, GOG and Epic libraries of this PC and matches every recipe's pc-install inputs
 // against them. It prints what it finds and fails only when a store cannot be read. Set
 // QGPUI_STORES_LIVE=1 to run it.
 class TestLive : public QObject
@@ -36,7 +36,7 @@ private slots:
     void initTestCase()
     {
         if (qEnvironmentVariable("QGPUI_STORES_LIVE") != QLatin1StringView("1"))
-            QSKIP("Set QGPUI_STORES_LIVE=1 to read this PC's Steam and GOG libraries.");
+            QSKIP("Set QGPUI_STORES_LIVE=1 to read this PC's Steam, GOG and Epic libraries.");
     }
 
     void readsTheStoresOfThisPc()
@@ -63,6 +63,10 @@ private slots:
             if (game.installed())
                 qInfo().noquote() << "  installed" << game.productId << game.name << "-" << game.installPath;
         }
+
+        qInfo().noquote() << "Epic:" << finder.epic().games().size() << "games installed";
+        for (const EpicGame& game : finder.epic().games())
+            qInfo().noquote() << "  installed" << game.appName << game.name << "-" << game.installPath;
 
         // Unreadable stores that exist on this PC are failures; absent stores are not.
         for (const QString& warning : std::as_const(warnings))

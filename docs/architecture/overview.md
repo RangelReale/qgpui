@@ -22,7 +22,7 @@ data/recipes/<slug>.json (QGPUI's own, hand-written) ─────────
 |---|---|---|
 | `libs/qadb` | Talks to the adb server over TCP: devices, Wi-Fi pairing, shell, file sync, install, packages, storage, properties. | Qt Core, Network |
 | `libs/questports` | Reads the catalog into `Catalog` and `Game`, with each game's recipe and drift. | Qt Core |
-| `libs/gamestores` | Finds the user's Steam and GOG installs, and the GOG games they own, for a recipe's `pc-install` inputs, and looks for every input's files in the user's files folder. | Qt Core, Sql |
+| `libs/gamestores` | Finds the user's Steam, GOG and Epic installs, and the GOG games they own, for a recipe's `pc-install` inputs, and looks for every input's files in the user's files folder. | Qt Core, Sql |
 | `libs/installer` | Runs a recipe on a headset: fetches the APK, plans the copies, runs the steps; detects updates and keeps install records. | qadb, Qt Network |
 
 `apps/qgpui` is the Qt Widgets application built on them. `tools/adbmanager` is a developer window for trying qadb on a real headset.
@@ -40,7 +40,7 @@ Before installing, the dialog's Details button opens two tabs. The first shows t
 
 ## Uninstalling a game
 
-The game dialog shows Uninstall when the game is on the current headset ([decision 0025](../decisions/0025-uninstalling-a-game.md)). After the user confirms, it runs `pm uninstall` through `qadb`, which also deletes the game's `Android/data` and `Android/obb` folders. `installer::HeadsetRecordSync::remove` then drops the game's record from the headset's list and the PC's copy. The result shows in the same banner as an install's.
+The game dialog shows Uninstall when the game is on the current headset ([decision 0026](../decisions/0026-uninstalling-a-game.md)). After the user confirms, it runs `pm uninstall` through `qadb`, which also deletes the game's `Android/data` and `Android/obb` folders. `installer::HeadsetRecordSync::remove` then drops the game's record from the headset's list and the PC's copy. The result shows in the same banner as an install's.
 
 ## Updates
 

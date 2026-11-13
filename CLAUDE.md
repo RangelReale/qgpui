@@ -43,7 +43,8 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
 - `libs/gamestores/`: finds the PC installs that recipes ask for. `SteamLibrary` reads every library
   in `libraryfolders.vdf` (KeyValues, parsed by `parseVdf`) and its `appmanifest_*.acf` files.
   `GogLibrary` merges the registry and GOG Galaxy's SQLite database (installs and ownership; it
-  opens a temporary copy). `GameFinder::find` takes a recipe's `pc-install` input and matches by
+  opens a temporary copy). `EpicLibrary` reads the Epic Games Launcher's `.item` manifests
+  (decision 0025). `GameFinder::find` takes a recipe's `pc-install` input and matches by
   ID, then by folder name, then by the input's `detect` files in every installed game. `FilesFolder` looks for any input's files in the
   user's files folder: `<slug>/`, `<slug>/<input id>/` where inputs overlap, and shared files
   anywhere (decision 0009). Qt Core and Qt Sql (SQLite driver).
@@ -67,8 +68,8 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   `questports::GameOrder`; `GameSortModel` applies it and `QSettings` remembers it. Clear, at the right end of that row, clears every
   filter. Four more boxes filter, and a
   game must match all of them (`GameFilter`): Source (the site's origin platform,
-  `resolved.originPlatform`), Store (sold on Steam or GOG, from the recipe's `stores`, or in this
-  PC's Steam or GOG library, from `GameFinder` when the catalog loads), Installed (on the current
+  `resolved.originPlatform`), Store (sold on Steam, GOG or Epic, from the recipe's `stores`, or in
+  this PC's Steam, GOG or Epic library, from `GameFinder` when the catalog loads), Installed (on the current
   headset, installed by QGPUI, installed outside QGPUI, i.e. with no entry in the headset's install
   records, not on it, or with an update) and Self-contained only (an automatic recipe, no manual
   APK, and every required input and each input group free). A second row holds the site's own
@@ -83,7 +84,7 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   stores nothing on Windows). The game dialog's header shows badges (on the headset,
   update, source, type, port status), the recipe's
   `otherWays` (the port's own installers, with links) highlighted, and one line of
-  links: the game's QuestPorts page, and the Steam and GOG pages of each `pc-install` input
+  links: the game's QuestPorts page, and the Steam, GOG and Epic pages of each `pc-install` input
   (GOG through its product API). `CoverCache` downloads covers through a
   `QNetworkDiskCache` and fits them into one size. `HeadsetConnection` starts the adb server
   if needed (and `main()` stops it on exit if QGPUI started it, decision 0021), tracks devices and remembers the current headset (`QSettings`) by adb serial and by
@@ -93,14 +94,14 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   Headset button and the status bar's red/green indicator open `HeadsetDialog`, which lists
   headsets, searches over mDNS, pairs or connects over Wi-Fi, and switches a USB headset to Wi-Fi. Opening a game (double-click, Enter,
   Game > Open, context menu) shows `GameDialog`, where every action on a game starts (decision
-  0010): its inputs as `InputResolver` finds them (Steam and GOG, then the files folder) with a
+  0010): its inputs as `InputResolver` finds them (Steam, GOG and Epic, then the files folder) with a
   Choose button each and, below each, what it needs in the words of the files folder's guide
   (`FilesFolder::inputGuide`), Custom Files Folder (creates the game's folder and its
   `qgpui - what goes here.txt`), the port's `base_game_store` highlighted just above Install, with `base_game_url` as a Store page link, and Install, which fetches the APK, runs `installer::Runner` with
   a progress bar, an amber waiting banner with Continue for tell steps that have work after them, and a log
   (final tell steps do not wait; their text goes in the result banner, decision 0024), then records the install with
   `HeadsetRecordSync` and shows the result in a coloured banner. Uninstall, shown when the game is
-  on the headset, asks first, runs `pm uninstall` and removes the record (decision 0025). Details shows two tabs: the port's `installation_guide` (Markdown, drawn by `GuideView` in the site's colours, with a workaround for Qt's importer putting a code block inside a list item) above its `troubleshooting_notes`, as on the port's page, and `planInstall`'s commands. File > Settings (`SettingsDialog`)
+  on the headset, asks first, runs `pm uninstall` and removes the record (decision 0026). Details shows two tabs: the port's `installation_guide` (Markdown, drawn by `GuideView` in the site's colours, with a workaround for Qt's importer putting a code block inside a list item) above its `troubleshooting_notes`, as on the port's page, and `planInstall`'s commands. File > Settings (`SettingsDialog`)
   holds the preferences: the files folder and keeping the headset awake during installs. The icons in `apps/qgpui/icons/` are temporary;
   `make-icon.ps1` draws them (Windows PowerShell). On macOS the app uses `icons/macos/` instead, 16 to 1024 pixels on Apple's icon grid, which `icons/macos/make-icons.sh` renders from `qgpui.svg` with `rsvg-convert`. `qgpui.rc` gives the .exe its icon. `SingleInstance`
   keeps one QGPUI per user: a second start passes its catalog argument to the first, which comes to
@@ -166,7 +167,7 @@ about external systems in research, and update architecture when the code change
 - `tst_qadb_live` runs against the real adb server and is skipped by default. Set `QADB_LIVE=1`
   for server requests, `QADB_LIVE_SERIAL=<serial>` for read-only device requests, and
   `QADB_LIVE_WRITE=1` to also push and pull a file in `/data/local/tmp`.
-- `tst_gamestores_live` reads this PC's Steam and GOG libraries and matches every recipe against
+- `tst_gamestores_live` reads this PC's Steam, GOG and Epic libraries and matches every recipe against
   them, printing what it finds. It is skipped unless `QGPUI_STORES_LIVE=1`. Read its output with
   `ctest -V`.
 - adb may not be on `PATH`. `qadb::AdbServer::findAdb()` also looks in the Android SDK, at

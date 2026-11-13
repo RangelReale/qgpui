@@ -1,4 +1,4 @@
-# 0025: Uninstalling a game
+# 0026: Uninstalling a game
 
 - Status: accepted
 - Date: 2026-11-13

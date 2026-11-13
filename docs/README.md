@@ -47,4 +47,5 @@ Why QGPUI is built this way. One numbered record per decision, with its context 
 | [0022](decisions/0022-macos-release.md) | Release a notarized macOS disk image |
 | [0023](decisions/0023-no-catalog-release-asset.md) | Releases do not publish the catalog as a file |
 | [0024](decisions/0024-final-tell-steps-do-not-wait.md) | An install does not wait for its final tell steps |
-| [0025](decisions/0025-uninstalling-a-game.md) | Uninstalling a game |
+| [0025](decisions/0025-epic-games-installs.md) | Find Epic installs from the launcher's manifests |
+| [0026](decisions/0026-uninstalling-a-game.md) | Uninstalling a game |

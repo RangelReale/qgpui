@@ -26,6 +26,8 @@ enum class GameFlag {
     InstalledOutsideQgpui = 0x40, // ... and they do not: it was installed some other way.
     SelfContained = 0x80, // QGPUI installs it on its own: no files from the user, or only free ones.
     UpdateAvailable = 0x100, // On the headset, and its APK has a newer release.
+    SoldOnEpic = 0x200,     // A pc-install input lists Epic in its stores.
+    InEpicLibrary = 0x400,  // The input was found in an Epic Games Launcher install on this PC.
 };
 Q_DECLARE_FLAGS(GameFlags, GameFlag)
 Q_DECLARE_OPERATORS_FOR_FLAGS(GameFlags)
@@ -38,9 +40,9 @@ QString gamePackageName(const questports::Game& game);
 // source), whose required inputs are all marked free and whose groups each have a free input.
 GameFlags selfContained(const questports::Game& game);
 
-// SoldOnSteam and SoldOnGog, from the recipe alone.
+// SoldOnSteam, SoldOnGog and SoldOnEpic, from the recipe alone.
 GameFlags storesSelling(const questports::Game& game);
-// InSteamLibrary and InGogLibrary, from the stores of this PC.
+// InSteamLibrary, InGogLibrary and InEpicLibrary, from the stores of this PC.
 GameFlags storesHolding(const questports::Game& game, const gamestores::GameFinder& finder);
 // OnHeadset with InstalledByQgpui or InstalledOutsideQgpui, from the headset's third-party packages and
 // the packages its install records list. No flags when the game's package is not installed.
@@ -53,14 +55,15 @@ std::optional<installer::ApkSource> updateSource(const installer::Recipe& recipe
 // A store page of one stores entry of a pc-install input.
 struct StorePage
 {
-    QString store;     // "steam" or "gog".
-    QString productId; // Steam app ID or GOG product ID; empty when the recipe has none.
+    QString store;     // "steam", "gog" or "epic".
+    QString productId; // Steam app ID, GOG product ID or Epic app name; empty when the recipe has none.
     QString name;      // What to search for when there is no ID: the install folder name.
     // Steam: the app's page, or a search. GOG: a search; gogPageLookup() gives the real page.
+    // Epic: a search, because the store's page addresses are not the launcher's app names.
     QUrl url() const;
     // GOG's product API, which answers with the page's address in links.product_card.
     QUrl gogPageLookup() const;
 };
 
-// The Steam and GOG pages of one pc-install input (an object of a recipe's "inputs").
+// The Steam, GOG and Epic pages of one pc-install input (an object of a recipe's "inputs").
 QList<StorePage> storePages(const QJsonObject& input);
