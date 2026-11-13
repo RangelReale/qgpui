@@ -6,12 +6,13 @@ QGPUI installs QuestPorts games on a Meta Quest from a Windows PC or a Mac. This
 
 ```
 QuestPorts Supabase (game list)  ─┐
-QuestPorts GitHub repo (install   ├─► build-payload ─► local/questports-payload.json ─┐
-  requirements, TypeScript)      ─┘                                                    ├─► build-catalog ─► local/qgpui-catalog.json ─► QGPUI
+QuestPorts GitHub repo (install   │
+  requirements, TypeScript)       ├─► build-payload ─► local/questports-payload.json ─┐
+data/custom-games/<slug>.json    ─┘                                                    ├─► build-catalog ─► local/qgpui-catalog.json ─► QGPUI
 data/recipes/<slug>.json (QGPUI's own, hand-written) ────────────────────────────────────┘
 ```
 
-1. **`tools/questports-payload`, `build-payload`** (Node) reads the QuestPorts game list and install requirements and writes the payload. QuestPorts' requirements are TypeScript with computed parts, which is why this is a Node tool. See [research: QuestPorts data sources](../research/questports-data-sources.md).
+1. **`tools/questports-payload`, `build-payload`** (Node) reads the QuestPorts game list and install requirements and writes the payload. QuestPorts' requirements are TypeScript with computed parts, which is why this is a Node tool. See [research: QuestPorts data sources](../research/questports-data-sources.md). It also adds QGPUI's own games from `data/custom-games/`, whose slugs start with `qgpui-` ([decision 0028](../decisions/0028-custom-games.md)).
 2. **`data/recipes/`** holds one install recipe per game: where the APK comes from, what the user supplies, and the steps. The payload alone cannot drive an install. See [install recipes](install-recipes.md) and [decision 0001](../decisions/0001-catalog-from-payload-and-recipes.md).
 3. **`build-catalog`** checks every recipe, joins them with the payload, and reports drift: payload values that changed since a recipe was written.
 4. **QGPUI** reads the catalog.

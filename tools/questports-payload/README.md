@@ -45,6 +45,17 @@ Options (`node src/main.mjs --help`):
 | `--key <key>` | `QUESTPORTS_SUPABASE_KEY`, or the key on the site | Supabase publishable key. |
 | `--supabase-url <url>` | `https://ccjteoxolasldhfgnoyx.supabase.co` | Supabase project URL. |
 | `--site <url>` | `https://questports.com` | Page to read the publishable key from. |
+| `--custom <dir>` | `data/custom-games` | Custom games to add. |
+| `--no-custom` | off | Add no custom games. |
+
+## Custom games
+
+Games that are not on QuestPorts live in `data/custom-games/<slug>.json`, following
+`data/custom-game.schema.json`. Every slug starts with `qgpui-`. Build-payload checks them before
+it downloads anything and adds them after the QuestPorts games. It fails, and writes nothing, if a
+file breaks the schema or if a slug is already taken. See
+[`data/custom-games/README.md`](../../data/custom-games/README.md) and
+[decision 0028](../../docs/decisions/0028-custom-games.md).
 
 Without `--key`, the tool reads the publishable key from the site's front page, because the site
 owner can rotate it. Set `GITHUB_TOKEN` if the GitHub API rate limit (60 requests an hour) is a
@@ -145,7 +156,10 @@ One JSON object, version 1:
 }
 ```
 
-- `games` holds one entry per database row, ordered by title and then slug.
+- `games` holds one entry per database row, ordered by title and then slug, then one entry per
+  custom game, ordered by slug. A custom game's entry also has `"custom": true`, and
+  `sources.custom` (`{ "path": "data/custom-games", "games": [ /* slugs */ ] }`) lists them; it is
+  missing with `--no-custom`.
 - `port`, `install` and `campaigns` are copied from their sources unchanged. Their fields are
   listed in the data-sources document.
 - `resolved` holds values computed by the site's own functions: `resolveInstallType`,
