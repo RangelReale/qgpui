@@ -1,0 +1,72 @@
+# Publishes a GitHub release when a version tag is pushed, such as v1.0.0. The tag must match the
+# version in CMakeLists.txt's project() call. The release holds the Windows installer, which
+# includes a catalog built from QuestPorts at release time, and that catalog on its own.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish the release
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the tag against the project version
+        id: version
+        run: |
+          $match = Select-String -Path CMakeLists.txt -Pattern 'project\(qgpui VERSION ([0-9.]+)'
+          $version = $match.Matches[0].Groups[1].Value
+          if ("v$version" -ne $env:GITHUB_REF_NAME) {
+            throw "Tag $env:GITHUB_REF_NAME does not match the project version $version in CMakeLists.txt."
+          }
+          "version=$version" >> $env:GITHUB_OUTPUT
+
+      - uses: ./.github/actions/setup-windows-build
+
+      - name: Configure
+        run: cmake --preset windows-ninja -DQGPUI_DEV_CATALOG=OFF "-DQGPUI_PLATFORM_TOOLS=$env:QGPUI_PLATFORM_TOOLS"
+
+      - name: Build
+        run: cmake --build --preset windows-ninja
+
+      - name: Test
+        run: ctest --preset windows-ninja
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: tools/questports-payload/package-lock.json
+
+      - name: Build the catalog
+        working-directory: tools/questports-payload
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          npm ci
+          npm run build-payload
+          npm run build-catalog
+
+      - name: Install Inno Setup
+        run: |
+          if (-not (Test-Path "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe")) {
+            choco install innosetup --no-progress -y
+          }
+
+      - name: Build the installer
+        run: packaging/windows/build-installer.ps1 -BuildDir build/windows-ninja -Catalog local/qgpui-catalog.json
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          Copy-Item local/qgpui-catalog.json dist/qgpui-catalog.json
+          gh release create $env:GITHUB_REF_NAME --title "QGPUI $env:VERSION" --generate-notes `
+            "dist/qgpui-$env:VERSION-setup.exe" dist/qgpui-catalog.json

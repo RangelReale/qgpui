@@ -1,0 +1,69 @@
+# Builds and tests every pull request and every push to master. The Windows job also builds the
+# installer, without a catalog, and keeps it as a workflow artifact for a week.
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  windows:
+    name: Windows build and tests
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-windows-build
+
+      - name: Configure
+        run: cmake --preset windows-ninja -DQGPUI_DEV_CATALOG=OFF "-DQGPUI_PLATFORM_TOOLS=$env:QGPUI_PLATFORM_TOOLS"
+
+      - name: Build
+        run: cmake --build --preset windows-ninja
+
+      - name: Test
+        run: ctest --preset windows-ninja
+
+      - name: Install Inno Setup
+        run: |
+          if (-not (Test-Path "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe")) {
+            choco install innosetup --no-progress -y
+          }
+
+      - name: Build the installer
+        run: packaging/windows/build-installer.ps1 -BuildDir build/windows-ninja
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qgpui-setup
+          path: dist/qgpui-*-setup.exe
+          retention-days: 7
+          if-no-files-found: error
+
+  catalog-tool:
+    name: Catalog tool tests and recipe checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tools/questports-payload
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: tools/questports-payload/package-lock.json
+
+      - run: npm ci
+      - run: npm test
+      - run: npm run check-recipes

@@ -1,0 +1,31 @@
+name: Set up the Windows build
+description: >
+  Installs Qt in aqtinstall's layout and sets QT_ROOT to it, puts MSVC on PATH for the
+  windows-ninja preset, and sets QGPUI_PLATFORM_TOOLS to the runner's Android platform-tools.
+
+runs:
+  using: composite
+  steps:
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.8.3'
+        host: windows
+        target: desktop
+        arch: win64_msvc2022_64
+        dir: ${{ runner.temp }}
+        cache: true
+
+    - name: Put MSVC on PATH
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x64
+
+    - name: Point the build at Qt and adb
+      shell: pwsh
+      run: |
+        # install-qt-action puts Qt in <dir>/Qt/<version>/<arch>; the presets add the version and arch.
+        "QT_ROOT=$env:RUNNER_TEMP\Qt" >> $env:GITHUB_ENV
+        $tools = Join-Path $env:ANDROID_HOME 'platform-tools'
+        if (-not (Test-Path (Join-Path $tools 'adb.exe'))) { throw "No adb in $tools" }
+        "QGPUI_PLATFORM_TOOLS=$tools" >> $env:GITHUB_ENV
