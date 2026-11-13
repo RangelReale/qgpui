@@ -52,7 +52,8 @@ when QGPUI starts, QGPUI starts its own and stops it again when you quit.
 ## Getting QGPUI
 
 Download QGPUI from the [releases page](https://github.com/RangelReale/qgpui/releases). Both
-downloads include a catalog, built when the release was made.
+downloads include a catalog, built when the release was made. [CHANGELOG.md](CHANGELOG.md) says
+what changed in each release.
 
 - **Windows:** run `qgpui-<version>-setup.exe`. It installs for your user and needs no
   administrator rights.
