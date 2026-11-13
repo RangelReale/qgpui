@@ -46,16 +46,8 @@
 namespace {
 
 const QString kOrderSetting = QStringLiteral("order");
-const QString kSourceSetting = QStringLiteral("filter/source");
-const QString kStoreSetting = QStringLiteral("filter/store");
-const QString kHeadsetSetting = QStringLiteral("filter/headset");
-const QString kSelfContainedSetting = QStringLiteral("filter/selfContained");
-const QString kRunsOnSetting = QStringLiteral("filter/runsOn");
-const QString kVrStyleSetting = QStringLiteral("filter/vrStyle");
-const QString kNoPcNeededSetting = QStringLiteral("filter/noPcNeeded");
-const QString kCategorySetting = QStringLiteral("filter/category");
-const QString kDeveloperSetting = QStringLiteral("filter/developer");
-const QString kStatusSetting = QStringLiteral("filter/status");
+// Earlier versions kept the filters here. The app now starts with every filter clear.
+const QString kOldFilterGroup = QStringLiteral("filter");
 
 // The site's names for its port types, in the order of its Type box.
 const QList<std::pair<QString, const char*>> kCategories = {
@@ -77,24 +69,16 @@ const QList<std::pair<QString, const char*>> kStatuses = {
 // A box's choice: the value it filters by, and its text.
 using Choice = std::pair<QString, QString>;
 
-// Fills a box with "any" and choices. Keeps the choice made before, or the saved one when the box
-// is still empty.
-void fillChoiceBox(QComboBox* box, const QString& anyText, const QList<Choice>& choices, const QString& setting)
+// Fills a box with "any" and choices. Keeps the choice made before.
+void fillChoiceBox(QComboBox* box, const QString& anyText, const QList<Choice>& choices)
 {
-    const QString wanted = box->count() > 1 ? box->currentData().toString() : QSettings().value(setting).toString();
+    const QString wanted = box->currentData().toString();
     const QSignalBlocker blocker(box);
     box->clear();
     box->addItem(anyText, QString());
     for (const auto& [id, text] : choices)
         box->addItem(text, id);
     box->setCurrentIndex(qMax(0, box->findData(wanted)));
-}
-
-// Saves a box's choice, unless the box is still empty (no catalog yet).
-void saveChoice(QSettings& settings, const QComboBox* box, const QString& setting)
-{
-    if (box->count() > 1)
-        settings.setValue(setting, box->currentData().toString());
 }
 
 QString orderLabel(questports::GameOrder order)
@@ -187,7 +171,6 @@ MainWindow::MainWindow(QWidget* parent)
     file->addAction(tr("&Open Catalog..."), QKeySequence::Open, this, &MainWindow::openCatalog);
     file->addAction(tr("&Reload"), QKeySequence::Refresh, this, &MainWindow::reloadCatalog);
     file->addSeparator();
-    file->addAction(tr("Files &Folder..."), this, &MainWindow::chooseFilesFolder);
     QAction* settings = file->addAction(tr("&Settings..."), QKeySequence::Preferences, this, [this] {
         SettingsDialog dialog(this);
         dialog.exec();
@@ -203,7 +186,9 @@ MainWindow::MainWindow(QWidget* parent)
     m_view->addAction(m_openGameAction);
     // Double-click or Enter.
     connect(m_view, &QListView::activated, this, &MainWindow::openGameAt);
-    connect(m_view->selectionModel(), &QItemSelectionModel::currentChanged, this, &MainWindow::updateGameActions);
+    // Not currentChanged: the view sends it before it selects the item, so the game would still
+    // count as unselected and Open would stay disabled.
+    connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MainWindow::updateGameActions);
     connect(m_sorted, &QAbstractItemModel::modelReset, this, &MainWindow::updateGameActions);
     updateGameActions();
 
@@ -230,6 +215,8 @@ MainWindow::MainWindow(QWidget* parent)
 
 void MainWindow::createToolBar()
 {
+    QSettings().remove(kOldFilterGroup);
+
     QToolBar* toolBar = addToolBar(tr("Games"));
     toolBar->setObjectName(QStringLiteral("gamesToolBar"));
     toolBar->setMovable(false);
@@ -296,10 +283,12 @@ void MainWindow::createToolBar()
     m_selfContained->setToolTip(tr("Games QGPUI installs on its own: no files from you, or only files anyone can get for free"));
     toolBar->addWidget(m_selfContained);
 
-    QSettings settings;
-    m_store->setCurrentIndex(qMax(0, m_store->findData(settings.value(kStoreSetting, 0).toInt())));
-    m_onHeadset->setCurrentIndex(qMax(0, m_onHeadset->findData(settings.value(kHeadsetSetting, 0).toInt())));
-    m_selfContained->setChecked(settings.value(kSelfContainedSetting, false).toBool());
+    // Pushes Clear to the right end of the bar.
+    auto* stretch = new QWidget(toolBar);
+    stretch->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    toolBar->addWidget(stretch);
+    m_resetFiltersAction = toolBar->addAction(tr("C&lear"), this, &MainWindow::resetFilters);
+    m_resetFiltersAction->setToolTip(tr("Clear every filter and show every game again"));
 
     createFilterBar();
     filterChanged();
@@ -341,17 +330,6 @@ void MainWindow::createFilterBar()
     m_portStatus->addItem(tr("All statuses"), QString());
     for (const auto& [id, text] : kStatuses)
         m_portStatus->addItem(tr(text), id);
-
-    // Pushes Clear to the right end of the bar.
-    auto* stretch = new QWidget(toolBar);
-    stretch->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    toolBar->addWidget(stretch);
-    m_resetFiltersAction = toolBar->addAction(tr("C&lear"), this, &MainWindow::resetFilters);
-    m_resetFiltersAction->setToolTip(tr("Clear every filter and show every game again"));
-
-    QSettings settings;
-    m_noPcNeeded->setChecked(settings.value(kNoPcNeededSetting, false).toBool());
-    m_portStatus->setCurrentIndex(qMax(0, m_portStatus->findData(settings.value(kStatusSetting).toString())));
 }
 
 void MainWindow::fillCatalogBoxes(const questports::Catalog& catalog)
@@ -378,7 +356,7 @@ void MainWindow::fillCatalogBoxes(const questports::Catalog& catalog)
         if (const int count = platforms.value(platform.id))
             choices.append({platform.id, counted(platform.label, count)});
     }
-    fillChoiceBox(m_source, tr("All sources"), choices, kSourceSetting);
+    fillChoiceBox(m_source, tr("All sources"), choices);
 
     choices.clear();
     for (const QString& headset : catalog.headsets) {
@@ -387,26 +365,26 @@ void MainWindow::fillCatalogBoxes(const questports::Catalog& catalog)
         if (listed)
             choices.append({headset, headset});
     }
-    fillChoiceBox(m_runsOn, tr("All headsets"), choices, kRunsOnSetting);
+    fillChoiceBox(m_runsOn, tr("All headsets"), choices);
 
     choices.clear();
     for (const questports::VrStyle& style : catalog.vrStyles) {
         if (const int count = styles.value(style.id))
             choices.append({style.id, counted(style.label, count)});
     }
-    fillChoiceBox(m_vrStyle, tr("Any"), choices, kVrStyleSetting);
+    fillChoiceBox(m_vrStyle, tr("Any"), choices);
 
     choices.clear();
     for (const auto& [id, text] : kCategories) {
         if (const int count = categories.value(id))
             choices.append({id, counted(tr(text), count)});
     }
-    fillChoiceBox(m_category, tr("All types"), choices, kCategorySetting);
+    fillChoiceBox(m_category, tr("All types"), choices);
 
     choices.clear();
     for (const QString& developer : std::as_const(developers))
         choices.append({developer, developer});
-    fillChoiceBox(m_developer, tr("All developers"), choices, kDeveloperSetting);
+    fillChoiceBox(m_developer, tr("All developers"), choices);
 
     m_noPcNeeded->setText(counted(tr("&No PC needed"), noPcNeeded));
 }
@@ -439,19 +417,6 @@ void MainWindow::filterChanged()
     filter.status = m_portStatus->currentData().toString();
     m_sorted->setFilter(filter);
     m_resetFiltersAction->setEnabled(!(filter == GameFilter{}));
-
-    QSettings settings;
-    // Boxes the catalog fills must not overwrite the saved choice while they are empty.
-    saveChoice(settings, m_source, kSourceSetting);
-    saveChoice(settings, m_runsOn, kRunsOnSetting);
-    saveChoice(settings, m_vrStyle, kVrStyleSetting);
-    saveChoice(settings, m_category, kCategorySetting);
-    saveChoice(settings, m_developer, kDeveloperSetting);
-    settings.setValue(kStoreSetting, filter.store.toInt());
-    settings.setValue(kHeadsetSetting, int(filter.headset));
-    settings.setValue(kSelfContainedSetting, filter.selfContainedOnly);
-    settings.setValue(kNoPcNeededSetting, filter.noPcNeededOnly);
-    settings.setValue(kStatusSetting, filter.status);
     m_view->scrollToTop();
 }
 
@@ -666,18 +631,11 @@ void MainWindow::updateGameActions()
     m_openGameAction->setEnabled(game != nullptr);
 }
 
-void MainWindow::chooseFilesFolder()
-{
-    const QString folder = QFileDialog::getExistingDirectory(this, tr("Files Folder"), GameDialog::filesRoot());
-    if (folder.isEmpty())
-        return;
-    GameDialog::setFilesRoot(folder);
-    m_status->setText(tr("QGPUI looks for your game files in %1").arg(QDir::toNativeSeparators(folder)));
-}
-
 void MainWindow::openGame()
 {
-    openGameAt(m_view->selectionModel()->currentIndex());
+    const QModelIndexList selected = m_view->selectionModel()->selectedIndexes();
+    if (!selected.isEmpty())
+        openGameAt(selected.first());
 }
 
 void MainWindow::openGameAt(const QModelIndex& index)

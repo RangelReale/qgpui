@@ -57,7 +57,8 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
 - `apps/<name>/`: shipped applications.
 - `apps/qgpui/`: the main app, Qt Widgets. The main window shows the catalog's games in a `QListView`
   in icon mode: the cover, with the title below. A toolbar's Order box picks a
-  `questports::GameOrder`; `GameSortModel` applies it and `QSettings` remembers it. Four more boxes filter, and a
+  `questports::GameOrder`; `GameSortModel` applies it and `QSettings` remembers it. Clear, at the right end of that row, clears every
+  filter. Four more boxes filter, and a
   game must match all of them (`GameFilter`): Source (the site's origin platform,
   `resolved.originPlatform`), Store (sold on Steam or GOG, from the recipe's `stores`, or in this
   PC's Steam or GOG library, from `GameFinder` when the catalog loads), Installed (on the current
@@ -65,15 +66,14 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   records, not on it, or with an update) and Self-contained only (an automatic recipe, no manual
   APK, and every required input and each input group free). A second row holds the site's own
   filters: Runs on (`resolved.headsets`), VR style (`resolved.vrStyle`), No PC needed
-  (`resolved.noPcInstall`), Type, Developer and Status (from the port row), and Clear at the
-  right end, which clears every filter.
+  (`resolved.noPcInstall`), Type, Developer and Status (from the port row).
   `GameFlags` computes the flags; `MainWindow::findHeadsetGames` reads the headset when it changes
   and after an install, and `checkForUpdate` compares each game on it with its APK's newest
   release (decision 0011); a game on the headset gets an Installed tag on its cover, and one with
   an update an Update tag beside it; every game also gets a tag for its port status, one colour
-  each. Each
-  box's choice is kept in `QSettings` (`main.cpp` sets the organization name, without which
-  QSettings stores nothing on Windows). The game dialog's header shows badges (on the headset,
+  each. The filters are not saved: the app always starts with every filter clear, and only the
+  order is kept in `QSettings` (`main.cpp` sets the organization name, without which QSettings
+  stores nothing on Windows). The game dialog's header shows badges (on the headset,
   update, source, type, port status), the recipe's
   `otherWays` (the port's own installers, with links) highlighted, and one line of
   links: the game's QuestPorts page, and the Steam and GOG pages of each `pc-install` input
@@ -88,11 +88,11 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   Game > Open, context menu) shows `GameDialog`, where every action on a game starts (decision
   0010): its inputs as `InputResolver` finds them (Steam and GOG, then the files folder) with a
   Choose button each and, below each, what it needs in the words of the files folder's guide
-  (`FilesFolder::inputGuide`), Open Files Folder (creates the game's folder and its
+  (`FilesFolder::inputGuide`), Custom Files Folder (creates the game's folder and its
   `qgpui - what goes here.txt`), the port's `base_game_store` highlighted just above Install, and Install, which fetches the APK, runs `installer::Runner` with
   a progress bar, Continue for tell steps and a log, then records the install with
-  `HeadsetRecordSync` and shows the result in a coloured banner. Details shows two tabs: the port's `installation_guide` (Markdown, drawn by `GuideView` in the site's colours, with a workaround for Qt's importer putting a code block inside a list item) above its `troubleshooting_notes`, as on the port's page, and `planInstall`'s commands. File > Files Folder changes the files folder (`QSettings`). File > Settings (`SettingsDialog`)
-  holds the other preferences, such as keeping the headset awake during installs. The icons in `apps/qgpui/icons/` are temporary;
+  `HeadsetRecordSync` and shows the result in a coloured banner. Details shows two tabs: the port's `installation_guide` (Markdown, drawn by `GuideView` in the site's colours, with a workaround for Qt's importer putting a code block inside a list item) above its `troubleshooting_notes`, as on the port's page, and `planInstall`'s commands. File > Settings (`SettingsDialog`)
+  holds the preferences: the files folder and keeping the headset awake during installs. The icons in `apps/qgpui/icons/` are temporary;
   `make-icon.ps1` draws them (Windows PowerShell). `qgpui.rc` gives the .exe its icon. `SingleInstance`
   keeps one QGPUI per user: a second start passes its catalog argument to the first, which comes to
   the front, and quits (decision 0012).
