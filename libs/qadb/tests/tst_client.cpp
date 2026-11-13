@@ -95,6 +95,14 @@ private slots:
         QCOMPARE(reply->outputText(), QStringLiteral("41"));
     }
 
+    void killServer()
+    {
+        std::unique_ptr<Reply> reply(client->killServer());
+        QVERIFY(reply->waitForFinished(5000));
+        QVERIFY2(reply->isSuccess(), qPrintable(reply->errorString()));
+        QVERIFY(server->requests.contains(QStringLiteral("host:kill")));
+    }
+
     void devices()
     {
         FakeAdbServer::Device wireless;

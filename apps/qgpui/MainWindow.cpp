@@ -27,6 +27,7 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QJsonArray>
+#include <QKeyEvent>
 #include <QKeySequence>
 #include <QLabel>
 #include <QListView>
@@ -42,6 +43,7 @@
 #include <QUrl>
 
 #include <algorithm>
+#include <initializer_list>
 
 namespace {
 
@@ -101,6 +103,8 @@ void addBox(QToolBar* toolBar, const QString& text, QComboBox* box)
     label->setBuddy(box);
     label->setContentsMargins(12, 0, 4, 0);
     box->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    // A label is as small as its box (macOS; see createFilterBar).
+    label->setAttribute(Qt::WA_MacSmallSize, box->testAttribute(Qt::WA_MacSmallSize));
     toolBar->addWidget(label);
     toolBar->addWidget(box);
 }
@@ -124,6 +128,20 @@ protected:
         const int linesPerNotch = qMax(1, QApplication::wheelScrollLines());
         verticalScrollBar()->setSingleStep(qMax(1, gridSize().height() / 2 / linesPerNotch));
     }
+
+#ifdef Q_OS_MACOS
+    // Qt's item views on macOS open the current item with Cmd+O, which opens a catalog here, and
+    // not with Return. Return opens the game, as on Windows.
+    void keyPressEvent(QKeyEvent* event) override
+    {
+        if ((event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) && currentIndex().isValid()
+            && state() != EditingState) {
+            emit activated(currentIndex());
+            return;
+        }
+        QListView::keyPressEvent(event);
+    }
+#endif
 };
 
 } // namespace
@@ -170,14 +188,30 @@ MainWindow::MainWindow(QWidget* parent)
     QMenu* file = menuBar()->addMenu(tr("&File"));
     file->addAction(tr("&Open Catalog..."), QKeySequence::Open, this, &MainWindow::openCatalog);
     file->addAction(tr("&Reload"), QKeySequence::Refresh, this, &MainWindow::reloadCatalog);
+#ifndef Q_OS_MACOS
+    // On macOS, Qt moves Settings and Exit into the application menu, as "Settings…" and "Quit QGPUI".
+    // These separators would then end the File menu.
     file->addSeparator();
+#endif
     QAction* settings = file->addAction(tr("&Settings..."), QKeySequence::Preferences, this, [this] {
         SettingsDialog dialog(this);
         dialog.exec();
     });
     settings->setMenuRole(QAction::PreferencesRole);
+#ifndef Q_OS_MACOS
     file->addSeparator();
-    file->addAction(tr("E&xit"), QKeySequence::Quit, this, &QWidget::close);
+#endif
+    QAction* quit = file->addAction(tr("E&xit"), QKeySequence::Quit, this, &QWidget::close);
+    quit->setMenuRole(QAction::QuitRole);
+#ifdef Q_OS_MACOS
+    // Every Mac app has "About <name>" first in its application menu, where Qt moves this action.
+    QAction* about = file->addAction(tr("About QGPUI"), this, [this] {
+        QMessageBox::about(this, tr("About QGPUI"),
+                           tr("<b>QGPUI</b> %1<p>Installs QuestPorts games on a Meta Quest headset.</p>")
+                               .arg(QCoreApplication::applicationVersion()));
+    });
+    about->setMenuRole(QAction::AboutRole);
+#endif
 
     QMenu* game = menuBar()->addMenu(tr("&Game"));
     m_openGameAction = game->addAction(tr("&Open"), this, &MainWindow::openGame);
@@ -192,7 +226,16 @@ MainWindow::MainWindow(QWidget* parent)
     connect(m_sorted, &QAbstractItemModel::modelReset, this, &MainWindow::updateGameActions);
     updateGameActions();
 
+#ifdef Q_OS_MACOS
+    // Every Mac app has a Window menu with these two commands.
+    QMenu* window = menuBar()->addMenu(tr("&Window"));
+    window->addAction(tr("Minimize"), QKeySequence(Qt::CTRL | Qt::Key_M), this, &QWidget::showMinimized);
+    window->addAction(tr("Zoom"), this, [this] { isMaximized() ? showNormal() : showMaximized(); });
+#endif
+
     createToolBar();
+    // macOS: the toolbars share the title bar's background, as in native apps.
+    setUnifiedTitleAndToolBarOnMac(true);
     statusBar()->addWidget(m_status, 1);
 
     // The headset connection, at the right of the status bar. A click opens the Headset dialog.
@@ -306,6 +349,15 @@ void MainWindow::createFilterBar()
     toolBar->setMovable(false);
     toolBar->setToolButtonStyle(Qt::ToolButtonTextOnly);
 
+#ifdef Q_OS_MACOS
+    // Mac popup buttons are wider than Windows combo boxes, and the row would not fit. Filter bars
+    // in Mac apps use the small control size, which Qt reads when it first lays out a widget, so
+    // set it before the widgets go into the bar. The open lists still show each item whole.
+    for (QWidget* widget : std::initializer_list<QWidget*>{m_runsOn, m_vrStyle, m_noPcNeeded, m_category,
+                                                           m_developer, m_portStatus})
+        widget->setAttribute(Qt::WA_MacSmallSize);
+#endif
+
     // The boxes are filled when a catalog loads.
     addBox(toolBar, tr("&Runs on:"), m_runsOn);
     m_runsOn->setToolTip(tr("Games that run on this headset model"));
@@ -330,6 +382,14 @@ void MainWindow::createFilterBar()
     m_portStatus->addItem(tr("All statuses"), QString());
     for (const auto& [id, text] : kStatuses)
         m_portStatus->addItem(tr(text), id);
+#ifdef Q_OS_MACOS
+    // Narrower boxes than on Windows, so that the row fits a 1400-point window.
+    for (QComboBox* box : {m_vrStyle, m_category}) {
+        box->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+        box->setMinimumContentsLength(8);
+    }
+    m_developer->setMinimumContentsLength(14);
+#endif
 }
 
 void MainWindow::fillCatalogBoxes(const questports::Catalog& catalog)

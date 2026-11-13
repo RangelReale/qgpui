@@ -19,18 +19,72 @@ if(WIN32)
     target_sources(qgpui PRIVATE qgpui.rc)
 endif()
 
-# The window icon. The icons are temporary; icons/make-icon.ps1 draws them.
-qt_add_resources(qgpui icons
-    PREFIX /
-    FILES
-        icons/qgpui-16.png
-        icons/qgpui-24.png
-        icons/qgpui-32.png
-        icons/qgpui-48.png
-        icons/qgpui-64.png
-        icons/qgpui-128.png
-        icons/qgpui-256.png
-)
+# macOS: the bundle's Info.plist, and qgpui.icns made from icons/macos/'s PNGs with iconutil.
+if(APPLE)
+    set(_qgpui_iconset "${CMAKE_CURRENT_BINARY_DIR}/qgpui.iconset")
+    set(_qgpui_icns "${CMAKE_CURRENT_BINARY_DIR}/qgpui.icns")
+    set(_qgpui_iconset_commands)
+    # iconutil's names: icon_<size>x<size>[@2x].png, where @2x holds twice the pixels.
+    foreach(_pair IN ITEMS 16:16 32:16@2x 32:32 64:32@2x 128:128 256:128@2x 256:256 512:256@2x
+                           512:512 1024:512@2x)
+        string(REPLACE ":" ";" _pair "${_pair}")
+        list(GET _pair 0 _pixels)
+        list(GET _pair 1 _name)
+        string(REGEX REPLACE "@2x$" "" _points "${_name}")
+        string(REGEX MATCH "@2x$" _scale "${_name}")
+        list(APPEND _qgpui_iconset_commands COMMAND ${CMAKE_COMMAND} -E copy
+             "${CMAKE_CURRENT_SOURCE_DIR}/icons/macos/qgpui-${_pixels}.png"
+             "${_qgpui_iconset}/icon_${_points}x${_points}${_scale}.png")
+    endforeach()
+    add_custom_command(OUTPUT "${_qgpui_icns}"
+        COMMAND ${CMAKE_COMMAND} -E rm -rf "${_qgpui_iconset}"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${_qgpui_iconset}"
+        ${_qgpui_iconset_commands}
+        COMMAND iconutil --convert icns --output "${_qgpui_icns}" "${_qgpui_iconset}"
+        DEPENDS icons/macos/qgpui-16.png icons/macos/qgpui-32.png icons/macos/qgpui-64.png
+                icons/macos/qgpui-128.png icons/macos/qgpui-256.png icons/macos/qgpui-512.png
+                icons/macos/qgpui-1024.png
+        VERBATIM)
+    target_sources(qgpui PRIVATE "${_qgpui_icns}")
+    set_source_files_properties("${_qgpui_icns}" PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+    set_target_properties(qgpui PROPERTIES
+        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in"
+        MACOSX_BUNDLE_BUNDLE_NAME "QGPUI"
+        MACOSX_BUNDLE_GUI_IDENTIFIER "io.github.rangelreale.qgpui"
+        MACOSX_BUNDLE_ICON_FILE "qgpui.icns"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}"
+        MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}")
+endif()
+
+# The window icon. The icons are temporary; icons/make-icon.ps1 draws them. On macOS the window
+# icon is also the Dock icon, so it comes from icons/macos/, which icons/macos/make-icons.sh draws
+# up to 1024 pixels on Apple's icon grid.
+if(APPLE)
+    qt_add_resources(qgpui icons
+        PREFIX /icons
+        BASE icons/macos
+        FILES
+            icons/macos/qgpui-16.png
+            icons/macos/qgpui-32.png
+            icons/macos/qgpui-64.png
+            icons/macos/qgpui-128.png
+            icons/macos/qgpui-256.png
+            icons/macos/qgpui-512.png
+            icons/macos/qgpui-1024.png
+    )
+else()
+    qt_add_resources(qgpui icons
+        PREFIX /
+        FILES
+            icons/qgpui-16.png
+            icons/qgpui-24.png
+            icons/qgpui-32.png
+            icons/qgpui-48.png
+            icons/qgpui-64.png
+            icons/qgpui-128.png
+            icons/qgpui-256.png
+    )
+endif()
 
 target_link_libraries(qgpui PRIVATE qgpui::questports qgpui::gamestores qgpui::installer qgpui::qadb Qt6::Widgets Qt6::Network)
 target_compile_definitions(qgpui PRIVATE QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII
@@ -78,7 +132,19 @@ if(QGPUI_PLATFORM_TOOLS)
         endif()
         list(APPEND _qgpui_adb_paths "${QGPUI_PLATFORM_TOOLS}/${_file}")
     endforeach()
-    if(_qgpui_adb_paths)
+    if(_qgpui_adb_paths AND APPLE)
+        # A bundle's Contents/MacOS may hold only code, or codesign fails: NOTICE.txt goes to
+        # Contents/Resources/platform-tools.
+        add_custom_command(TARGET qgpui POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:qgpui>/platform-tools
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QGPUI_PLATFORM_TOOLS}/adb"
+                    $<TARGET_FILE_DIR:qgpui>/platform-tools
+            COMMAND ${CMAKE_COMMAND} -E make_directory
+                    $<TARGET_BUNDLE_CONTENT_DIR:qgpui>/Resources/platform-tools
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${QGPUI_PLATFORM_TOOLS}/NOTICE.txt"
+                    $<TARGET_BUNDLE_CONTENT_DIR:qgpui>/Resources/platform-tools
+            VERBATIM)
+    elseif(_qgpui_adb_paths)
         add_custom_command(TARGET qgpui POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:qgpui>/platform-tools
             COMMAND ${CMAKE_COMMAND} -E copy_if_different ${_qgpui_adb_paths}
@@ -103,4 +169,23 @@ if(WIN32)
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION .)
     set(CMAKE_INSTALL_UCRT_LIBRARIES OFF)
     include(InstallRequiredSystemLibraries)
+endif()
+
+# macOS: the qgpui-bundle target makes a copy of the app that runs on other Macs, in
+# <build>/bundle/<config>: qgpui.app with Qt inside it (macdeployqt), signed, and qgpui.dmg.
+# Normal builds skip this step and find Qt through their RPATH (decision 0020).
+if(APPLE)
+    set(QGPUI_MACOS_SIGN_IDENTITY "-" CACHE STRING
+        "Certificate that signs the qgpui-bundle app; - signs ad hoc, which only this Mac trusts")
+    if(NOT TARGET Qt6::macdeployqt)
+        message(WARNING "qgpui: macdeployqt was not found, so there is no qgpui-bundle target.")
+    else()
+        set(_qgpui_bundle_dir "${CMAKE_BINARY_DIR}/bundle/$<CONFIG>")
+        add_custom_target(qgpui-bundle
+            COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/make-bundle.sh" "$<TARGET_FILE:Qt6::macdeployqt>"
+                    "$<TARGET_BUNDLE_DIR:qgpui>" "${_qgpui_bundle_dir}" "${QGPUI_MACOS_SIGN_IDENTITY}"
+            DEPENDS qgpui
+            COMMENT "Making a self-contained qgpui.app and qgpui.dmg in ${_qgpui_bundle_dir}"
+            VERBATIM)
+    endif()
 endif()

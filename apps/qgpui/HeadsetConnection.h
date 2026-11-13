@@ -52,6 +52,11 @@ public:
     void start();
     // Tries again to start the adb server after AdbMissing or AdbFailed.
     void retryAdb();
+    // Stops the adb server if this connection started it, and waits up to waitMsecs for the
+    // server's answer. A server that was running before is left alone, because other tools may
+    // use it. Stops following the devices first, so that the server is not started again.
+    // For QGPUI's exit (decision 0021).
+    void stopServerIfStarted(int waitMsecs);
 
     qadb::Client* client() const { return m_client; }
     bool isAdbRunning() const;
@@ -129,6 +134,7 @@ private:
     QPointer<qadb::Reply> m_startReply;
     QPointer<qadb::Reply> m_scanReply;
     bool m_startTried = false;
+    bool m_startedServer = false; // This connection started the adb server that runs now.
     bool m_adbMissing = false;
     bool m_reconnectPending = false;
     QString m_adbError;

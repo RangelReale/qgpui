@@ -1,3 +1,4 @@
+#include "HeadsetConnection.h"
 #include "MainWindow.h"
 #include "SingleInstance.h"
 
@@ -15,6 +16,8 @@ namespace {
 
 // How long QGPUI waits on exit for the headsets to answer the keep-awake releases.
 constexpr int kReleaseWaitMsecs = 2000;
+// How long QGPUI waits on exit for the adb server it started to stop.
+constexpr int kStopServerWaitMsecs = 2000;
 
 // Where to read the catalog when the command line names none: the file opened last, else
 // qgpui-catalog.json in the app's data folder, else the one the installer put next to qgpui.exe,
@@ -45,7 +48,12 @@ QString defaultCatalogPath()
 QIcon appIcon()
 {
     QIcon icon;
+#ifdef Q_OS_MACOS
+    // Also the Dock icon, which needs the large sizes.
+    for (int size : {16, 32, 64, 128, 256, 512, 1024})
+#else
     for (int size : {16, 24, 32, 48, 64, 128, 256})
+#endif
         icon.addFile(QStringLiteral(":/icons/qgpui-%1.png").arg(size), QSize(size, size));
     return icon;
 }
@@ -97,5 +105,9 @@ int main(int argc, char* argv[])
     // Hand every kept-awake headset back to its proximity sensor while the windows and the adb
     // client still exist (decision 0015).
     installer::KeepAwake::releaseAll(kReleaseWaitMsecs);
+    // Then stop the adb server if QGPUI started it, so that nothing of QGPUI keeps running: macOS
+    // would report QGPUI as running in the background, and Windows would keep its folder locked
+    // (decision 0021).
+    window.headset()->stopServerIfStarted(kStopServerWaitMsecs);
     return result;
 }

@@ -44,6 +44,30 @@ The build copies adb from the Android SDK's platform-tools (or the folder named 
 `QGPUI_PLATFORM_TOOLS`) into `platform-tools/` next to `qgpui.exe`, so users need no Android SDK.
 CMake warns and ships no adb when the files are missing.
 
+### macOS
+
+Use the `macos` preset (Ninja), with Qt in `$QT_ROOT/6.8.3/macos`:
+
+```bash
+cmake --preset macos -DQGPUI_PLATFORM_TOOLS=<platform-tools folder>
+cmake --build --preset macos-debug
+ctest --preset macos-debug
+```
+
+`QGPUI_PLATFORM_TOOLS` defaults to `~/Library/Android/sdk/platform-tools`. The app is
+`build/macos/bin/Debug/qgpui.app`; `task run` opens it. It loads Qt from `QT_ROOT`, so it runs
+only on the Mac that built it.
+
+- Qt 6.8 needs a macOS 15 SDK: with a newer SDK it draws flat push buttons. CMake picks the newest
+  installed one, such as the Command Line Tools' `MacOSX15.5.sdk`, and warns when there is none.
+  Install the Command Line Tools for Xcode 16 if needed. Configure with `--fresh` after adding an
+  SDK. See [decision 0020](docs/decisions/0020-macos-build.md).
+- `task bundle` (the `qgpui-bundle` target) makes a copy that runs on other Macs, in
+  `build/macos/bundle/Release`: `qgpui.app`, with Qt inside it, and `qgpui.dmg`. It signs ad hoc,
+  which Gatekeeper accepts only after the user allows the app in System Settings. Set
+  `QGPUI_MACOS_SIGN_IDENTITY` to a Developer ID certificate to sign for notarization; the
+  notarization itself is not scripted yet.
+
 ## The catalog
 
 The app reads the catalog that `tools/questports-payload` builds. It needs Node 22 or later.
@@ -58,9 +82,10 @@ task catalog
 `local/qgpui-catalog.json`.
 
 The app takes the catalog from its command line, or else the file opened last, or else
-`qgpui-catalog.json` in its data folder (`%APPDATA%\qgpui` on Windows), or else the one the
-installer put next to `qgpui.exe`. Development builds also look in `local/` in the repository,
-where the tool writes it by default.
+`qgpui-catalog.json` in its data folder (`%APPDATA%\qgpui` on Windows,
+`~/Library/Application Support/qgpui/qgpui` on macOS), or else the one the installer put next to
+`qgpui.exe`. Development builds also look in `local/` in the repository, where the tool writes it
+by default.
 
 ## Tests
 

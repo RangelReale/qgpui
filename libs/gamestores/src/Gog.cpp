@@ -149,13 +149,20 @@ bool GogLibrary::addGalaxyDatabase(const QString& path, QString* errorMessage)
 
 QString GogLibrary::findGalaxyDatabase()
 {
-#ifdef Q_OS_WIN
-    const QString programData = qEnvironmentVariable("PROGRAMDATA", QStringLiteral("C:/ProgramData"));
-    const QDir storage(programData + QStringLiteral("/GOG.com/Galaxy/storage"));
+#if defined(Q_OS_WIN)
+    const QString folder = qEnvironmentVariable("PROGRAMDATA", QStringLiteral("C:/ProgramData"))
+                           + QStringLiteral("/GOG.com/Galaxy/storage");
+#elif defined(Q_OS_MACOS)
+    const QString folder = QStringLiteral("/Users/Shared/GOG.com/Galaxy/Storage");
+#else
+    const QString folder;
+#endif
+    if (folder.isEmpty())
+        return {};
+    const QDir storage(folder);
     const QStringList found = storage.entryList({QStringLiteral("galaxy-2.*.db")}, QDir::Files, QDir::Name);
     if (!found.isEmpty())
         return clean(storage.filePath(found.last()));
-#endif
     return {};
 }
 
