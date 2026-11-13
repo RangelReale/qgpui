@@ -46,7 +46,7 @@ CMake warns and ships no adb when the files are missing.
 
 ## The catalog
 
-The app reads the catalog that `tools/questports-payload` builds. It needs Node 20 or later.
+The app reads the catalog that `tools/questports-payload` builds. It needs Node 22 or later.
 
 ```bash
 task payload
