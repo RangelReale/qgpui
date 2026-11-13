@@ -137,12 +137,14 @@ void DeviceTracker::handleFailure(const QString& message, bool serverRejected)
         connectToServer();
         return;
     }
+    // Disconnect first, so that a handler of errorOccurred sees isConnected() false and may start
+    // the server.
+    setConnected(false);
     // Report the first failure, not every retry while the server is down.
     if (!m_reportedFailure) {
         m_reportedFailure = true;
         emit errorOccurred(message);
     }
-    setConnected(false);
     if (m_running)
         m_retryTimer->start(m_retryInterval);
 }

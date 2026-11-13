@@ -589,6 +589,11 @@ private slots:
         DeviceTracker tracker(address());
         tracker.setRetryInterval(50);
         QSignalSpy errors(&tracker, &DeviceTracker::errorOccurred);
+        // A handler of errorOccurred must see the tracker disconnected, to know it may start
+        // the server.
+        QList<bool> connectedOnError;
+        connect(&tracker, &DeviceTracker::errorOccurred, &tracker,
+                [&] { connectedOnError << tracker.isConnected(); });
         tracker.start();
         QTRY_VERIFY_WITH_TIMEOUT(tracker.isConnected(), 5000);
 
@@ -598,6 +603,7 @@ private slots:
         QVERIFY(tracker.devices().isEmpty());
         QTest::qWait(300); // Several failed retries...
         QCOMPARE(errors.count(), 1); // ...reported once.
+        QCOMPARE(connectedOnError, QList<bool>{false});
 
         QVERIFY(server->listen(port));
         QTRY_VERIFY_WITH_TIMEOUT(tracker.isConnected(), 5000);
