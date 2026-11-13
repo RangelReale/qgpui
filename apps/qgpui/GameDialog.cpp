@@ -439,10 +439,6 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     layout->addWidget(m_tellArea);
     layout->addWidget(m_log, 1);
     layout->addWidget(buttons);
-    // Wrapped labels need the height they take at this width, which can exceed sizeHint() with
-    // larger fonts, such as macOS's.
-    constexpr int kWidth = 720;
-    resize(kWidth, qMax(sizeHint().height(), heightForWidth(kWidth)));
 
     connect(m_headset, &HeadsetConnection::keepAwakeChanged, this, &GameDialog::updateKeepAwake);
     connect(m_headset, &HeadsetConnection::statusChanged, this, [this] {
@@ -451,6 +447,13 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     });
     findInputs();
     showHeadsetState();
+
+    // Size the dialog for its wrapped labels at this width, after the inputs fill the Files box.
+    // Sized before that, the dialog grows with the box to a height that ignores wrapped labels, and
+    // the header's lines overlap. sizeHint() wraps at a narrower width and is too tall on Windows,
+    // and too short with macOS's larger fonts.
+    constexpr int kWidth = 720;
+    resize(kWidth, heightForWidth(kWidth));
 }
 
 void GameDialog::findInputs()
