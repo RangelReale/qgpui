@@ -39,19 +39,25 @@ time.
   [developer mode guide](https://developers.meta.com/horizon/documentation/native/android/mobile-device-setup/)
   explains how.
 - The QGPUI catalog file (`qgpui-catalog.json`), which lists the games and how to install them.
+  The installer includes one.
 - The PC games, ROMs or other files that the ports you want need.
 
 QGPUI comes with its own copy of adb, so you do not need the Android SDK.
 
 ## Getting QGPUI
 
-There is no ready-made download yet. To build QGPUI and its catalog from source, follow
-[DEVELOPMENT.md](DEVELOPMENT.md).
+Download `qgpui-<version>-setup.exe` from the
+[releases page](https://github.com/RangelReale/qgpui/releases) and run it. The installer includes a
+catalog, built when the release was made. It installs for your user and needs no administrator
+rights.
+
+To build QGPUI and its catalog from source, follow [DEVELOPMENT.md](DEVELOPMENT.md).
 
 ## Using QGPUI
 
-1. **Open the catalog.** Start `qgpui.exe`. QGPUI opens the catalog you used last, or the one in
-   its data folder (`%APPDATA%\qgpui`). Use File > Open Catalog to pick another one.
+1. **Open the catalog.** Start QGPUI. It opens the catalog you used last, or the one in its data
+   folder (`%APPDATA%\qgpui`), or the one that came with the installer. Use File > Open Catalog to
+   pick another one.
 2. **Connect your headset.** Connect it with a USB cable and allow USB debugging in the headset.
    Click Headset on the toolbar, or the round indicator in the status bar, to see the headsets
    QGPUI found, pick one, or add one over Wi-Fi. The indicator turns green when a headset is

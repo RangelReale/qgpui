@@ -23,7 +23,7 @@ imports. No clone and no `npm install` of the QuestPorts project is needed.
 
 ## Use
 
-Requires Node 20 or later.
+Requires Node 22 or later.
 
 ```bash
 cd tools/questports-payload

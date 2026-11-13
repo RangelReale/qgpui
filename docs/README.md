@@ -41,3 +41,4 @@ Why QGPUI is built this way. One numbered record per decision, with its context 
 | [0016](decisions/0016-checking-the-catalog-again.md) | QGPUI checks the catalog's paths and names again when it reads them |
 | [0017](decisions/0017-other-ways-to-install.md) | The game dialog links to the port's own installers |
 | [0018](decisions/0018-the-name-qgpui.md) | The app is named QGPUI; files and settings use qgpui |
+| [0019](decisions/0019-releases-and-the-installer.md) | Release from a version tag, with a catalog in the installer |

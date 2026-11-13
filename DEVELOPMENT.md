@@ -46,7 +46,7 @@ CMake warns and ships no adb when the files are missing.
 
 ## The catalog
 
-The app reads the catalog that `tools/questports-payload` builds. It needs Node 20 or later.
+The app reads the catalog that `tools/questports-payload` builds. It needs Node 22 or later.
 
 ```bash
 task payload
@@ -58,8 +58,9 @@ task catalog
 `local/qgpui-catalog.json`.
 
 The app takes the catalog from its command line, or else the file opened last, or else
-`qgpui-catalog.json` in its data folder (`%APPDATA%\qgpui` on Windows). Development builds also
-look in `local/` in the repository, where the tool writes it by default.
+`qgpui-catalog.json` in its data folder (`%APPDATA%\qgpui` on Windows), or else the one the
+installer put next to `qgpui.exe`. Development builds also look in `local/` in the repository,
+where the tool writes it by default.
 
 ## Tests
 
@@ -71,3 +72,43 @@ variable turns them on:
   device requests, and `QADB_LIVE_WRITE=1` to also push and pull a file in `/data/local/tmp`.
 - `tst_gamestores_live`: `QGPUI_STORES_LIVE=1` reads this PC's Steam and GOG libraries and matches
   every recipe against them. Read its output with `ctest -V`.
+
+## Installer
+
+`packaging/windows/build-installer.ps1` builds the Windows installer from a Release build. It needs
+[Inno Setup 6](https://jrsoftware.org/isinfo.php).
+
+```bash
+cmake --preset windows -DQGPUI_DEV_CATALOG=OFF
+cmake --build --preset windows
+powershell -File packaging/windows/build-installer.ps1 -BuildDir build/windows -Catalog local/qgpui-catalog.json
+```
+
+The script runs `cmake --install` into `dist/stage` (the app, Qt, the MSVC runtime and adb), adds
+the catalog when `-Catalog` names one, and writes `dist/qgpui-<version>-setup.exe`. The version comes
+from the `project()` call in `CMakeLists.txt`. Turn `QGPUI_DEV_CATALOG` off for a build you give to
+others, because it builds the source folder's path into the app.
+
+## CI and releases
+
+GitHub Actions runs `.github/workflows/ci.yml` on every pull request and every push to `master`. It
+builds and tests on Windows, builds the installer (without a catalog, kept for a week as the
+`qgpui-setup` artifact), and runs the catalog tool's tests and recipe checks.
+
+To release:
+
+1. Raise the version in the `project()` call in `CMakeLists.txt` and commit it to `master`.
+2. Tag that commit with the same version and push the tag:
+
+   ```bash
+   git tag -a v1.0.0 -m "QGPUI 1.0.0"
+   ```
+
+   ```bash
+   git push origin v1.0.0
+   ```
+
+`.github/workflows/release.yml` then builds and tests, builds a catalog from QuestPorts, builds the
+installer with it, and publishes a GitHub release with the installer and the catalog. It fails if
+the tag does not match the project version. See
+[decision 0019](docs/decisions/0019-releases-and-the-installer.md).

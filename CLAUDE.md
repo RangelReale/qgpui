@@ -97,6 +97,14 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   keeps one QGPUI per user: a second start passes its catalog argument to the first, which comes to
   the front, and quits (decision 0012).
 - `cmake/`: shared CMake functions (`qgpui_add_qt_test`).
+- `packaging/windows/`: the Inno Setup script (`qgpui.iss`) and `build-installer.ps1`, which runs
+  `cmake --install` into `dist/stage` (ignored by git) and builds `dist/qgpui-<version>-setup.exe`.
+  The version is the one in `project()`; `qgpui --version` prints it.
+- `.github/`: CI (`workflows/ci.yml`: build, test and installer on Windows, catalog tool tests on
+  Linux, for pull requests and `master`) and releases (`workflows/release.yml`: a `v<version>` tag
+  that matches `project()` publishes the installer, with a fresh catalog, and the catalog;
+  decision 0019). `actions/setup-windows-build` installs Qt and MSVC for the `windows-ninja`
+  preset. Lint workflow changes with `actionlint`.
 - `docs/`: documentation in three folders, and the README's images; `docs/README.md` lists every document.
   - `docs/research/`: what was found out, with the evidence and the date: external systems
     (QuestPorts), the games' install processes, measurements on a real headset.
