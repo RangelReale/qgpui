@@ -55,7 +55,6 @@ private slots:
         const FilesFolder folder(root() + QStringLiteral("/"));
         QCOMPARE(folder.gameFolder(QStringLiteral("mok-vr")), path(QStringLiteral("mok-vr")));
         QCOMPARE(folder.inputFolder(QStringLiteral("mok-vr"), QStringLiteral("roms")), path(QStringLiteral("mok-vr/roms")));
-        QVERIFY(FilesFolder::defaultRoot().endsWith(QStringLiteral("/qgpui/files")));
     }
 
     void nothingThere()
@@ -244,6 +243,19 @@ private slots:
         QVERIFY(folder.inputGuide(list, 3).isEmpty());
         QVERIFY(!folder.sharedFilesNote(list).isEmpty());
         QVERIFY(folder.sharedFilesNote(QJsonArray{list.at(0)}).isEmpty());
+    }
+
+    // With no files folder, the lines say what is needed, and there is no shared-files note.
+    void inputGuideWithoutFilesFolder()
+    {
+        const FilesFolder folder{QString()};
+        const QJsonArray list = inputs("[{'id':'data','kind':'file','label':'Data','help':'Your own copy.',"
+                                       "'names':['a.big','b.wxd']}]");
+        QCOMPARE(folder.inputGuide(list, 0, QStringLiteral("hw")),
+                 (QStringList{QStringLiteral("Your own copy."), QStringLiteral("Needed: a.big and b.wxd.")}));
+        QVERIFY(folder.sharedFilesNote(list).isEmpty());
+        QCOMPARE(folder.find(QStringLiteral("hw"), list, QStringLiteral("data")).status, FilesMatch::Status::NotFound);
+        QVERIFY(!folder.create(QStringLiteral("hw"), QStringLiteral("HW"), list));
     }
 
     // A folder that a PC tool makes is not a game install: the guide names the tool.

@@ -8,7 +8,6 @@
 #include <QDirIterator>
 #include <QFile>
 #include <QFileInfo>
-#include <QStandardPaths>
 
 #include <algorithm>
 #include <utility>
@@ -150,11 +149,6 @@ FilesFolder::FilesFolder(QString root)
     : m_root(clean(std::move(root)))
 {}
 
-QString FilesFolder::defaultRoot()
-{
-    return clean(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + QStringLiteral("/qgpui/files"));
-}
-
 QString FilesFolder::gameFolder(const QString& slug) const
 {
     return m_root + u'/' + slug;
@@ -273,7 +267,9 @@ QStringList FilesFolder::inputGuide(const QJsonArray& inputs, int index, const Q
         lines.append(help);
 
     QString where;
-    if (slug.isEmpty()) {
+    if (m_root.isEmpty() && !slug.isEmpty()) {
+        where = QStringLiteral("Needed");
+    } else if (slug.isEmpty()) {
         where = inputsNeedingFolders(inputs).contains(id) ? QStringLiteral("Put in the folder \"%1\"").arg(id)
                                                           : QStringLiteral("Put here");
     } else {
@@ -326,7 +322,7 @@ QString FilesFolder::sharedFilesNote(const QJsonArray& inputs) const
         return input.value(QLatin1StringView("kind")).toString() != QLatin1StringView("pc-install") &&
                !stringList(input.value(QLatin1StringView("names"))).isEmpty();
     });
-    if (!anyNames)
+    if (!anyNames || m_root.isEmpty())
         return {};
     return QStringLiteral("QGPUI also finds files with these exact names anywhere in %1. "
                           "A file that several games use, such as naomi.zip, is needed only once.")

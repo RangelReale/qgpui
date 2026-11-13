@@ -178,13 +178,15 @@ QString apkCacheFolder()
 
 QString GameDialog::filesRoot()
 {
-    const QString saved = QSettings().value(kFilesFolderSetting).toString();
-    return saved.isEmpty() ? gamestores::FilesFolder::defaultRoot() : saved;
+    return QSettings().value(kFilesFolderSetting).toString();
 }
 
 void GameDialog::setFilesRoot(const QString& folder)
 {
-    QSettings().setValue(kFilesFolderSetting, QDir::fromNativeSeparators(folder));
+    if (folder.isEmpty())
+        QSettings().remove(kFilesFolderSetting);
+    else
+        QSettings().setValue(kFilesFolderSetting, QDir::fromNativeSeparators(folder));
 }
 
 GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset, CoverCache* covers,
@@ -507,7 +509,12 @@ void GameDialog::showInputs()
         label->setAlignment(Qt::AlignLeft | Qt::AlignTop);
         return label;
     };
-    const QString shared = files.sharedFilesNote(inputsJson);
+    // With no files folder set (decision 0023), the note says where to set one instead.
+    const bool hasFilesFolder = !files.root().isEmpty();
+    m_openFolderButton->setVisible(hasFilesFolder);
+    const QString shared = hasFilesFolder
+        ? files.sharedFilesNote(inputsJson)
+        : tr("Set a files folder in File > Settings, and QGPUI looks there for these files.");
 
     for (int index = 0; index < m_inputs.size(); ++index) {
         const int row = index * 2;
@@ -790,9 +797,12 @@ void GameDialog::updateButtons()
     else if (m_recipe->apks.isEmpty())
         hint = tr("The recipe names no APK.");
     else if (!m_headset->isReady())
-        hint = m_headset->statusAdvice().isEmpty() ? m_headset->statusText() : m_headset->statusAdvice();
+        hint = tr("Install needs a connected headset. %1")
+                   .arg(m_headset->statusAdvice().isEmpty() ? m_headset->statusText() : m_headset->statusAdvice());
     else if (!InputResolver::ready(m_inputs))
-        hint = tr("Some files are missing. Choose them, or put them in your files folder and look again.");
+        hint = filesRoot().isEmpty()
+            ? tr("Some files are missing. Choose them.")
+            : tr("Some files are missing. Choose them, or put them in your files folder and look again.");
 
     m_installButton->setText(m_updateAvailable ? tr("&Update") : tr("&Install"));
     m_installButton->setEnabled(!m_running && hint.isEmpty());

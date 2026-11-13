@@ -28,10 +28,9 @@ struct FilesMatch
 class FilesFolder
 {
 public:
+    // An empty root means the user has set no files folder (decision 0023): find() finds
+    // nothing, create() fails, and the guide's lines name no folder.
     explicit FilesFolder(QString root);
-
-    // <Documents>/qgpui/files.
-    static QString defaultRoot();
 
     QString root() const { return m_root; }
     QString gameFolder(const QString& slug) const;
@@ -58,11 +57,12 @@ public:
     // The guide's lines for inputs[index]: its help, where to put it and what QGPUI recognises it
     // by, whether to keep zip files zipped, and the tool it is made with. With slug empty, the
     // lines speak from inside the game folder ("Put here"); otherwise they name the game folder
-    // relative to the files folder, as the game dialog shows them.
+    // relative to the files folder, as the game dialog shows them. With no files folder, they say
+    // what is needed ("Needed: ...") instead of where to put it.
     QStringList inputGuide(const QJsonArray& inputs, int index, const QString& slug = {}) const;
 
     // The guide's note that files with exact names are found anywhere in the files folder, or an
-    // empty string when no input has names.
+    // empty string when no input has names or there is no files folder.
     QString sharedFilesNote(const QJsonArray& inputs) const;
 
     // Creates the game folder and the input folders that inputsNeedingFolders names, if they are

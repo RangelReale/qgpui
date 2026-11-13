@@ -1,6 +1,6 @@
 # 0009: Look for the user's files in one files folder, by game slug
 
-- Status: accepted
+- Status: accepted; the default folder is replaced by [decision 0023](0023-optional-files-folder.md)
 - Date: 2026-11-12
 
 ## Context
