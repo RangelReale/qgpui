@@ -36,21 +36,22 @@ bool hasWildcard(const QString& segment)
     return segment.contains(u'*') || segment.contains(u'?');
 }
 
-// A candidate install: one Steam app or one installed GOG game.
+// A candidate install: one Steam app, one installed GOG game or one Epic game.
 struct Install
 {
     QString store;
     QString productId;
     QString name;
     QString folder;
-    bool complete = true; // Steam: StateFlags says fully installed.
+    bool complete = true; // Steam: StateFlags says fully installed. Epic: not marked incomplete.
 };
 
 } // namespace
 
-GameFinder::GameFinder(std::optional<SteamLibrary> steam, GogLibrary gog)
+GameFinder::GameFinder(std::optional<SteamLibrary> steam, GogLibrary gog, EpicLibrary epic)
     : m_steam(std::move(steam))
     , m_gog(std::move(gog))
+    , m_epic(std::move(epic))
 {}
 
 GameFinder GameFinder::forThisPc(QStringList* warnings)
@@ -87,7 +88,19 @@ GameFinder GameFinder::forThisPc(QStringList* warnings)
                 gog.add({game.productId, info->name, {}, {}, false});
         }
     }
-    return GameFinder(std::move(steam), std::move(gog));
+
+    EpicLibrary epic;
+    const QString manifests = EpicLibrary::findManifestsFolder();
+    if (manifests.isEmpty()) {
+        warn(QStringLiteral("The Epic Games Launcher was not found."));
+    } else {
+        QString error;
+        if (auto loaded = EpicLibrary::load(manifests, &error))
+            epic = std::move(*loaded);
+        else
+            warn(error);
+    }
+    return GameFinder(std::move(steam), std::move(gog), std::move(epic));
 }
 
 QString GameFinder::applyRoot(const QString& folder, const QString& root)
@@ -148,6 +161,8 @@ QList<Location> GameFinder::find(const QJsonObject& input) const
         if (game.installed())
             installs.append({QStringLiteral("gog"), game.productId, game.name, game.installPath, true});
     }
+    for (const EpicGame& game : m_epic.games())
+        installs.append({QStringLiteral("epic"), game.appName, game.name, game.installPath, game.complete});
 
     QList<Location> found;
     QSet<QString> seenFolders;

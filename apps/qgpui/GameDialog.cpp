@@ -299,7 +299,7 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     } else {
         lines.append(tr("QGPUI has no install recipe for this game yet."));
     }
-    // Every external link on one line: QuestPorts, then the Steam and GOG pages of each PC game the
+    // Every external link on one line: QuestPorts, then the Steam, GOG and Epic pages of each PC game the
     // recipe needs. Store links are "store:<index>", because a GOG page needs a lookup first.
     QStringList links{QStringLiteral("<a href=\"https://questports.com/ports/%1\">%2</a>")
                           .arg(QString::fromUtf8(QUrl::toPercentEncoding(m_game.slug)), tr("QuestPorts page"))};
@@ -310,7 +310,9 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
             pcInputs += storePages(input.json).isEmpty() ? 0 : 1;
         for (const installer::Input& input : m_recipe->inputs) {
             for (const StorePage& page : storePages(input.json)) {
-                const QString store = page.store == QLatin1StringView("steam") ? tr("Steam") : tr("GOG");
+                const QString store = page.store == QLatin1StringView("steam") ? tr("Steam")
+                                      : page.store == QLatin1StringView("gog") ? tr("GOG")
+                                                                               : tr("Epic");
                 // Name the PC game when the recipe needs more than one.
                 const QString text = pcInputs > 1 ? tr("%1: %2").arg(store, input.label) : tr("%1 page").arg(store);
                 links.append(QStringLiteral("<a href=\"store:%1\">%2</a>").arg(pages.size()).arg(text.toHtmlEscaped()));

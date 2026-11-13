@@ -22,7 +22,7 @@ data/recipes/<slug>.json (QGPUI's own, hand-written) ─────────
 |---|---|---|
 | `libs/qadb` | Talks to the adb server over TCP: devices, Wi-Fi pairing, shell, file sync, install, packages, storage, properties. | Qt Core, Network |
 | `libs/questports` | Reads the catalog into `Catalog` and `Game`, with each game's recipe and drift. | Qt Core |
-| `libs/gamestores` | Finds the user's Steam and GOG installs, and the GOG games they own, for a recipe's `pc-install` inputs, and looks for every input's files in the user's files folder. | Qt Core, Sql |
+| `libs/gamestores` | Finds the user's Steam, GOG and Epic installs, and the GOG games they own, for a recipe's `pc-install` inputs, and looks for every input's files in the user's files folder. | Qt Core, Sql |
 | `libs/installer` | Runs a recipe on a headset: fetches the APK, plans the copies, runs the steps; detects updates and keeps install records. | qadb, Qt Network |
 
 `apps/qgpui` is the Qt Widgets application built on them. `tools/adbmanager` is a developer window for trying qadb on a real headset.

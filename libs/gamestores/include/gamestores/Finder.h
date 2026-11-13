@@ -1,5 +1,6 @@
 #pragma once
 
+#include "gamestores/Epic.h"
 #include "gamestores/Gog.h"
 #include "gamestores/Steam.h"
 
@@ -22,26 +23,27 @@ struct Location
     };
 
     Status status = Status::Installed;
-    QString store;     // "steam" or "gog".
-    QString productId; // Steam app ID or GOG product ID; empty when unknown.
+    QString store;     // "steam", "gog" or "epic".
+    QString productId; // Steam app ID, GOG product ID or Epic app name; empty when unknown.
     QString name;
     QString path;      // The folder with the recipe's root applied; empty for OwnedNotInstalled.
 };
 
-// Finds the PC installs that a recipe's pc-install inputs ask for, in the Steam and GOG libraries.
+// Finds the PC installs that a recipe's pc-install inputs ask for, in the Steam, GOG and Epic libraries.
 class GameFinder
 {
 public:
-    GameFinder(std::optional<SteamLibrary> steam, GogLibrary gog);
+    GameFinder(std::optional<SteamLibrary> steam, GogLibrary gog, EpicLibrary epic = {});
 
-    // Reads the Steam library, the GOG registry entries and GOG Galaxy's database of this PC. A
+    // Reads the Steam library, the GOG registry entries, GOG Galaxy's database and the Epic Games
+    // Launcher's manifests of this PC. A
     // store that is missing or cannot be read is left out; *warnings, when given, collects why.
     static GameFinder forThisPc(QStringList* warnings = nullptr);
 
     // Locations for one pc-install input (an object of a recipe's "inputs"). In order:
     // 1. each entry of the input's "stores" with an appId, looked up by ID;
     // 2. each entry with an installDir, matched against install folder names;
-    // 3. every other installed Steam and GOG game whose folder holds the "detect" files, so packs,
+    // 3. every other installed Steam, GOG and Epic game whose folder holds the "detect" files, so packs,
     //    other editions and games without an ID in the recipe are still found.
     // Each folder appears once. Steps 1 and 2 report Incomplete for a matching game whose files are
     // missing; step 3 reports only Installed folders.
@@ -57,10 +59,12 @@ public:
 
     const std::optional<SteamLibrary>& steam() const { return m_steam; }
     const GogLibrary& gog() const { return m_gog; }
+    const EpicLibrary& epic() const { return m_epic; }
 
 private:
     std::optional<SteamLibrary> m_steam;
     GogLibrary m_gog;
+    EpicLibrary m_epic;
 };
 
 } // namespace gamestores

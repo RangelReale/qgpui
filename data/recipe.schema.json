@@ -195,8 +195,8 @@
             "additionalProperties": false,
             "required": ["store"],
             "properties": {
-              "store": { "enum": ["steam", "gog", "bethesda", "other"] },
-              "appId": { "description": "Steam app ID or GOG product ID.", "type": "string" },
+              "store": { "enum": ["steam", "gog", "epic", "bethesda", "other"] },
+              "appId": { "description": "Steam app ID, GOG product ID, or the Epic Games Launcher's app name (AppName in its manifests).", "type": "string" },
               "installDir": { "description": "The install folder's usual name.", "type": "string" }
             }
           }

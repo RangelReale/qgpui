@@ -24,6 +24,8 @@ QString storeName(const QString& store)
         return QStringLiteral("Steam");
     if (store == QLatin1StringView("gog"))
         return QStringLiteral("GOG");
+    if (store == QLatin1StringView("epic"))
+        return QStringLiteral("Epic");
     return store;
 }
 

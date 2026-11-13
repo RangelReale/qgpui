@@ -86,6 +86,8 @@ GameFlags storesSelling(const questports::Game& game)
                 flags |= GameFlag::SoldOnSteam;
             else if (store == QLatin1StringView("gog"))
                 flags |= GameFlag::SoldOnGog;
+            else if (store == QLatin1StringView("epic"))
+                flags |= GameFlag::SoldOnEpic;
         }
     }
     return flags;
@@ -102,6 +104,8 @@ GameFlags storesHolding(const questports::Game& game, const gamestores::GameFind
                 flags |= GameFlag::InSteamLibrary;
             else if (location.store == QLatin1StringView("gog"))
                 flags |= GameFlag::InGogLibrary;
+            else if (location.store == QLatin1StringView("epic"))
+                flags |= GameFlag::InEpicLibrary;
         }
     }
     return flags;
@@ -115,6 +119,13 @@ QUrl StorePage::url() const
         QUrl search(QStringLiteral("https://store.steampowered.com/search/"));
         QUrlQuery query;
         query.addQueryItem(QStringLiteral("term"), name);
+        search.setQuery(query);
+        return search;
+    }
+    if (store == QLatin1StringView("epic")) {
+        QUrl search(QStringLiteral("https://store.epicgames.com/browse"));
+        QUrlQuery query;
+        query.addQueryItem(QStringLiteral("q"), name);
         search.setQuery(query);
         return search;
     }
@@ -138,7 +149,7 @@ QList<StorePage> storePages(const QJsonObject& input)
     for (const QJsonValue& value : input.value(QLatin1StringView("stores")).toArray()) {
         const QJsonObject entry = value.toObject();
         const QString store = entry.value(QLatin1StringView("store")).toString();
-        if (store != QLatin1StringView("steam") && store != QLatin1StringView("gog"))
+        if (store != QLatin1StringView("steam") && store != QLatin1StringView("gog") && store != QLatin1StringView("epic"))
             continue;
         QString name = entry.value(QLatin1StringView("installDir")).toString();
         if (name.isEmpty())
