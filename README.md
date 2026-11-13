@@ -22,6 +22,8 @@ QGPUI is at an early stage. Expect missing games and rough edges.
 - **Install and update.** Open a game and press Install. QGPUI downloads the APK from the port's
   releases, installs it, copies your files and tells you when to do a step in the headset. A game
   with a newer release gets an Update tag.
+- **Uninstall.** The game dialog removes a game from the headset, with its saves and the files
+  copied into its folders, after you confirm.
 - **Know what is on the headset.** Games on the connected headset get an Installed tag, whether
   QGPUI installed them or not.
 - **Connect without a cable.** Pair or connect a headset over Wi-Fi, or switch a USB headset to

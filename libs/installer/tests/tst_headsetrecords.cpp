@@ -134,6 +134,43 @@ private slots:
         QVERIFY(cache.find(kHardware, QStringLiteral("com.a.b"))); // The cache learned it.
     }
 
+    void removesARecordFromTheHeadsetAndTheCache()
+    {
+        // The headset lists urtquest; the cache lists it and quakequest.
+        m_server->files.insert(kPath, headsetRecordsJson(kHardware, {record(QStringLiteral("com.bilko.urtquest"),
+                                                                            QStringLiteral("v1.0.2"), 14)}));
+        InstallRecords cache = InstallRecords::load(m_cachePath);
+        cache.set(kHardware, record(QStringLiteral("com.bilko.urtquest"), QStringLiteral("v1.0.1"), 12));
+        cache.set(kHardware, record(QStringLiteral("com.drbeef.quakequest"), QStringLiteral("v1.6.0"), 13));
+
+        HeadsetRecordSync sync(m_client, kAdbSerial, kHardware, &cache);
+        QSignalSpy finished(&sync, &HeadsetRecordSync::finished);
+        sync.remove(QStringLiteral("com.bilko.urtquest"));
+        QVERIFY(finished.wait(5000));
+        QVERIFY2(finished.at(0).at(0).toBool(), qPrintable(finished.at(0).at(1).toString()));
+
+        QCOMPARE(sync.records().size(), 1);
+        const auto onHeadset = parseHeadsetRecords(m_server->files.value(kPath));
+        QCOMPARE(onHeadset->size(), 1);
+        QCOMPARE(onHeadset->at(0).packageName, QStringLiteral("com.drbeef.quakequest"));
+        QVERIFY(!cache.find(kHardware, QStringLiteral("com.bilko.urtquest")));
+        QVERIFY(!InstallRecords::load(m_cachePath).find(kHardware, QStringLiteral("com.bilko.urtquest")));
+    }
+
+    void removingAnUnknownPackageChangesNothing()
+    {
+        const QByteArray compact = headsetRecordsJson(kHardware, {record(QStringLiteral("com.a.b"), QStringLiteral("v1.0"), 1)})
+                                       .simplified();
+        m_server->files.insert(kPath, compact);
+        InstallRecords cache = InstallRecords::load(m_cachePath);
+        HeadsetRecordSync sync(m_client, kAdbSerial, kHardware, &cache);
+        QSignalSpy finished(&sync, &HeadsetRecordSync::finished);
+        sync.remove(QStringLiteral("com.not.recorded"));
+        QVERIFY(finished.wait(5000));
+        QVERIFY(finished.at(0).at(0).toBool());
+        QCOMPARE(m_server->files.value(kPath), compact);
+    }
+
     void neverOverwritesAFileItCannotRead()
     {
         m_server->files.insert(kPath, "not json");

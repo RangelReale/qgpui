@@ -203,6 +203,7 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     , m_checkFilesButton(new QPushButton(tr("Check Files &Again"), m_filesBox))
     , m_openFolderButton(new QPushButton(tr("Custom &Files Folder..."), m_filesBox))
     , m_installButton(new QPushButton(tr("&Install"), this))
+    , m_uninstallButton(new QPushButton(tr("U&ninstall..."), this))
     , m_cancelButton(new QPushButton(tr("Stop"), this))
     , m_detailsButton(new QPushButton(tr("&Details..."), this))
     , m_installHint(new QLabel(this))
@@ -386,12 +387,16 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     connect(m_installButton, &QPushButton::clicked, this, &GameDialog::install);
     connect(m_cancelButton, &QPushButton::clicked, this, &GameDialog::cancel);
     m_cancelButton->hide();
+    m_uninstallButton->setToolTip(tr("Remove the game and its data from the current headset"));
+    connect(m_uninstallButton, &QPushButton::clicked, this, &GameDialog::uninstall);
+    m_uninstallButton->hide();
     m_detailsButton->setToolTip(tr("Show the port's installation guide and troubleshooting notes, and every command the install runs"));
     connect(m_detailsButton, &QPushButton::clicked, this, &GameDialog::showInstallDetails);
     auto* installRow = new QHBoxLayout;
     installRow->addWidget(m_installButton);
     installRow->addWidget(m_cancelButton);
     installRow->addWidget(m_detailsButton);
+    installRow->addWidget(m_uninstallButton);
     installRow->addWidget(m_installHint, 1);
 
     auto* progressLayout = new QVBoxLayout(m_progressArea);
@@ -704,7 +709,7 @@ void GameDialog::showHeadsetState()
     }
     const QString name = m_headset->currentDevice() ? HeadsetConnection::displayName(*m_headset->currentDevice())
                                                     : tr("the headset");
-    const QString package = m_recipe ? m_recipe->packageName : gamePackageName(m_game);
+    const QString package = packageName();
     if (package.isEmpty()) {
         m_headsetState->setText(tr("Headset: %1").arg(m_headset->statusText()));
         return;
@@ -750,8 +755,15 @@ void GameDialog::showHeadsetState()
     });
 }
 
+QString GameDialog::packageName() const
+{
+    return m_recipe ? m_recipe->packageName : gamePackageName(m_game);
+}
+
 void GameDialog::showInstalledBadge(Installed installed)
 {
+    m_installed = installed == Installed::ByQgpui || installed == Installed::OutsideQgpui;
+    updateButtons();
     switch (installed) {
     case Installed::Unknown:
         m_installedBadge->hide();
@@ -817,12 +829,14 @@ void GameDialog::updateButtons()
         hint = tr("Some files are missing. Choose them, or put them in your files folder and look again.");
 
     m_installButton->setText(m_updateAvailable ? tr("&Update") : tr("&Install"));
-    m_installButton->setEnabled(!m_running && hint.isEmpty());
+    m_installButton->setEnabled(!m_running && !m_uninstalling && hint.isEmpty());
+    m_uninstallButton->setVisible(!m_running && m_installed);
+    m_uninstallButton->setEnabled(!m_uninstalling && m_headset->isReady());
     m_installButton->setVisible(!m_running);
     m_cancelButton->setVisible(m_running);
     m_detailsButton->setEnabled(m_recipe.has_value() || !installationGuide().isEmpty()
                                 || !troubleshootingNotes().isEmpty());
-    m_installHint->setText(m_running ? QString() : hint);
+    m_installHint->setText(m_running || m_uninstalling ? QString() : hint);
 }
 
 QString GameDialog::troubleshootingNotes() const
@@ -908,7 +922,7 @@ void GameDialog::showInstallDetails()
 
 void GameDialog::install()
 {
-    if (m_running || !m_recipe || !m_headset->isReady())
+    if (m_running || m_uninstalling || !m_recipe || !m_headset->isReady())
         return;
     m_running = true;
     m_serial = m_headset->currentSerial();
@@ -1104,6 +1118,107 @@ void GameDialog::recordInstall()
             sync->run(record);
         });
     });
+}
+
+// --- Uninstalling -----------------------------------------------------------------------------
+
+void GameDialog::uninstall()
+{
+    const QString package = packageName();
+    if (m_running || m_uninstalling || !m_installed || package.isEmpty() || !m_headset->isReady())
+        return;
+    const QString name = m_headset->currentDevice() ? HeadsetConnection::displayName(*m_headset->currentDevice())
+                                                    : tr("the headset");
+    QMessageBox box(QMessageBox::Warning, tr("Uninstall %1").arg(m_game.title),
+                    tr("Uninstall %1 from %2?").arg(m_game.title, name), QMessageBox::NoButton, this);
+    box.setInformativeText(tr("This also deletes the game's folders in Android/data and Android/obb: its saves, "
+                              "its settings and any game files copied there. It cannot be undone. "
+                              "Files elsewhere on the headset stay.\n\nPackage: %1")
+                               .arg(package));
+    QPushButton* confirm = box.addButton(tr("&Uninstall"), QMessageBox::DestructiveRole);
+    box.addButton(QMessageBox::Cancel);
+    box.setDefaultButton(QMessageBox::Cancel);
+    box.exec();
+    if (box.clickedButton() != confirm || !m_headset->isReady())
+        return;
+
+    m_uninstalling = true;
+    m_serial = m_headset->currentSerial();
+    m_log->clear();
+    m_log->show();
+    m_resultArea->hide();
+    m_step->setText(tr("Uninstalling %1").arg(package));
+    m_progress->setRange(0, 0);
+    m_progressArea->show();
+    updateButtons();
+    log(tr("Uninstalling %1 (%2) from %3.").arg(m_game.title, package, m_serial));
+
+    auto* reply = m_headset->client()->uninstall(m_serial, package);
+    connect(reply, &qadb::Reply::finished, this, [this, reply] {
+        reply->deleteLater();
+        if (!reply->isSuccess()) {
+            finishUninstall(Outcome::Failure, reply->errorString());
+            return;
+        }
+        log(tr("Uninstalled."));
+        removeRecord();
+    });
+}
+
+void GameDialog::removeRecord()
+{
+    m_step->setText(tr("Removing the install record from the headset"));
+    qadb::Client* client = m_headset->client();
+    auto* hardware = client->getProperty(m_serial, QStringLiteral("ro.serialno"));
+    connect(hardware, &qadb::Reply::finished, this, [this, client, hardware] {
+        hardware->deleteLater();
+        const QString hardwareSerial = hardware->outputText().trimmed();
+        if (hardwareSerial.isEmpty()) {
+            finishUninstall(Outcome::Warning,
+                            tr("The install record could not be removed: %1")
+                                .arg(hardware->isSuccess() ? tr("the headset's serial number is unknown")
+                                                           : hardware->errorString()));
+            return;
+        }
+        auto cache = std::make_shared<installer::InstallRecords>(installer::InstallRecords::load(recordsCachePath()));
+        auto* sync = new installer::HeadsetRecordSync(client, m_serial, hardwareSerial, cache.get(), this);
+        connect(sync, &installer::HeadsetRecordSync::finished, this,
+                [this, sync, cache](bool success, const QString& errorMessage) {
+                    sync->deleteLater();
+                    if (success)
+                        finishUninstall(Outcome::Success, QString());
+                    else
+                        finishUninstall(Outcome::Warning,
+                                        tr("The install record could not be removed: %1").arg(errorMessage));
+                });
+        sync->remove(packageName());
+    });
+}
+
+void GameDialog::finishUninstall(Outcome outcome, const QString& message)
+{
+    if (!m_uninstalling)
+        return;
+    m_uninstalling = false;
+    m_progressArea->hide();
+    QString text;
+    switch (outcome) {
+    case Outcome::Success:
+        text = tr("Uninstalled.");
+        break;
+    case Outcome::Warning:
+        text = tr("Uninstalled. %1").arg(message);
+        break;
+    case Outcome::Failure:
+        text = tr("The uninstall failed: %1").arg(message);
+        break;
+    }
+    showResult(outcome, text);
+    m_resultNext->hide();
+    log(text);
+    updateButtons();
+    showHeadsetState();
+    emit installFinished();
 }
 
 void GameDialog::cancel()

@@ -57,7 +57,8 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   `Updates.h` compares versions and decides an `UpdateStatus`; `ReleaseLookup` finds a source's
   newest release without downloading it, one GitHub request per repository, kept for an hour. Install records live on each
   headset in `/sdcard/qgpui/installs.json`; `InstallRecords` is the PC's cache of them (keyed by the
-  headset's `ro.serialno`, then the package), and `HeadsetRecordSync` keeps the two in step.
+  headset's `ro.serialno`, then the package), and `HeadsetRecordSync` keeps the two in step
+  (`remove` drops a package's record after an uninstall).
   `KeepAwake` keeps a Quest's screen on with the proximity-sensor broadcast, leaves an override
   that another app holds alone, and `main()` releases them all on exit (decisions 0013 to 0015).
   Its runner, sync and keep-awake tests use qadb's `FakeAdbServer`.
@@ -99,7 +100,8 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   `qgpui - what goes here.txt`), the port's `base_game_store` highlighted just above Install, with `base_game_url` as a Store page link, and Install, which fetches the APK, runs `installer::Runner` with
   a progress bar, an amber waiting banner with Continue for tell steps that have work after them, and a log
   (final tell steps do not wait; their text goes in the result banner, decision 0024), then records the install with
-  `HeadsetRecordSync` and shows the result in a coloured banner. Details shows two tabs: the port's `installation_guide` (Markdown, drawn by `GuideView` in the site's colours, with a workaround for Qt's importer putting a code block inside a list item) above its `troubleshooting_notes`, as on the port's page, and `planInstall`'s commands. File > Settings (`SettingsDialog`)
+  `HeadsetRecordSync` and shows the result in a coloured banner. Uninstall, shown when the game is
+  on the headset, asks first, runs `pm uninstall` and removes the record (decision 0026). Details shows two tabs: the port's `installation_guide` (Markdown, drawn by `GuideView` in the site's colours, with a workaround for Qt's importer putting a code block inside a list item) above its `troubleshooting_notes`, as on the port's page, and `planInstall`'s commands. File > Settings (`SettingsDialog`)
   holds the preferences: the files folder and keeping the headset awake during installs. The icons in `apps/qgpui/icons/` are temporary;
   `make-icon.ps1` draws them (Windows PowerShell). On macOS the app uses `icons/macos/` instead, 16 to 1024 pixels on Apple's icon grid, which `icons/macos/make-icons.sh` renders from `qgpui.svg` with `rsvg-convert`. `qgpui.rc` gives the .exe its icon. `SingleInstance`
   keeps one QGPUI per user: a second start passes its catalog argument to the first, which comes to

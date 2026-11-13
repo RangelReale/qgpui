@@ -54,7 +54,8 @@ public:
     static void setFilesRoot(const QString& folder);
 
 signals:
-    // An install ended, whether or not it succeeded: what is on the headset may have changed.
+    // An install or uninstall ended, whether or not it succeeded: what is on the headset may have
+    // changed.
     void installFinished();
 
 protected:
@@ -76,6 +77,8 @@ private:
     void showUpdate(const QString& state, const qadb::PackageInfo& installed,
                     const std::optional<installer::InstallRecord>& record);
     void updateButtons();
+    // The game's package: the recipe's, else the catalog's.
+    QString packageName() const;
 
     void install();
     // Shows, in a dialog of their own and one tab each, the port's installation guide with its
@@ -97,6 +100,10 @@ private:
     void finishInstall(Outcome outcome, const QString& message);
     void showResult(Outcome outcome, const QString& text);
     void log(const QString& text);
+    // Removes the game from the headset, after the user confirms, and then its install record.
+    void uninstall();
+    void removeRecord();
+    void finishUninstall(Outcome outcome, const QString& message);
     // Asks whether to stop a running install. True when nothing runs any more.
     bool confirmStop();
 
@@ -117,6 +124,7 @@ private:
     QPushButton* m_checkFilesButton; // In the files grid, below the last Choose button.
     QPushButton* m_openFolderButton; // ... and below it.
     QPushButton* m_installButton;
+    QPushButton* m_uninstallButton;
     QPushButton* m_cancelButton;
     QPushButton* m_detailsButton;
     QLabel* m_installHint;
@@ -134,7 +142,9 @@ private:
 
     bool m_running = false;
     bool m_updateAvailable = false;
-    QString m_serial; // The headset the install runs on.
+    bool m_installed = false; // The package is on the current headset.
+    bool m_uninstalling = false;
+    QString m_serial; // The headset the install or uninstall runs on.
     QStringList m_apkFiles;
     QString m_releaseTag;
     QString m_asset;
