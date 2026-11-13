@@ -149,8 +149,8 @@ To release:
 
 `.github/workflows/release.yml` then builds a catalog from QuestPorts, builds and tests on Windows
 and macOS, builds the Windows installer and the macOS disk image with the catalog, signs and
-notarizes the disk image, and publishes a GitHub release with the installer, the disk image and the
-catalog. It fails if the tag does not match the project version. To make a release again, run the
+notarizes the disk image, and publishes a GitHub release with the installer and the disk image. The
+catalog is not published as a file of its own. It fails if the tag does not match the project version. To make a release again, run the
 Release workflow by hand from its tag, under **Use workflow from**. See
 [decision 0019](docs/decisions/0019-releases-and-the-installer.md) and
 [decision 0022](docs/decisions/0022-macos-release.md).

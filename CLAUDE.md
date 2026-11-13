@@ -112,7 +112,7 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
 - `.github/`: CI (`workflows/ci.yml`: build, test and installer on Windows, build, test and
   disk image on macOS, catalog tool tests on Linux, for pull requests and `master`) and releases
   (`workflows/release.yml`: a `v<version>` tag that matches `project()` publishes the installer
-  and the notarized disk image, with a fresh catalog, and the catalog; decisions 0019 and 0022).
+  and the notarized disk image, each with a fresh catalog inside; decisions 0019, 0022 and 0023).
   `actions/setup-windows-build` installs Qt and MSVC for the `windows-ninja` preset;
   `actions/setup-macos-build` installs Qt, selects Xcode 16 and gets Google's platform-tools. Lint workflow changes with `actionlint`.
 - `docs/`: documentation in three folders, and the README's images; `docs/README.md` lists every document.
