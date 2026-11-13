@@ -9,6 +9,8 @@ for you.
 
 QGPUI is at an early stage. Expect missing games and rough edges.
 
+![The main window: game covers with their port status, sort and filter boxes above](docs/images/main-window.png)
+
 ## What it does
 
 - **Browse the games.** The main window shows every QuestPorts game as a cover. Sort them, and
@@ -60,6 +62,8 @@ There is no ready-made download yet. To build QGPUI and its catalog from source,
 4. **Install a game.** Double-click a game. The game dialog shows what the port needs and where
    QGPUI found it, with a Choose button for each. Details shows the port's installation guide and
    every command QGPUI will run. Press Install and follow the progress and the log.
+
+   ![The game dialog for Arx Libertatis VR: the files it needs, where to put them, and Install](docs/images/game-dialog.png)
 
 ## Where QGPUI keeps its data
 
