@@ -157,5 +157,8 @@ QTextBrowser* makeGuideView(const QString& markdown, QWidget* parent)
     view->setPalette(palette);
     view->document()->setDocumentMargin(16);
     renderGuide(view->document(), markdown);
+    // The view's own cursor moves past the text as it is set, and the view would open scrolled to
+    // the end: put it back at the start.
+    view->moveCursor(QTextCursor::Start);
     return view;
 }
