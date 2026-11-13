@@ -110,14 +110,15 @@ private slots:
                                         {QStringLiteral("pc"), {game + QStringLiteral("/id1"), {}}}});
         QSignalSpy steps(runner, &Runner::stepStarted);
         QSignalSpy waiting(runner, &Runner::waitingForUser);
+        QSignalSpy afterInstall(runner, &Runner::afterInstall);
         QSignalSpy finished(runner, &Runner::finished);
         runner->start();
 
-        QTRY_COMPARE_WITH_TIMEOUT(waiting.size(), 1, 10000);
-        QCOMPARE(waiting.at(0).at(0).toString(), QStringLiteral("Open the game."));
-        QCOMPARE(finished.size(), 0);
-        runner->continueAfterTell();
-        QTRY_COMPARE_WITH_TIMEOUT(finished.size(), 1, 5000);
+        // The last step tells the user what to do next; the run does not wait for it.
+        QTRY_COMPARE_WITH_TIMEOUT(finished.size(), 1, 10000);
+        QCOMPARE(waiting.size(), 0);
+        QCOMPARE(afterInstall.size(), 1);
+        QCOMPARE(afterInstall.at(0).at(0).toString(), QStringLiteral("Open the game."));
         QVERIFY2(finished.at(0).at(0).toBool(), qPrintable(finished.at(0).at(1).toString()));
         QCOMPARE(steps.size(), 8);
         QCOMPARE(steps.at(3).at(2).toString(),
@@ -236,6 +237,29 @@ private slots:
         fits->start();
         QTRY_COMPARE_WITH_TIMEOUT(ok.size(), 1, 5000);
         QVERIFY2(ok.at(0).at(0).toBool(), qPrintable(ok.at(0).at(1).toString()));
+    }
+
+    void waitsOnlyForATellStepWithWorkAfterIt()
+    {
+        Runner* runner = makeRunner(recipe("{'steps':[{'do':'tell','text':'first'},"
+                                           "          {'do':'shell','args':['true'],'why':'w'},"
+                                           "          {'do':'tell','text':'then'},{'do':'tell','text':'last'}]}"),
+                                    {});
+        QSignalSpy waiting(runner, &Runner::waitingForUser);
+        QSignalSpy afterInstall(runner, &Runner::afterInstall);
+        QSignalSpy finished(runner, &Runner::finished);
+        runner->start();
+        QTRY_COMPARE_WITH_TIMEOUT(waiting.size(), 1, 5000);
+        QCOMPARE(waiting.at(0).at(0).toString(), QStringLiteral("first"));
+        QTest::qWait(50);
+        QVERIFY(m_commands.isEmpty());
+        runner->continueAfterTell();
+        QTRY_COMPARE_WITH_TIMEOUT(finished.size(), 1, 5000);
+        QVERIFY2(finished.at(0).at(0).toBool(), qPrintable(finished.at(0).at(1).toString()));
+        QCOMPARE(waiting.size(), 1);
+        QCOMPARE(afterInstall.size(), 2);
+        QCOMPARE(afterInstall.at(0).at(0).toString(), QStringLiteral("then"));
+        QCOMPARE(afterInstall.at(1).at(0).toString(), QStringLiteral("last"));
     }
 
     void cancelsWhileWaitingForTheUser()

@@ -73,6 +73,7 @@ private slots:
             qInfo().noquote() << "tell:" << text;
             runner.continueAfterTell();
         });
+        connect(&runner, &Runner::afterInstall, this, [](const QString& text) { qInfo().noquote() << "after install:" << text; });
         QSignalSpy finished(&runner, &Runner::finished);
         runner.start();
         QVERIFY(finished.wait(15 * 60 * 1000));

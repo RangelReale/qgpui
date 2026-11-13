@@ -96,7 +96,8 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   Choose button each and, below each, what it needs in the words of the files folder's guide
   (`FilesFolder::inputGuide`), Custom Files Folder (creates the game's folder and its
   `qgpui - what goes here.txt`), the port's `base_game_store` highlighted just above Install, with `base_game_url` as a Store page link, and Install, which fetches the APK, runs `installer::Runner` with
-  a progress bar, Continue for tell steps and a log, then records the install with
+  a progress bar, an amber waiting banner with Continue for tell steps that have work after them, and a log
+  (final tell steps do not wait; their text goes in the result banner, decision 0024), then records the install with
   `HeadsetRecordSync` and shows the result in a coloured banner. Details shows two tabs: the port's `installation_guide` (Markdown, drawn by `GuideView` in the site's colours, with a workaround for Qt's importer putting a code block inside a list item) above its `troubleshooting_notes`, as on the port's page, and `planInstall`'s commands. File > Settings (`SettingsDialog`)
   holds the preferences: the files folder and keeping the headset awake during installs. The icons in `apps/qgpui/icons/` are temporary;
   `make-icon.ps1` draws them (Windows PowerShell). On macOS the app uses `icons/macos/` instead, 16 to 1024 pixels on Apple's icon grid, which `icons/macos/make-icons.sh` renders from `qgpui.svg` with `rsvg-convert`. `qgpui.rc` gives the .exe its icon. `SingleInstance`
