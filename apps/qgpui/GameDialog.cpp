@@ -178,15 +178,13 @@ QString apkCacheFolder()
 
 QString GameDialog::filesRoot()
 {
-    return QSettings().value(kFilesFolderSetting).toString();
+    const QString saved = QSettings().value(kFilesFolderSetting).toString();
+    return saved.isEmpty() ? gamestores::FilesFolder::defaultRoot() : saved;
 }
 
 void GameDialog::setFilesRoot(const QString& folder)
 {
-    if (folder.isEmpty())
-        QSettings().remove(kFilesFolderSetting);
-    else
-        QSettings().setValue(kFilesFolderSetting, QDir::fromNativeSeparators(folder));
+    QSettings().setValue(kFilesFolderSetting, QDir::fromNativeSeparators(folder));
 }
 
 GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset, CoverCache* covers,
@@ -509,12 +507,7 @@ void GameDialog::showInputs()
         label->setAlignment(Qt::AlignLeft | Qt::AlignTop);
         return label;
     };
-    // With no files folder set (decision 0023), the note says where to set one instead.
-    const bool hasFilesFolder = !files.root().isEmpty();
-    m_openFolderButton->setVisible(hasFilesFolder);
-    const QString shared = hasFilesFolder
-        ? files.sharedFilesNote(inputsJson)
-        : tr("Set a files folder in File > Settings, and QGPUI looks there for these files.");
+    const QString shared = files.sharedFilesNote(inputsJson);
 
     for (int index = 0; index < m_inputs.size(); ++index) {
         const int row = index * 2;
@@ -800,9 +793,7 @@ void GameDialog::updateButtons()
         hint = tr("Install needs a connected headset. %1")
                    .arg(m_headset->statusAdvice().isEmpty() ? m_headset->statusText() : m_headset->statusAdvice());
     else if (!InputResolver::ready(m_inputs))
-        hint = filesRoot().isEmpty()
-            ? tr("Some files are missing. Choose them.")
-            : tr("Some files are missing. Choose them, or put them in your files folder and look again.");
+        hint = tr("Some files are missing. Choose them, or put them in your files folder and look again.");
 
     m_installButton->setText(m_updateAvailable ? tr("&Update") : tr("&Install"));
     m_installButton->setEnabled(!m_running && hint.isEmpty());

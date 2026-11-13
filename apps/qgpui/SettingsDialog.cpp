@@ -28,13 +28,10 @@ SettingsDialog::SettingsDialog(QWidget* parent)
     // The files folder (decision 0009): where QGPUI looks for the files each game needs.
     auto* filesBox = new QGroupBox(tr("Files folder"), this);
     m_filesFolder->setText(QDir::toNativeSeparators(GameDialog::filesRoot()));
-    m_filesFolder->setPlaceholderText(tr("None"));
-    m_filesFolder->setClearButtonEnabled(true);
     auto* browse = new QPushButton(tr("&Browse..."), filesBox);
     connect(browse, &QPushButton::clicked, this, &SettingsDialog::chooseFilesFolder);
-    auto* filesHelp = new QLabel(tr("Optional. QGPUI looks here for the files a game needs that are not in your "
-                                    "Steam or GOG library, one folder per game. Without it, you choose the files "
-                                    "in each game's window."),
+    auto* filesHelp = new QLabel(tr("QGPUI looks here for the files a game needs that are not in your Steam or "
+                                    "GOG library, one folder per game."),
                                  filesBox);
     filesHelp->setWordWrap(true);
     filesHelp->setForegroundRole(QPalette::PlaceholderText);
@@ -92,7 +89,8 @@ void SettingsDialog::chooseFilesFolder()
 void SettingsDialog::accept()
 {
     const QString folder = m_filesFolder->text().trimmed();
-    GameDialog::setFilesRoot(folder.isEmpty() ? QString() : QDir::cleanPath(QDir::fromNativeSeparators(folder)));
+    if (!folder.isEmpty())
+        GameDialog::setFilesRoot(QDir::cleanPath(QDir::fromNativeSeparators(folder)));
     setKeepAwakeWhileInstalling(m_keepAwake->isChecked());
     QDialog::accept();
 }

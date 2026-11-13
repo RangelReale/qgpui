@@ -17,8 +17,8 @@ QGPUI is at an early stage. Expect missing games and rough edges.
   filter by source platform, store, headset model, VR style, type, developer and port status.
   "Self-contained only" shows the games that need nothing you have to supply.
 - **Find your files.** QGPUI looks for the PC games a port needs in your Steam and GOG libraries.
-  If you set a files folder, it looks there for everything else, one folder per game. You can
-  always pick a file or folder by hand.
+  It looks for everything else in your files folder, one folder per game. You can also pick a file
+  or folder by hand.
 - **Install and update.** Open a game and press Install. QGPUI downloads the APK from the port's
   releases, installs it, copies your files and tells you when to do a step in the headset. A game
   with a newer release gets an Update tag.
@@ -68,10 +68,9 @@ To build QGPUI and its catalog from source, follow [DEVELOPMENT.md](DEVELOPMENT.
    Click Headset on the toolbar, or the round indicator in the status bar, to see the headsets
    QGPUI found, pick one, or add one over Wi-Fi. The indicator turns green when a headset is
    connected.
-3. **Set up a files folder (optional).** Choose one in File > Settings (QGPUI > Settings on a
-   Mac), and QGPUI looks there for each game's files. In a game's window, Custom Files Folder
-   then creates the game's folder, with a `qgpui - what goes here.txt` that says what to put
-   there. Without a files folder, you choose the files in each game's window.
+3. **Set up your files folder.** By default it is `Documents\qgpui\files`. Change it in
+   File > Settings (QGPUI > Settings on a Mac). Each game's folder holds a `qgpui - what goes here.txt` that says what to
+   put there.
 4. **Install a game.** Double-click a game. The game dialog shows what the port needs and where
    QGPUI found it, with a Choose button for each. Details shows the port's installation guide and
    every command QGPUI will run. Press Install and follow the progress and the log.

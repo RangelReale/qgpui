@@ -45,7 +45,7 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   `GogLibrary` merges the registry and GOG Galaxy's SQLite database (installs and ownership; it
   opens a temporary copy). `GameFinder::find` takes a recipe's `pc-install` input and matches by
   ID, then by folder name, then by the input's `detect` files in every installed game. `FilesFolder` looks for any input's files in the
-  user's files folder, which is optional and has no default (decision 0023; an empty root finds nothing): `<slug>/`, `<slug>/<input id>/` where inputs overlap, and shared files
+  user's files folder: `<slug>/`, `<slug>/<input id>/` where inputs overlap, and shared files
   anywhere (decision 0009). Qt Core and Qt Sql (SQLite driver).
 - `libs/installer/`: runs install recipes. `parseRecipe` reads a catalog recipe into `Recipe`;
   `ApkFetcher` resolves a github source (`pickRelease`) and downloads the APK into a cache;
@@ -95,7 +95,7 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   0010): its inputs as `InputResolver` finds them (Steam and GOG, then the files folder) with a
   Choose button each and, below each, what it needs in the words of the files folder's guide
   (`FilesFolder::inputGuide`), Custom Files Folder (creates the game's folder and its
-  `qgpui - what goes here.txt`; hidden when no files folder is set), the port's `base_game_store` highlighted just above Install, with `base_game_url` as a Store page link, and Install, which fetches the APK, runs `installer::Runner` with
+  `qgpui - what goes here.txt`), the port's `base_game_store` highlighted just above Install, with `base_game_url` as a Store page link, and Install, which fetches the APK, runs `installer::Runner` with
   a progress bar, Continue for tell steps and a log, then records the install with
   `HeadsetRecordSync` and shows the result in a coloured banner. Details shows two tabs: the port's `installation_guide` (Markdown, drawn by `GuideView` in the site's colours, with a workaround for Qt's importer putting a code block inside a list item) above its `troubleshooting_notes`, as on the port's page, and `planInstall`'s commands. File > Settings (`SettingsDialog`)
   holds the preferences: the files folder and keeping the headset awake during installs. The icons in `apps/qgpui/icons/` are temporary;
