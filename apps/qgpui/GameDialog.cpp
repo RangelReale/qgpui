@@ -212,8 +212,10 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     , m_resultArea(new QWidget(this))
     , m_resultIcon(new QLabel(this))
     , m_resultText(new QLabel(this))
+    , m_resultNext(new QLabel(this))
     , m_tellArea(new QWidget(this))
     , m_tellText(new QLabel(this))
+    , m_continueButton(new QPushButton(tr("&Done, Continue"), this))
     , m_log(new QPlainTextEdit(this))
 {
     setWindowTitle(m_game.title);
@@ -412,24 +414,41 @@ GameDialog::GameDialog(const questports::Game& game, HeadsetConnection* headset,
     m_resultText->setFont(resultFont);
     m_resultText->setWordWrap(true);
     m_resultText->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    // What the recipe's last tell steps ask the user to do in the headset after the install.
+    m_resultNext->setWordWrap(true);
+    m_resultNext->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    m_resultNext->hide();
+    auto* resultTexts = new QVBoxLayout;
+    resultTexts->addWidget(m_resultText);
+    resultTexts->addWidget(m_resultNext);
     resultLayout->addWidget(m_resultIcon, 0, Qt::AlignTop);
-    resultLayout->addWidget(m_resultText, 1);
+    resultLayout->addLayout(resultTexts, 1);
     m_resultArea->hide();
 
+    // The user's turn in the middle of an install: an amber banner, like the result's, that the
+    // install waits on.
+    m_tellArea->setObjectName(QStringLiteral("tellArea"));
+    m_tellArea->setAttribute(Qt::WA_StyledBackground);
+    m_tellArea->setStyleSheet(QStringLiteral("#tellArea { background: rgba(210, 153, 34, 0.15);"
+                                             " border: 1px solid rgb(210, 153, 34); border-radius: 4px; }"));
     auto* tellLayout = new QHBoxLayout(m_tellArea);
+    tellLayout->setContentsMargins(10, 8, 10, 8);
+    auto* tellHeading = new QLabel(tr("The install is waiting for you"), this);
+    tellHeading->setFont(resultFont);
     m_tellText->setWordWrap(true);
     m_tellText->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    auto* continueButton = new QPushButton(tr("&Done, Continue"), this);
-    connect(continueButton, &QPushButton::clicked, this, [this] {
+    auto* tellTexts = new QVBoxLayout;
+    tellTexts->addWidget(tellHeading);
+    tellTexts->addWidget(m_tellText);
+    connect(m_continueButton, &QPushButton::clicked, this, [this] {
         m_tellArea->hide();
+        m_progress->setRange(0, 0);
         log(tr("Continued."));
         if (m_runner)
             m_runner->continueAfterTell();
     });
-    tellLayout->addWidget(m_tellText, 1);
-    tellLayout->addWidget(continueButton, 0, Qt::AlignTop);
-    m_tellArea->setAutoFillBackground(true);
-    m_tellArea->setBackgroundRole(QPalette::AlternateBase);
+    tellLayout->addLayout(tellTexts, 1);
+    tellLayout->addWidget(m_continueButton, 0, Qt::AlignVCenter);
     m_tellArea->hide();
 
     m_log->setReadOnly(true);
@@ -894,6 +913,7 @@ void GameDialog::install()
     m_apkFiles.clear();
     m_releaseTag.clear();
     m_asset.clear();
+    m_afterInstall.clear();
     m_log->clear();
     m_log->show();
     m_progressArea->show();
@@ -1014,9 +1034,19 @@ void GameDialog::runSteps()
     });
     connect(m_runner, &installer::Runner::message, this, &GameDialog::log);
     connect(m_runner, &installer::Runner::waitingForUser, this, [this](const QString& text) {
+        m_step->setText(m_step->text() + tr(" (waiting for you)"));
+        // A still bar: nothing runs until the user continues.
+        m_progress->setRange(0, 1);
+        m_progress->setValue(0);
         m_tellText->setText(text);
         m_tellArea->show();
-        log(tr("In the headset: %1").arg(text));
+        m_continueButton->setFocus();
+        log(tr("Waiting for you. In the headset: %1").arg(text));
+        QApplication::alert(this);
+    });
+    connect(m_runner, &installer::Runner::afterInstall, this, [this](const QString& text) {
+        m_afterInstall.append(text);
+        log(tr("After the install, in the headset: %1").arg(text));
     });
     connect(m_runner, &installer::Runner::finished, this, [this](bool success, const QString& errorMessage) {
         m_runner->deleteLater();
@@ -1110,6 +1140,10 @@ void GameDialog::finishInstall(Outcome outcome, const QString& message)
                                                      : tr("Install complete. %1").arg(message);
     showResult(outcome, text);
     log(text);
+    // The game is on the headset; say what the user does there now.
+    const bool installed = outcome != Outcome::Failure && !m_afterInstall.isEmpty();
+    m_resultNext->setText(installed ? tr("Now, in the headset: %1").arg(m_afterInstall.join(QLatin1Char(' '))) : QString());
+    m_resultNext->setVisible(installed);
     showInputs();
     updateButtons();
     showHeadsetState();

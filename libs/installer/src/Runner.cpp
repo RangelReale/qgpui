@@ -9,6 +9,7 @@
 #include <QFileInfo>
 #include <QTimer>
 
+#include <algorithm>
 #include <memory>
 
 namespace installer {
@@ -141,6 +142,14 @@ void Runner::nextStep()
         runShellStep(step);
         return;
     case Step::Kind::Tell:
+        // A tell step with nothing but tell steps after it is what the user does after the
+        // install. Waiting for it would only hold back the result.
+        if (std::none_of(m_recipe.steps.cbegin() + m_step + 1, m_recipe.steps.cend(),
+                         [](const Step& later) { return later.kind != Step::Kind::Tell; })) {
+            emit afterInstall(step.text);
+            nextStep();
+            return;
+        }
         m_waitingForUser = true;
         emit waitingForUser(step.text);
         return;

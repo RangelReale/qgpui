@@ -37,7 +37,9 @@ namespace installer {
 // - verify: checks that every listed file exists.
 // - shell: runs the command; a non-zero exit code is fatal. Arguments are quoted, so there is no
 //   wildcard expansion.
-// - tell: emits waitingForUser() and pauses until continueAfterTell().
+// - tell: emits waitingForUser() and pauses until continueAfterTell(). A tell step followed only by
+//   tell steps does not pause: it emits afterInstall() and the run goes on, because nothing is left
+//   that depends on the user.
 class Runner : public QObject
 {
     Q_OBJECT
@@ -61,6 +63,8 @@ signals:
     void progress(qint64 done, qint64 total);
     void message(const QString& text);
     void waitingForUser(const QString& text);
+    // What the user does in the headset once the run ends; the run does not wait for it.
+    void afterInstall(const QString& text);
     void finished(bool success, const QString& errorMessage);
 
 private:

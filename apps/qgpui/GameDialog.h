@@ -126,8 +126,10 @@ private:
     QWidget* m_resultArea;
     QLabel* m_resultIcon;
     QLabel* m_resultText;
+    QLabel* m_resultNext;
     QWidget* m_tellArea;
     QLabel* m_tellText;
+    QPushButton* m_continueButton;
     QPlainTextEdit* m_log;
 
     bool m_running = false;
@@ -136,6 +138,7 @@ private:
     QStringList m_apkFiles;
     QString m_releaseTag;
     QString m_asset;
+    QStringList m_afterInstall; // The runner's afterInstall() texts.
     QPointer<installer::ApkFetcher> m_fetcher;
     QPointer<installer::Runner> m_runner;
     QPointer<installer::KeepAwake> m_keepAwake; // While an install runs, if the setting is on.
