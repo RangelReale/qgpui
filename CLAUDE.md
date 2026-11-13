@@ -138,7 +138,8 @@ and developer instructions in `DEVELOPMENT.md`.
 Never edit `CHANGELOG.md` in a pull request, except a release's. A change that users see adds a
 fragment named after the branch to `changelog.d/`, as its `README.md` says (decision 0027). A
 release runs `python3 tools/release-changelog.py release X.Y.Z`, which moves the fragments into
-`CHANGELOG.md`; CI runs its `check`.
+`CHANGELOG.md`; CI runs its `check`, and `release.yml` takes the version's section with `notes`
+as the start of the release notes.
 
 Put new documents in the folder that fits and add them to `docs/README.md`. Record a design
 choice that someone could reasonably question as a new decision. Put measurements and findings

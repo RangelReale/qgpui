@@ -156,10 +156,13 @@ To release:
 `.github/workflows/release.yml` then builds a catalog from QuestPorts, builds and tests on Windows
 and macOS, builds the Windows installer and the macOS disk image with the catalog, signs and
 notarizes the disk image, and publishes a GitHub release with the installer and the disk image. The
-catalog is not published as a file of its own. It fails if the tag does not match the project version. To make a release again, run the
-Release workflow by hand from its tag, under **Use workflow from**. See
-[decision 0019](docs/decisions/0019-releases-and-the-installer.md) and
-[decision 0022](docs/decisions/0022-macos-release.md).
+catalog is not published as a file of its own. The release notes are the version's section of
+`CHANGELOG.md`, followed by GitHub's list of merged pull requests. The workflow fails before it
+builds anything if the tag does not match the project version, or if `CHANGELOG.md` has no section
+for it. To make a release again, run the Release workflow by hand from its tag, under **Use
+workflow from**. See [decision 0019](docs/decisions/0019-releases-and-the-installer.md),
+[decision 0022](docs/decisions/0022-macos-release.md) and
+[decision 0027](docs/decisions/0027-changelog-fragments.md).
 
 The build jobs hold no secrets. A separate macOS job signs the app with a Developer ID and
 notarizes the disk image, so no code the build ran can reach the certificate. It reads these

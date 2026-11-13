@@ -1,7 +1,8 @@
 # Publishes a GitHub release when a version tag is pushed, such as v1.0.0. The tag must match the
 # version in CMakeLists.txt's project() call. The release holds the Windows installer and the
 # macOS disk image, which both include a catalog built from QuestPorts at release time, and that
-# catalog on its own (decisions 0019 and 0022).
+# catalog on its own (decisions 0019 and 0022). Its notes are the version's section of
+# CHANGELOG.md, followed by GitHub's generated list of pull requests (decision 0027).
 #
 # The build jobs hold no secrets. A separate macOS job signs the finished bundle with the
 # Developer ID and notarizes the disk image, with the secrets of the environment "release"; it
@@ -39,6 +40,19 @@ jobs:
             exit 1
           fi
           echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      # The release notes start with the version's section of CHANGELOG.md (decision 0027). Taking
+      # it here fails the release before the builds when the section is missing.
+      - name: Take the release notes from the changelog
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: python3 tools/release-changelog.py notes "$VERSION" > release-notes.md
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-notes
+          path: release-notes.md
+          if-no-files-found: error
 
   catalog:
     name: Build the catalog
@@ -244,8 +258,8 @@ jobs:
     permissions:
       contents: write
     steps:
-      # Every artifact of the run, including the unsigned bundle and the catalog; only the installer
-      # and the disk image go up. The catalog ships inside them, not as a file of its own.
+      # Every artifact of the run, including the unsigned bundle, the catalog and the release notes;
+      # only the installer and the disk image go up. The catalog ships inside them, not as a file of its own.
       - uses: actions/download-artifact@v4
         with:
           merge-multiple: true
@@ -263,6 +277,7 @@ jobs:
             [ -f "dist/$file" ] || { echo "::error::The release has no $file."; exit 1; }
           done
           if ! gh release view "$TAG" > /dev/null 2>&1; then
-            gh release create "$TAG" --verify-tag --title "QGPUI $VERSION" --generate-notes
+            # gh puts the changelog's section first, and GitHub's list of merged pull requests below it.
+            gh release create "$TAG" --verify-tag --title "QGPUI $VERSION"               --notes-file dist/release-notes.md --generate-notes
           fi
           gh release upload "$TAG" "dist/qgpui-$VERSION-setup.exe" "dist/qgpui-$VERSION-macos.dmg" --clobber

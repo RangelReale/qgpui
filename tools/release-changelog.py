@@ -13,6 +13,10 @@ them into CHANGELOG.md. See docs/decisions/0027-changelog-fragments.md.
         new section "## [X.Y.Z]" of CHANGELOG.md, adds its link and deletes
         the fragments. It does not change the version in CMakeLists.txt.
 
+    python3 tools/release-changelog.py notes X.Y.Z
+        Prints the section of X.Y.Z, for the release's notes. Fails if
+        CHANGELOG.md has no section for it. release.yml runs it.
+
 A fragment holds one or more headings of Keep a Changelog, such as
 "### Fixed", each with its entries. An entry is a line that starts with "- ",
 and the lines under it that are indented. Fragments are read in the order of
@@ -126,9 +130,7 @@ def add_links(lines, version):
     moves the Unreleased link to compare from the new version."""
     previous = next((m.group(1) for m in (re.match(r"^## \[(\d+\.\d+\.\d+)\]", line) for line in lines)
                      if m and m.group(1) != version), None)
-    # The repository's address, from any version link.
-    base = next((m.group(1) for m in (re.match(r"^\[[^\]]+\]: (https://\S+?)/(?:compare|releases|tree)/", line)
-                                      for line in lines) if m), None)
+    base = repository_url(lines)
     if previous is None or base is None:
         raise FragmentError("CHANGELOG.md has no earlier version with a link, to compare the new one with.")
     link = f"[{version}]: {base}/compare/v{previous}...v{version}"
@@ -185,10 +187,47 @@ def release(version, date):
     return 0
 
 
+def repository_url(lines):
+    """The repository's address, from any version link of the changelog."""
+    return next((m.group(1) for m in (re.match(r"^\[[^\]]+\]: (https://\S+?)/(?:compare|releases|tree)/", line)
+                                      for line in lines) if m), None)
+
+
+def notes(version):
+    """Prints the section of a version, for the release's notes: without its
+    heading and the link lines, and with links to files of the repository
+    pointing at the version's tag, since a release page does not resolve
+    relative links."""
+    lines = read_text(CHANGELOG).split("\n")
+    start = next((i for i, line in enumerate(lines)
+                  if line == f"## [{version}]" or line.startswith(f"## [{version}] ")), None)
+    if start is None:
+        raise FragmentError(f"CHANGELOG.md has no section for {version}. Run \"release {version}\" first.")
+    end = next((i for i in range(start + 1, len(lines)) if lines[i].startswith("## [")), len(lines))
+    body = strip_blank([line for line in lines[start + 1:end] if not re.match(r"^\[[^\]]+\]: ", line)])
+    if not body:
+        raise FragmentError(f"CHANGELOG.md has an empty section for {version}.")
+    base = repository_url(lines)
+    if base is None:
+        raise FragmentError("CHANGELOG.md has no version link to take the repository's address from.")
+
+    def absolute(match):
+        target = match.group(1)
+        if re.match(r"^(?:[a-z]+:|#|/)", target):
+            return match.group(0)
+        return f"]({base}/blob/v{version}/{target})"
+
+    body = [re.sub(r"\]\(([^)\s]+)\)", absolute, line) for line in body]
+    sys.stdout.write("\n".join(body) + "\n")
+    return 0
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("check", help="check every fragment")
+    notes_command = commands.add_parser("notes", help="print a version's section, for its release notes")
+    notes_command.add_argument("version", help="the version, X.Y.Z")
     release_command = commands.add_parser("release", help="move the fragments into CHANGELOG.md")
     release_command.add_argument("version", help="the new version, X.Y.Z")
     release_command.add_argument("--date", default=datetime.date.today().isoformat(),
@@ -197,6 +236,8 @@ def main():
     try:
         if arguments.command == "check":
             return check()
+        if arguments.command == "notes":
+            return notes(arguments.version)
         return release(arguments.version, arguments.date)
     except FragmentError as error:
         print(f"error: {error}", file=sys.stderr)

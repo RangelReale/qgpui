@@ -18,4 +18,4 @@ CI checks every fragment. To check them locally, from the repository's root:
 python3 tools/release-changelog.py check
 ```
 
-A release runs `python3 tools/release-changelog.py release X.Y.Z`, which moves the fragments into a section for the new version of `CHANGELOG.md` and deletes them. It does not change the version in `CMakeLists.txt`.
+A release runs `python3 tools/release-changelog.py release X.Y.Z`, which moves the fragments into a section for the new version of `CHANGELOG.md` and deletes them. It does not change the version in `CMakeLists.txt`. The release workflow then publishes the version's section as the start of the release notes, so write entries for the people who read them.
