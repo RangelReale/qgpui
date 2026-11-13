@@ -7,6 +7,8 @@ target_link_libraries(adbmanager PRIVATE qgpui::qadb Qt6::Widgets)
 
 # Copy the Qt runtime next to the executable so it runs from the build tree.
 if(WIN32)
+    # One windeployqt at a time (see the top-level CMakeLists.txt).
+    set_target_properties(adbmanager PROPERTIES JOB_POOL_LINK qgpui_deploy)
     add_custom_command(TARGET adbmanager POST_BUILD
         COMMAND $<TARGET_FILE:Qt6::windeployqt> --no-translations --no-compiler-runtime
                 --no-system-d3d-compiler --no-opengl-sw $<TARGET_FILE:adbmanager>

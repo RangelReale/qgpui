@@ -69,6 +69,11 @@ endif()
 
 include(cmake/QgpuiTesting.cmake)
 
+# qgpui and adbmanager run windeployqt after linking, and both copy Qt into the same bin folder.
+# With Ninja the two could run at once and fail on the same file ("Cannot create a file when that
+# file already exists"). Their links, which include those steps, share a pool of one.
+set_property(GLOBAL APPEND PROPERTY JOB_POOLS qgpui_deploy=1)
+
 if(QGPUI_BUILD_TESTS)
     enable_testing()
 endif()
