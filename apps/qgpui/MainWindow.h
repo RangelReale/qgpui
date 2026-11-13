@@ -42,6 +42,8 @@ public:
     // when the file cannot be read.
     bool loadCatalog(const QString& path);
 
+    HeadsetConnection* headset() const { return m_headset; }
+
 private:
     void openCatalog();
     void reloadCatalog();

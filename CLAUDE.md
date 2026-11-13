@@ -85,7 +85,7 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   links: the game's QuestPorts page, and the Steam and GOG pages of each `pc-install` input
   (GOG through its product API). `CoverCache` downloads covers through a
   `QNetworkDiskCache` and fits them into one size. `HeadsetConnection` starts the adb server
-  if needed, tracks devices and remembers the current headset (`QSettings`) by adb serial and by
+  if needed (and `main()` stops it on exit if QGPUI started it, decision 0021), tracks devices and remembers the current headset (`QSettings`) by adb serial and by
   hardware serial, so that it is found again when its wireless debugging port changes. It also holds
   the toolbar's keep-awake button (an eye icon next to Headset), which keeps the current headset's
   screen on until turned off and overrides the install setting. The toolbar's

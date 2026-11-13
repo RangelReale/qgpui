@@ -43,3 +43,4 @@ Why QGPUI is built this way. One numbered record per decision, with its context 
 | [0018](decisions/0018-the-name-qgpui.md) | The app is named QGPUI; files and settings use qgpui |
 | [0019](decisions/0019-releases-and-the-installer.md) | Release from a version tag, with a catalog in the installer |
 | [0020](decisions/0020-macos-build.md) | How QGPUI builds and ships on macOS |
+| [0021](decisions/0021-stopping-the-adb-server.md) | QGPUI stops the adb server it started |

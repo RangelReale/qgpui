@@ -15,6 +15,7 @@
 #include <QSettings>
 
 #include <algorithm>
+#include <memory>
 
 namespace {
 
@@ -98,12 +99,24 @@ void HeadsetConnection::startServer()
     qadb::Reply* reply = m_startReply;
     connect(reply, &qadb::Reply::finished, this, [this, reply] {
         // On success the tracker connects on its next retry.
-        if (!reply->isSuccess())
+        if (reply->isSuccess())
+            m_startedServer = true;
+        else
             m_adbError = reply->errorString();
         reply->deleteLater();
         emit statusChanged();
     });
     emit statusChanged();
+}
+
+void HeadsetConnection::stopServerIfStarted(int waitMsecs)
+{
+    if (!m_startedServer)
+        return;
+    m_startedServer = false;
+    m_tracker->stop();
+    std::unique_ptr<qadb::Reply> reply(m_client->killServer());
+    reply->waitForFinished(waitMsecs);
 }
 
 bool HeadsetConnection::isAdbRunning() const

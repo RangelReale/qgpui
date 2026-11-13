@@ -44,7 +44,8 @@ time.
   The installer includes one.
 - The PC games, ROMs or other files that the ports you want need.
 
-QGPUI comes with its own copy of adb, so you do not need the Android SDK.
+QGPUI comes with its own copy of adb, so you do not need the Android SDK. If no adb is running
+when QGPUI starts, QGPUI starts its own and stops it again when you quit.
 
 ## Getting QGPUI
 
