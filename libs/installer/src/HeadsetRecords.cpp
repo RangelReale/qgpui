@@ -31,6 +31,19 @@ HeadsetRecordSync::HeadsetRecordSync(qadb::Client* client, const QString& adbSer
 void HeadsetRecordSync::run(const std::optional<InstallRecord>& added)
 {
     m_added = added;
+    m_removed.clear();
+    start();
+}
+
+void HeadsetRecordSync::remove(const QString& packageName)
+{
+    m_added.reset();
+    m_removed = packageName;
+    start();
+}
+
+void HeadsetRecordSync::start()
+{
     m_records.clear();
     auto* stat = m_client->stat(m_adbSerial, remotePath());
     connect(stat, &qadb::Reply::finished, this, [this, stat] {
@@ -75,6 +88,8 @@ void HeadsetRecordSync::merge(const QList<InstallRecord>& onHeadset)
         merged.removeIf([this](const InstallRecord& r) { return r.packageName == m_added->packageName; });
         merged = mergeRecords(merged, {*m_added});
     }
+    if (!m_removed.isEmpty())
+        merged.removeIf([this](const InstallRecord& r) { return r.packageName == m_removed; });
     m_records = merged;
 
     const QByteArray before = headsetRecordsJson(m_hardwareSerial, mergeRecords(onHeadset, {}));
@@ -97,6 +112,8 @@ void HeadsetRecordSync::merge(const QList<InstallRecord>& onHeadset)
 
 void HeadsetRecordSync::saveCache()
 {
+    if (!m_removed.isEmpty())
+        m_cache->remove(m_hardwareSerial, m_removed);
     for (const InstallRecord& r : std::as_const(m_records))
         m_cache->set(m_hardwareSerial, r);
     QString error;
