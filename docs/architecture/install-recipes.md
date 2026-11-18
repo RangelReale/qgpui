@@ -27,7 +27,7 @@ The format is a first draft (`version: 1`). It was designed from five sample gam
 | `virtua-cop-vr` | Arcade ROM sets, kept zipped |
 | `supertuxkart-vr` | The APK only |
 
-Every game in the payload now has a recipe: 114 `automatic`, 22 `guided` and 9 `manual`. They were written from the guides and the GitHub releases, checked against the schema, and resolved to a real APK where the source is GitHub. Most have not been installed on a headset. Each recipe's `notes` list what its author was unsure of.
+There are 148 recipes: 117 `automatic`, 22 `guided` and 9 `manual`. On 2026-11-18 the payload listed 151 games; bioshock-infinite-quest, lunacid-vr and virtuatennis3-vr, which the user builds on the PC, have no recipe yet. The recipes were written from the guides and the GitHub releases, checked against the schema, and resolved to a real APK where the source is GitHub. Most have not been installed on a headset. Each recipe's `notes` list what its author was unsure of.
 
 Recipes used to carry a `status` (`draft`, `reviewed` or `tested`). It was removed on 2026-11-12: the game dialog no longer shows it, and the two tested recipes are recorded below.
 

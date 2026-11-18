@@ -1,0 +1,53 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgpui-install-recipe",
+  "version": 1,
+  "slug": "futurama-quest",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.futuramarecomp.app",
+    "version": "v0.1.2",
+    "targetPath": "/sdcard/Futurama/"
+  },
+  "requirements": {
+    "freeSpaceMB": 8000
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "mrchrisster/futurama-quest",
+      "asset": "^futurama-quest-v.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "iso",
+      "kind": "file",
+      "label": "Futurama Xbox disc image",
+      "required": false,
+      "group": "disc",
+      "help": "An ISO of your own Xbox Futurama disc, NTSC-U or PAL. QGPUI names it futurama.iso on the headset, so its name on the PC does not matter. Give this or the extracted files.",
+      "extensions": [".iso"],
+      "checkedByApp": true
+    },
+    {
+      "id": "extracted",
+      "kind": "pc-install",
+      "label": "Futurama Xbox disc, extracted",
+      "required": false,
+      "group": "disc",
+      "help": "The extracted files of your own Xbox Futurama disc, NTSC-U or PAL: the folder that holds default.xbe. Give this or the disc image.",
+      "detect": ["default.xbe"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    { "do": "push", "input": "iso", "map": [{ "to": "/sdcard/Futurama/futurama.iso" }] },
+    { "do": "push", "input": "extracted", "map": [{ "to": "/sdcard/Futurama/" }] },
+    {
+      "do": "tell",
+      "text": "Open Futurama from Library > Unknown Sources. If it asks for access to files, allow it. The game appears as a 3D window over passthrough, not in first person."
+    }
+  ],
+  "notes": "Quest 3 only; early release with frequent updates (v0.1.0 to v0.1.5 in four days). The app looks for an ISO whose name matches *futurama*.iso, or for default.xbe, in /sdcard/Futurama/, /sdcard/Download/ or its Android/data files folder; the push renames the ISO so any name works. The guide says nothing about a storage permission, so no grant step; the tell covers a prompt. freeSpaceMB assumes an untrimmed Redump ISO (about 7.3 GB); a trimmed xiso is much smaller."
+}

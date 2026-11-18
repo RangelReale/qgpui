@@ -1,0 +1,46 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgpui-install-recipe",
+  "version": 1,
+  "slug": "silent-scope-vr",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.vrlightgunhub.silentscope",
+    "version": "v0.0.68",
+    "targetPath": "/sdcard/Download/"
+  },
+  "requirements": {
+    "freeSpaceMB": 3000
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "vr4all-standalone/silent-scope-vr",
+      "asset": "^silent-scope-vr-quest\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "disc",
+      "kind": "file",
+      "label": "Silent Scope (USA) Dreamcast disc",
+      "help": "The four files of your own Silent Scope disc, Dreamcast USA version V1.000: the .cue and its three Track .bin files, unzipped. The arcade ROM set and Silent Scope 2 do not work.",
+      "names": [
+        "Silent Scope (USA).cue",
+        "Silent Scope (USA) (Track 1).bin",
+        "Silent Scope (USA) (Track 2).bin",
+        "Silent Scope (USA) (Track 3).bin"
+      ],
+      "checkedByApp": true
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    { "do": "push", "input": "disc", "map": [{ "to": "/sdcard/Download/" }] },
+    {
+      "do": "tell",
+      "text": "Open Silent Scope - VR4ALL from Library > Unknown Sources. Choose Choose disc files and select the .cue and all three .bin files in Download together. The app copies and checks them; afterwards you can delete them from Download."
+    }
+  ],
+  "notes": "Quest 3 and 3S; experimental. The app imports the disc through its own file picker and keeps a working copy, so the files take space twice until the user deletes the ones in Download; freeSpaceMB counts both. The release also holds silent-scope-vr-source.zip and SHA256SUMS.txt; the asset pattern takes only the APK. The guide gives no disc hashes."
+}
