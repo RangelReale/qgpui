@@ -4,6 +4,13 @@ All notable changes to QGPUI are documented in this file. The format is based on
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-11-18
+
+### Added
+
+- Install recipes for three new QuestPorts games: Futurama Quest, Silent Hill VR and Silent Scope VR.
+  QGPUI installs each one and copies your own disc files to the headset.
+
 ## [1.2.0] - 2026-11-13
 
 ### Added
@@ -40,7 +47,8 @@ All notable changes to QGPUI are documented in this file. The format is based on
 - The first release: browse the QuestPorts games as covers, sort and filter them, find the files each port needs in Steam, GOG and the files folder, and install and update games on a Meta Quest over USB or Wi-Fi.
 - A Windows installer and a signed and notarized macOS disk image, each with a catalog.
 
-[Unreleased]: https://github.com/RangelReale/qgpui/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/RangelReale/qgpui/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/RangelReale/qgpui/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/RangelReale/qgpui/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/RangelReale/qgpui/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/RangelReale/qgpui/releases/tag/v1.0.0
