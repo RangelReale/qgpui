@@ -1,0 +1,60 @@
+{
+  "$schema": "../recipe.schema.json",
+  "format": "qgpui-install-recipe",
+  "version": 1,
+  "slug": "silent-hill-vr",
+  "support": "automatic",
+  "checkedAgainst": {
+    "packageName": "com.sh1vr.quest",
+    "version": "v0.1",
+    "targetPath": "/sdcard/SilentHillVR/gamedata/"
+  },
+  "requirements": {
+    "freeSpaceMB": 1000
+  },
+  "apks": [
+    {
+      "source": "github",
+      "repo": "renangto15722-arch/Silent-Hill-1999-Quest-Standalone",
+      "prerelease": true,
+      "asset": "^SilentHillVR-Quest-.*\\.apk$"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "disc",
+      "kind": "file",
+      "label": "Silent Hill (USA) disc",
+      "help": "The .bin and .cue of your own Silent Hill disc, USA version (SLUS-00707), named exactly Silent Hill (USA).bin and Silent Hill (USA).cue. Unzip them first.",
+      "names": ["Silent Hill (USA).cue", "Silent Hill (USA).bin"]
+    }
+  ],
+  "steps": [
+    { "do": "install-apk" },
+    {
+      "do": "push",
+      "input": "disc",
+      "map": [
+        { "from": "Silent Hill (USA).cue", "to": "/sdcard/SilentHillVR/gamedata/" },
+        { "from": "Silent Hill (USA).bin", "to": "/sdcard/SilentHillVR/gamedata/" }
+      ]
+    },
+    {
+      "do": "grant",
+      "appop": "MANAGE_EXTERNAL_STORAGE",
+      "why": "The game cannot read the disc without All files access, which the guide has the user allow on the first launch."
+    },
+    {
+      "do": "tell",
+      "text": "Open Silent Hill VR from Library > Unknown Sources. If it asks for All files access, allow it, then start the game again. Saves and logs stay in SilentHillVR after an uninstall."
+    }
+  ],
+  "otherWays": [
+    {
+      "label": "Install-SilentHillVR.bat",
+      "url": "https://github.com/renangto15722-arch/Silent-Hill-1999-Quest-Standalone/releases/latest",
+      "help": "A Windows script in the release. Over USB it installs the APK, grants storage access and copies your disc files, fetching adb from Google if needed."
+    }
+  ],
+  "notes": "Quest 3; v0.1 is a pre-release and the only release, hence prerelease: true. The release also holds SilentHillVR-Quest-0.1-source.zip, which the asset pattern avoids. The optional HD texture pack (zipped, in gamedata/texturemods/) and HD maps (in gamedata/load/) are left out: steps cannot be optional per file, and their links are only in the project's README. The appop grant mirrors what the release's .bat does; untested on a headset."
+}
