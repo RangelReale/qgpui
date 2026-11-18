@@ -8,8 +8,6 @@
 #include <QStandardPaths>
 #include <QThread>
 
-#include <memory>
-
 #ifdef Q_OS_WIN
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
@@ -35,8 +33,9 @@ QString lockPath()
         .filePath(instanceName() + QStringLiteral(".lock"));
 }
 
-// Sends message to the running instance. It may still be starting, so keep trying for a while.
-void sendToRunningInstance(const QString& message)
+// Tells the running instance that QGPUI was started again. It may still be starting, so keep trying
+// for a while.
+void notifyRunningInstance()
 {
 #ifdef Q_OS_WIN
     // Windows lets only the foreground process bring a window to the front. This process was just
@@ -48,8 +47,6 @@ void sendToRunningInstance(const QString& message)
         QLocalSocket socket;
         socket.connectToServer(instanceName());
         if (socket.waitForConnected(500)) {
-            socket.write(message.toUtf8());
-            socket.waitForBytesWritten(1000);
             socket.disconnectFromServer();
             if (socket.state() != QLocalSocket::UnconnectedState)
                 socket.waitForDisconnected(1000);
@@ -71,11 +68,11 @@ SingleInstance::SingleInstance(QObject* parent)
 
 SingleInstance::~SingleInstance() = default;
 
-bool SingleInstance::claim(const QString& message)
+bool SingleInstance::claim()
 {
     if (!m_lock.tryLock(0)) {
         if (m_lock.error() == QLockFile::LockFailedError) {
-            sendToRunningInstance(message);
+            notifyRunningInstance();
             return false;
         }
         // The lock file cannot be written at all. Running twice is better than not running.
@@ -95,15 +92,12 @@ bool SingleInstance::claim(const QString& message)
 void SingleInstance::readConnection()
 {
     while (QLocalSocket* socket = m_server->nextPendingConnection()) {
-        // The other instance writes its message and disconnects; read it all once it has.
-        auto data = std::make_shared<QByteArray>();
-        const auto finish = [this, socket, data] {
-            data->append(socket->readAll());
+        // The other instance connects and disconnects; act once it has.
+        const auto finish = [this, socket] {
             socket->disconnect(this);
             socket->deleteLater();
-            emit activated(QString::fromUtf8(*data));
+            emit activated();
         };
-        connect(socket, &QLocalSocket::readyRead, socket, [socket, data] { data->append(socket->readAll()); });
         if (socket->state() == QLocalSocket::UnconnectedState)
             finish();
         else

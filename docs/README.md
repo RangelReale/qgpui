@@ -51,3 +51,4 @@ Why QGPUI is built this way. One numbered record per decision, with its context 
 | [0026](decisions/0026-uninstalling-a-game.md) | Uninstalling a game |
 | [0027](decisions/0027-changelog-fragments.md) | Changelog fragments and release notes |
 | [0028](decisions/0028-custom-games.md) | Custom games in the repository |
+| [0029](decisions/0029-only-the-shipped-catalog.md) | QGPUI reads only the catalog it shipped with |

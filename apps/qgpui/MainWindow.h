@@ -45,7 +45,6 @@ public:
     HeadsetConnection* headset() const { return m_headset; }
 
 private:
-    void openCatalog();
     void reloadCatalog();
     void createToolBar();
     // The second row: the site's filters, and Clear at the right end.

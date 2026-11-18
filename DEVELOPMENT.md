@@ -82,11 +82,10 @@ task catalog
 `local/questports-payload.json`. `task catalog` joins them with `data/recipes/` into
 `local/qgpui-catalog.json`.
 
-The app takes the catalog from its command line, or else the file opened last, or else
-`qgpui-catalog.json` in its data folder (`%APPDATA%\qgpui` on Windows,
-`~/Library/Application Support/qgpui/qgpui` on macOS), or else the one the installer put next to
-`qgpui.exe`. Development builds also look in `local/` in the repository, where the tool writes it
-by default.
+The app reads only the catalog the installer put next to `qgpui.exe` (on macOS, in the bundle's
+`Contents/Resources`). It has no Open Catalog and no catalog argument (decision 0029). When no
+catalog sits next to the app, development builds read `local/` in the repository, where the tool
+writes it by default.
 
 ## Tests
 
