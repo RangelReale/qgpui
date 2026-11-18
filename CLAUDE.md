@@ -108,8 +108,10 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   on the headset, asks first, runs `pm uninstall` and removes the record (decision 0026). Details shows two tabs: the port's `installation_guide` (Markdown, drawn by `GuideView` in the site's colours, with a workaround for Qt's importer putting a code block inside a list item) above its `troubleshooting_notes`, as on the port's page, and `planInstall`'s commands. File > Settings (`SettingsDialog`)
   holds the preferences: the files folder and keeping the headset awake during installs. The icons in `apps/qgpui/icons/` are temporary;
   `make-icon.ps1` draws them (Windows PowerShell). On macOS the app uses `icons/macos/` instead, 16 to 1024 pixels on Apple's icon grid, which `icons/macos/make-icons.sh` renders from `qgpui.svg` with `rsvg-convert`. `qgpui.rc` gives the .exe its icon. `SingleInstance`
-  keeps one QGPUI per user: a second start passes its catalog argument to the first, which comes to
-  the front, and quits (decision 0012).
+  keeps one QGPUI per user: a second start brings the first to the front and quits (decision 0012).
+  The app reads only the catalog it shipped with, next to `qgpui.exe` or in the bundle's
+  `Contents/Resources`, and a development build falls back to `local/`; there is no Open Catalog
+  and no catalog argument (decision 0029).
 - `cmake/`: shared CMake functions (`qgpui_add_qt_test`).
 - `packaging/windows/`: the Inno Setup script (`qgpui.iss`) and `build-installer.ps1`, which runs
   `cmake --install` into `dist/stage` (ignored by git) and builds `dist/qgpui-<version>-setup.exe`.

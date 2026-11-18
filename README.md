@@ -42,8 +42,6 @@ time.
 - A Meta Quest headset with developer mode turned on. Meta's
   [developer mode guide](https://developers.meta.com/horizon/documentation/native/android/mobile-device-setup/)
   explains how.
-- The QGPUI catalog file (`qgpui-catalog.json`), which lists the games and how to install them.
-  The installer includes one.
 - The PC games, ROMs or other files that the ports you want need.
 
 QGPUI comes with its own copy of adb, so you do not need the Android SDK. If no adb is running
@@ -64,9 +62,8 @@ To build QGPUI and its catalog from source, follow [DEVELOPMENT.md](DEVELOPMENT.
 
 ## Using QGPUI
 
-1. **Open the catalog.** Start QGPUI. It opens the catalog you used last, or the one in its data
-   folder (see below), or the one that came with the installer. Use File > Open Catalog to pick
-   another one.
+1. **Start QGPUI.** It shows the games in the catalog that came with it. Each new version brings
+   an up-to-date catalog, so update QGPUI to get new games.
 2. **Connect your headset.** Connect it with a USB cable and allow USB debugging in the headset.
    Click Headset on the toolbar, or the round indicator in the status bar, to see the headsets
    QGPUI found, pick one, or add one over Wi-Fi. The indicator turns green when a headset is
@@ -84,7 +81,7 @@ To build QGPUI and its catalog from source, follow [DEVELOPMENT.md](DEVELOPMENT.
 
 - Settings: the Windows registry, under `HKEY_CURRENT_USER\Software\qgpui`. On a Mac:
   `~/Library/Preferences/com.qgpui.qgpui.plist`.
-- The catalog and a copy of each headset's install records: `%APPDATA%\qgpui`. On a Mac:
+- A copy of each headset's install records: `%APPDATA%\qgpui`. On a Mac:
   `~/Library/Application Support/qgpui/qgpui`.
 - On each headset, the list of games QGPUI installed: `/sdcard/qgpui/installs.json`.
 

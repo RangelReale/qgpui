@@ -10,7 +10,6 @@
 #include <QFileInfo>
 #include <QIcon>
 #include <QSettings>
-#include <QStandardPaths>
 
 namespace {
 
@@ -19,21 +18,11 @@ constexpr int kReleaseWaitMsecs = 2000;
 // How long QGPUI waits on exit for the adb server it started to stop.
 constexpr int kStopServerWaitMsecs = 2000;
 
-// Where to read the catalog when the command line names none: the file opened last, else
-// qgpui-catalog.json in the app's data folder, else the one the installer put next to qgpui.exe
-// (on macOS, in the bundle's Contents/Resources), else (in a development build) the repository's
-// local/ folder, where tools/questports-payload's build-catalog writes it.
-QString defaultCatalogPath()
+// The catalog QGPUI reads: the one the installer put next to qgpui.exe (on macOS, in the bundle's
+// Contents/Resources), else, in a development build, the repository's local/ folder, where
+// tools/questports-payload's build-catalog writes it. The user cannot pick another (decision 0029).
+QString catalogPath()
 {
-    const QString last = QSettings().value(QStringLiteral("catalogPath")).toString();
-    if (!last.isEmpty() && QFileInfo::exists(last))
-        return last;
-
-    const QString appData = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation))
-                                .filePath(QStringLiteral("qgpui-catalog.json"));
-    if (QFileInfo::exists(appData))
-        return appData;
-
 #ifdef Q_OS_MACOS
     // Contents/MacOS may hold only code, so the catalog sits in Contents/Resources (decision 0022).
     const QString shipped = QDir(QCoreApplication::applicationDirPath())
@@ -42,13 +31,11 @@ QString defaultCatalogPath()
     const QString shipped =
         QDir(QCoreApplication::applicationDirPath()).filePath(QStringLiteral("qgpui-catalog.json"));
 #endif
-    if (QFileInfo::exists(shipped))
-        return shipped;
 #ifdef QGPUI_DEV_CATALOG
-    if (QFileInfo::exists(QStringLiteral(QGPUI_DEV_CATALOG)))
+    if (!QFileInfo::exists(shipped) && QFileInfo::exists(QStringLiteral(QGPUI_DEV_CATALOG)))
         return QStringLiteral(QGPUI_DEV_CATALOG);
 #endif
-    return appData;
+    return shipped;
 }
 
 QIcon appIcon()
@@ -80,27 +67,22 @@ int main(int argc, char* argv[])
     parser.setApplicationDescription(QStringLiteral("Meta Quest game ports manager."));
     parser.addHelpOption();
     parser.addVersionOption();
-    parser.addPositionalArgument(QStringLiteral("catalog"), QStringLiteral("QGPUI catalog file to open."),
-                                 QStringLiteral("[catalog]"));
     parser.process(app);
 
-    const QStringList args = parser.positionalArguments();
-    // The other instance has another working folder, so pass it an absolute path.
-    const QString catalogArg = args.isEmpty() ? QString() : QFileInfo(args.first()).absoluteFilePath();
-
     SingleInstance instance;
-    if (!instance.claim(catalogArg))
+    if (!instance.claim())
         return 0;
 
+    // QGPUI 1.3 and older remembered the catalog opened last, which could hide a newer installed one.
+    QSettings().remove(QStringLiteral("catalogPath"));
+
     MainWindow window;
-    window.loadCatalog(catalogArg.isEmpty() ? defaultCatalogPath() : catalogArg);
+    window.loadCatalog(catalogPath());
     window.resize(1400, 900);
     window.show();
 
-    // A second start brings this window to the front, and opens the catalog it was given.
-    QObject::connect(&instance, &SingleInstance::activated, &window, [&window](const QString& catalog) {
-        if (!catalog.isEmpty())
-            window.loadCatalog(catalog);
+    // A second start brings this window to the front.
+    QObject::connect(&instance, &SingleInstance::activated, &window, [&window] {
         if (window.isMinimized())
             window.showNormal();
         window.show();

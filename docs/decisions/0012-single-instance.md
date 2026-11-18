@@ -1,6 +1,6 @@
 # 0012: one qgp per user
 
-- Status: accepted
+- Status: accepted; passing a catalog argument is removed by [0029](0029-only-the-shipped-catalog.md)
 - Date: 2026-11-12
 
 ## Context

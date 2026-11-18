@@ -24,7 +24,6 @@
 #include <QComboBox>
 #include <QDesktopServices>
 #include <QDir>
-#include <QFileDialog>
 #include <QFileInfo>
 #include <QJsonArray>
 #include <QKeyEvent>
@@ -186,7 +185,6 @@ MainWindow::MainWindow(QWidget* parent)
     setCentralWidget(m_view);
 
     QMenu* file = menuBar()->addMenu(tr("&File"));
-    file->addAction(tr("&Open Catalog..."), QKeySequence::Open, this, &MainWindow::openCatalog);
     file->addAction(tr("&Reload"), QKeySequence::Refresh, this, &MainWindow::reloadCatalog);
 #ifndef Q_OS_MACOS
     // On macOS, Qt moves Settings and Exit into the application menu, as "Settings…" and "Quit QGPUI".
@@ -651,7 +649,6 @@ bool MainWindow::loadCatalog(const QString& path)
     filterChanged();
     findLibraries();
     findHeadsetGames();
-    QSettings().setValue(QStringLiteral("catalogPath"), QFileInfo(path).absoluteFilePath());
     const qsizetype count = catalog->games.size();
     const auto recipes = std::count_if(catalog->games.cbegin(), catalog->games.cend(),
                                        [](const questports::Game& game) { return game.hasRecipe(); });
@@ -661,16 +658,6 @@ bool MainWindow::loadCatalog(const QString& path)
                                QDir::toNativeSeparators(QFileInfo(path).absoluteFilePath()),
                                QLocale().toString(catalog->generatedAt.toLocalTime(), QLocale::ShortFormat)));
     return true;
-}
-
-void MainWindow::openCatalog()
-{
-    const QString path = QFileDialog::getOpenFileName(this, tr("Open Catalog"), QFileInfo(m_catalogPath).path(),
-                                                      tr("QGPUI catalog (*.json);;All files (*)"));
-    if (path.isEmpty())
-        return;
-    if (!loadCatalog(path))
-        QMessageBox::warning(this, tr("Open Catalog"), m_status->text());
 }
 
 void MainWindow::reloadCatalog()
