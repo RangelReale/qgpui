@@ -4,6 +4,19 @@ All notable changes to QGPUI are documented in this file. The format is based on
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-11-18
+
+### Changed
+
+- QGPUI always shows the catalog that came with it, so an update brings its new games straight
+  away. File > Open Catalog is gone, and QGPUI no longer opens a catalog given on its command line
+  or one placed in its data folder.
+
+### Fixed
+
+- After an update, QGPUI could keep showing an older catalog that it had opened before, and miss
+  the games the new version added.
+
 ## [1.3.0] - 2026-11-18
 
 ### Added
@@ -47,7 +60,8 @@ All notable changes to QGPUI are documented in this file. The format is based on
 - The first release: browse the QuestPorts games as covers, sort and filter them, find the files each port needs in Steam, GOG and the files folder, and install and update games on a Meta Quest over USB or Wi-Fi.
 - A Windows installer and a signed and notarized macOS disk image, each with a catalog.
 
-[Unreleased]: https://github.com/RangelReale/qgpui/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/RangelReale/qgpui/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/RangelReale/qgpui/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/RangelReale/qgpui/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/RangelReale/qgpui/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/RangelReale/qgpui/compare/v1.0.0...v1.1.0
