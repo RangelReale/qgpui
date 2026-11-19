@@ -13,6 +13,7 @@
 namespace gamestores {
 class GameFinder;
 }
+class InputResolver;
 
 // What QGPUI knows about a game beyond the catalog: which stores sell the PC game its recipe needs,
 // which of them have it on this PC, and whether the game is on the current headset.
@@ -28,6 +29,7 @@ enum class GameFlag {
     UpdateAvailable = 0x100, // On the headset, and its APK has a newer release.
     SoldOnEpic = 0x200,     // A pc-install input lists Epic in its stores.
     InEpicLibrary = 0x400,  // The input was found in an Epic Games Launcher install on this PC.
+    FilesReady = 0x800,     // The recipe needs files from the user, and this PC has them all.
 };
 Q_DECLARE_FLAGS(GameFlags, GameFlag)
 Q_DECLARE_OPERATORS_FOR_FLAGS(GameFlags)
@@ -44,6 +46,10 @@ GameFlags selfContained(const questports::Game& game);
 GameFlags storesSelling(const questports::Game& game);
 // InSteamLibrary, InGogLibrary and InEpicLibrary, from the stores of this PC.
 GameFlags storesHolding(const questports::Game& game, const gamestores::GameFinder& finder);
+// FilesReady when QGPUI could install the game without asking for anything: its recipe reads, names
+// APKs that QGPUI downloads itself (no manual source) and has inputs, and the resolver finds every
+// required input and one of each group. No flags for a recipe without inputs.
+GameFlags filesReady(const questports::Game& game, const InputResolver& resolver);
 // OnHeadset with InstalledByQgpui or InstalledOutsideQgpui, from the headset's third-party packages and
 // the packages its install records list. No flags when the game's package is not installed.
 GameFlags headsetFlags(const questports::Game& game, const QSet<QString>& installed, const QSet<QString>& recorded);

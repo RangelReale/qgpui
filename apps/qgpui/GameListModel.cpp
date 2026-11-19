@@ -106,6 +106,8 @@ QVariant GameListModel::data(const QModelIndex& index, int role) const
             lines.append(tr("In your GOG library"));
         if (flags & GameFlag::InEpicLibrary)
             lines.append(tr("In your Epic library"));
+        if (flags & GameFlag::FilesReady)
+            lines.append(tr("All the files it needs are on this PC"));
         return lines.join(u'\n');
     }
     case FlagsRole:
