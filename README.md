@@ -15,7 +15,8 @@ QGPUI is at an early stage. Expect missing games and rough edges.
 
 - **Browse the games.** The main window shows every QuestPorts game as a cover. Sort them, and
   filter by source platform, store, headset model, VR style, type, developer and port status.
-  "Self-contained only" shows the games that need nothing you have to supply.
+  "Self-contained only" shows the games that need nothing you have to supply. Installed > Ready to
+  install shows the games that need your files when QGPUI has found them all.
 - **Find your files.** QGPUI looks for the PC games a port needs in your Steam, GOG and Epic libraries.
   It looks for everything else in your files folder, one folder per game. You can also pick a file
   or folder by hand.

@@ -75,7 +75,9 @@ copy `local/questports-payload.json` and run `task catalog`, or run `task payloa
   `resolved.originPlatform`), Store (sold on Steam, GOG or Epic, from the recipe's `stores`, or in
   this PC's Steam, GOG or Epic library, from `GameFinder` when the catalog loads), Installed (on the current
   headset, installed by QGPUI, installed outside QGPUI, i.e. with no entry in the headset's install
-  records, not on it, or with an update) and Self-contained only (an automatic recipe, no manual
+  records, not on it, or with an update, or ready to install: the recipe has inputs and
+  `InputResolver` finds them all on this PC, `GameFlag::FilesReady`, computed by `findLibraries` when
+  the catalog loads, after Settings and when a game dialog closes) and Self-contained only (an automatic recipe, no manual
   APK, and every required input and each input group free). A second row holds the site's own
   filters: Runs on (`resolved.headsets`), VR style (`resolved.vrStyle`), No PC needed
   (`resolved.noPcInstall`), Type, Developer and Status (from the port row).

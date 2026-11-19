@@ -6,6 +6,7 @@
 #include "GameSortModel.h"
 #include "HeadsetConnection.h"
 #include "HeadsetDialog.h"
+#include "InputResolver.h"
 #include "SettingsDialog.h"
 #include "GameFlags.h"
 
@@ -193,7 +194,9 @@ MainWindow::MainWindow(QWidget* parent)
 #endif
     QAction* settings = file->addAction(tr("&Settings..."), QKeySequence::Preferences, this, [this] {
         SettingsDialog dialog(this);
-        dialog.exec();
+        // The files folder may have changed.
+        if (dialog.exec() == QDialog::Accepted)
+            findLibraries();
     });
     settings->setMenuRole(QAction::PreferencesRole);
 #ifndef Q_OS_MACOS
@@ -323,7 +326,11 @@ void MainWindow::createToolBar()
     m_onHeadset->addItem(tr("Installed outside QGPUI"), int(GameFilter::Headset::InstalledOutsideQgpui));
     m_onHeadset->addItem(tr("Not on my headset"), int(GameFilter::Headset::NotOnHeadset));
     m_onHeadset->addItem(tr("Update available"), int(GameFilter::Headset::UpdateAvailable));
+    m_onHeadset->addItem(tr("Ready to install"), int(GameFilter::Headset::FilesReady));
     m_onHeadset->setItemData(5, tr("Games on your headset with a newer release than the one installed"), Qt::ToolTipRole);
+    m_onHeadset->setItemData(6, tr("Games that need your files, such as a PC game, when this PC has them all. "
+                                   "Games that need no files are left out."),
+                             Qt::ToolTipRole);
 
     m_selfContained->setToolTip(tr("Games QGPUI installs on its own: no files from you, or only files anyone can get for free"));
     toolBar->addWidget(m_selfContained);
@@ -482,15 +489,17 @@ void MainWindow::filterChanged()
     m_view->scrollToTop();
 }
 
-// Reads this PC's Steam, GOG and Epic libraries and marks the games whose PC game they hold.
+// Reads this PC's Steam, GOG and Epic libraries and the files folder, and marks the games whose PC
+// game they hold and those whose files are all there.
 void MainWindow::findLibraries()
 {
     QStringList warnings;
     const gamestores::GameFinder finder = gamestores::GameFinder::forThisPc(&warnings);
+    const InputResolver resolver(&finder, GameDialog::filesRoot());
     QHash<QString, GameFlags> holding;
     for (int row = 0; row < m_model->rowCount(); ++row) {
         const questports::Game& game = m_model->game(row);
-        if (const GameFlags flags = storesHolding(game, finder))
+        if (const GameFlags flags = storesHolding(game, finder) | filesReady(game, resolver))
             holding.insert(game.slug, flags);
     }
     m_model->setLibraries(holding);
@@ -698,6 +707,8 @@ void MainWindow::openGameAt(const QModelIndex& index)
     if (!dialog) {
         dialog = new GameDialog(game, m_headset, m_covers, m_releases, m_sourceLabels.value(game.originPlatform), this);
         connect(dialog, &GameDialog::installFinished, this, &MainWindow::findHeadsetGames);
+        // The user may have added files for the game, or picked them, while it was open.
+        connect(dialog, &QDialog::finished, this, &MainWindow::findLibraries);
         dialog->show();
     }
     dialog->raise();

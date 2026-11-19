@@ -81,6 +81,8 @@ bool GameSortModel::accepts(const questports::Game& game, GameFlags flags) const
         return !flags.testFlag(GameFlag::OnHeadset);
     case GameFilter::Headset::UpdateAvailable:
         return flags.testFlag(GameFlag::UpdateAvailable);
+    case GameFilter::Headset::FilesReady:
+        return flags.testFlag(GameFlag::FilesReady);
     }
     return true;
 }

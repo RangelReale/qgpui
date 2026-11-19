@@ -28,8 +28,8 @@ public:
     const questports::Game& game(int row) const { return m_games.at(row); }
     using QAbstractListModel::flags; // Item flags; the overload below returns the game's flags.
     GameFlags flags(int row) const;
-    // Sets what this PC's Steam and GOG libraries hold, by slug, next to what the recipes say
-    // the stores sell.
+    // Sets what this PC holds, by slug: the Steam, GOG and Epic library flags and FilesReady, next
+    // to what the recipes say the stores sell.
     void setLibraries(const QHash<QString, GameFlags>& holding);
     // Sets which games are on the current headset, by slug. Empty when there is no headset.
     void setHeadset(const QHash<QString, GameFlags>& onHeadset);

@@ -1,5 +1,7 @@
 #include "GameFlags.h"
 
+#include "InputResolver.h"
+
 #include "gamestores/Finder.h"
 
 #include <QHash>
@@ -74,6 +76,21 @@ GameFlags selfContained(const questports::Game& game)
             return {};
     }
     return GameFlag::SelfContained;
+}
+
+GameFlags filesReady(const questports::Game& game, const InputResolver& resolver)
+{
+    if (!game.hasRecipe())
+        return {};
+    const auto recipe = installer::parseRecipe(game.recipe, gamePackageName(game));
+    if (!recipe || recipe->apks.isEmpty() || recipe->inputs.isEmpty())
+        return {};
+    // A manual APK is one the user picks when the install starts, so it is never found ahead.
+    for (const installer::ApkSource& apk : recipe->apks) {
+        if (apk.kind == installer::ApkSource::Kind::Manual)
+            return {};
+    }
+    return InputResolver::ready(resolver.resolve(game.slug, *recipe)) ? GameFlags(GameFlag::FilesReady) : GameFlags();
 }
 
 GameFlags storesSelling(const questports::Game& game)
